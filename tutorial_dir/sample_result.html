@@ -1,0 +1,414 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+    <html>
+    <head>
+    <title>miRDeep2</title>
+    <!-- CSS code -->
+    <style type="text/css">
+    body{
+      font: .75em Arial,sans-serif; 
+      background: #FFFFFF; 
+      color: #333333
+    }
+div#
+container
+{
+  width: 1000px; 
+  margin:0 auto
+  }
+h1{ 
+  color: #F60; 
+  margin: 1em 0 0; 
+    letter-spacing: -2px; 
+}
+p{
+  margin: 0 0 1.7em; 
+}
+
+a.tooltip{
+	text-decoration:none;
+	color:black;
+        font-weight:bold;
+}
+
+a.tooltip:hover
+{    position: relative;               
+     background: transparent;          
+	
+}  
+
+a.tooltip span  
+{    position: absolute;               
+     visibility: hidden;               
+
+     width: 20em;                      
+     top: 1.5em;             
+     background: #ffffdd;                    
+}
+
+a.tooltip:hover span  
+{    visibility: visible;   }
+
+
+a.tooltip2{
+	text-decoration:none;
+	color:black;
+        font-weight:bold;
+}
+
+a.tooltip2:hover
+{    position: relative;               
+     background: transparent;          
+	
+}  
+
+a.tooltip2 span  
+{    position: absolute;               
+     visibility: hidden;               
+
+     width: 20em;                      
+     top: 1.5em;left:-10em;             
+     background: #ffffdd;                    
+}
+
+a.tooltip2:hover span  
+{    visibility: visible;   }
+
+
+a.tooltip3{
+	text-decoration:none;
+	color:black;
+        font-weight:bold;
+}
+
+a.tooltip3:hover
+{    position: relative;               
+     background: transparent;          
+	
+}  
+
+a.tooltip3 span  
+{    position: absolute;               
+     visibility: hidden;               
+
+     width: 20em;                      
+     top: 3em;             
+     background: #ffffdd;                    
+}
+
+a.tooltip3:hover span  
+{    visibility: visible;   }
+
+
+a.tooltip4{
+	text-decoration:none;
+	color:black;
+        font-weight:bold;
+}
+
+a.tooltip4:hover
+{    position: relative;               
+     background: transparent;          
+	
+}  
+
+a.tooltip4 span  
+{    position: absolute;               
+     visibility: hidden;               
+
+     width: 20em;                      
+     top:3em;left:-10em;             
+     background: #ffffdd;                    
+}
+
+a.tooltip4:hover span  
+{    visibility: visible;   }
+
+
+
+</style>
+        
+    </head>
+    <body>
+    <table border="0" width="100%">
+    <colgroup>
+    <col width="5*">
+    <col width="5*">
+    </colgroup>
+    <tr>
+    <td><font face="Times New Roman" size="8">
+    <b><a href="http://www.mdc-berlin.de/en/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/index.html" target="_blank" style="color:Black;text-decoration:none" title="miRDeep2 homepage at MDC-Berlin" >miRDeep2</a></b>
+    
+    
+    <br>
+    <br>
+    </font></td>
+    <td> <a href="http://www.mdc-berlin.de/en/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/index.html" target="_blank" >
+    <img src="http://www.mdc-berlin.de/de/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/mirdeep.jpg" style="border-style: none" name="precursor miRNA" title="miRDeep2 homepage at MDC-Berlin" align=right alt="miRDeep home"/></a></td>
+    </tr>
+    <tr>&#160</tr>
+    <tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+<tr>&#160</tr>
+    </table>
+
+<font face="Times New Roman" size="4">
+<b>Survey of miRDeep2 performance for score cut-offs -10 to 10</b>
+
+<font face="Times New Roman" size="3">
+<table border="1" >
+<tr><th></th><TH colspan="3">novel miRNAs</th><th colspan="3">miRBase miRNAs</th><th></th><th></th></tr>
+<th><a href="http://www.nature.com/nbt/journal/v26/n4/abs/nbt1394.html" target="blank" class="tooltip">miRDeep2 score<span>for details on how the log-odds score is calculated, see Friedlander et al., Nature Biotechnology, 2008.</span></a></th></a>
+
+<th><a href="#" class="tooltip">novel miRNAs predicted by miRDeep2<span>novel miRNA hairpins are here defined by not having any of the reference mature miRNAs mapping perfectly (full length, no mismatches). The numbers show how many novel miRNA hairpins have a score equal to or exceeding the cut-off.</span></a></th>
+
+<th><a href="#" class="tooltip">novel miRNAs, estimated false positives<span>number of false positive miRNA hairpins predicted at this cut-off, as estimated by the miRDeep2 controls (see Friedlander et al., Nature Biotechnology, 2008). Mean and standard deviation is estimated from 100 rounds of permuted controls.</span></a></th>
+
+<th><a href="#" class="tooltip">novel miRNAs, estimated true positives<span>the number of true positive miRNA hairpins is estimated as t = total novel miRNAs - false positive novel miRNAs. The percentage of the predicted novel miRNAs that is estimated to be true positives is calculated as p = t / total novel miRNAs. The number of false positives is estimated from 100 rounds of permuted controls. In each of the 100 rounds, t and p are calculated, generating mean and standard deviation of t and p. The variable p can be used as an estimation of miRDeep2 positive predictive value at the score cut-off. </span></a></th>
+
+<th><a href="#" class="tooltip">known miRNAs in species<span>number of reference mature miRNAs for that species given as input to miRDeep2.</span></a></th>
+
+<th><a href="#" class="tooltip">known miRNAs in data<span>number of reference mature miRNAs for that species that map perfectly (full length, no mismatches) to one or more of precursor candidates that have been excised from the genome by miRDeep2.</span></a></th>
+
+<th><a href="#" class="tooltip">known miRNAs, detected by miRDeep2<span>number of reference mature miRNAs for that species that map perfectly (full length, no mismatches) to one or more of predicted miRNA hairpins that have a score equal to or exceeding the cut-off. The percentage of reference mature miRNAs in data that is detected by miRDeep2 is calculated as s = reference mature miRNAs detected / reference mature miRNAs in data. s can be used as an estimation of miRDeep2 sensitivity at the score cut-off.</span></a></th>
+
+<th><a href="#" class="tooltip">estimated signal-to-noise<span>for the given score cut-off, the signal-to-noise ratio is estimated as r = total miRNA hairpins reported / mean estimated false positive miRNA hairpins over 100 rounds of permuted controls.</span></a></th>
+
+<th><a href="#" class="tooltip2">excision gearing<span>this is the minimum read stack height required for excising a potential miRNA precursor from the genome in this analysis.</span></a></th>
+
+<tr><td>10<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>6 (86%)<td>5.8<td>1
+</td></tr>
+<tr><td>9<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>6 (86%)<td>5.8<td>1
+</td></tr>
+<tr><td>8<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>6 (86%)<td>5.8<td>1
+</td></tr>
+<tr><td>7<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>6 (86%)<td>5.8<td>1
+</td></tr>
+<tr><td>6<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>6 (86%)<td>5.8<td>1
+</td></tr>
+<tr><td>5<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>4.3<td>1
+</td></tr>
+<tr><td>4<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>4.3<td>1
+</td></tr>
+<tr><td>3<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>4.3<td>1
+</td></tr>
+<tr><td>2<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>4.3<td>1
+</td></tr>
+<tr><td>1<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>3.8<td>1
+</td></tr>
+<tr><td>0<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>2.2<td>1
+</td></tr>
+<tr bgcolor=silver><td>-1<td>0<td>0 &#177 0<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>2.5<td>1
+</td></tr>
+<tr bgcolor=silver><td>-2<td>0<td>1 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.9<td>1
+</td></tr>
+<tr bgcolor=silver><td>-3<td>0<td>1 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.9<td>1
+</td></tr>
+<tr bgcolor=silver><td>-4<td>0<td>1 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.8<td>1
+</td></tr>
+<tr bgcolor=silver><td>-5<td>0<td>1 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.7<td>1
+</td></tr>
+<tr bgcolor=silver><td>-6<td>0<td>2 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.5<td>1
+</td></tr>
+<tr bgcolor=silver><td>-7<td>0<td>2 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.5<td>1
+</td></tr>
+<tr bgcolor=silver><td>-8<td>0<td>2 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.5<td>1
+</td></tr>
+<tr bgcolor=silver><td>-9<td>0<td>2 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.5<td>1
+</td></tr>
+<tr bgcolor=silver><td>-10<td>0<td>2 &#177 1<td>0 &#177 0 (0 &#177 0%)<td>176<td>7<td>7 (100%)<td>1.5<td>1
+</td></tr>
+</table><br><br>
+ <br><h2>no novel miRNAs detected</h2><br>  
+<br>
+    <br>
+    <br><h2>miRBase miRNAs in dataset</h2><br>
+    <font face="Times New Roman" size="2">
+    <table border="1">
+<th><a href="" class="tooltip3">tag id<span>this is a tag id assigned by miRDeep2. The first part of the id designates the chromosome or genome contig on which the miRNA gene is located. The second part is a running number that is added to avoid identical ids. The running number is incremented by one for each potential miRNA precursor that is excised from the genome. Clicking this field will display a pdf of the structure, read signature and score breakdown of the miRNA.</span></a></th>
+
+<th><a href="" class="tooltip3">miRDeep2 score<span>the log-odds score assigned to the hairpin by miRDeep2</span></a></th>
+
+<th><a href="" class="tooltip3">estimated probability that the miRNA is a true positive<span>the estimated probability that a predicted miRNA with a score of this or higher is a true positive. To see exactly how this probability is estimated, mouse over the 'novel miRNAs, true positives' in the table at the top of the webpage. For miRBase miRNAs, this reflects the support that the data at hand lends to the miRNA.</span></a></th>
+
+<th><a href="" class="tooltip3">rfam alert<span>this field indicates if the miRNA hairpin has sequence similarity to reference rRNAs or tRNAs. Warnings in this field should overrule the estimated probability that a reported miRNA is a true positive (previous field).</span></a></th>
+
+<th><a href="" class="tooltip3">total read count<span>this is the sum of read counts for the mature, loop and star miRNAs.</span></a></th>
+
+<th><a href="" class="tooltip3">mature read count<span>this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the consensus mature miRNA, including 2 nts upstream and 5 nts downstream.</span></a></th>
+
+<th><a href="" class="tooltip3">loop read count<span>this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the consensus miRNA loop, including 2 nts upstream and 5 nts downstream.</span></a></th>
+
+<th><a href="" class="tooltip3">star read count<span>this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the consensus star miRNA, including 2 nts upstream and 5 nts downstream.</span></a></th>
+
+<th><a href="http://www.ncbi.nlm.nih.gov/entrez/utils/fref.fcgi?PrId=3051&itool=AbstractPlus-def&uid=15217813&nlmid=9808944&db=pubmed&url=http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=15217813" target="blank"class="tooltip3">significant randfold p-value<span>this field indicates if the estimated randfold p-value of the miRNA hairpin is equal to or lower than 0.05 (see Bonnet et al., Bioinformatics, 2004).</span></a></th>
+
+<th><a href="" class="tooltip3">miRBase miRNA<span>this field displays the ids of any reference mature miRNAs for the species that map perfectly (full length, no mismatches) to the reported miRNA hairpin. If this is the case, the reported miRNA hairpin is assigned as a known miRNA. If not, it is assigned as a novel miRNA. If more than one reference mature miRNA map to the miRNA hairpin, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs for the species is displayed. Clicking this field will link to miRBase.</span></a></th>
+
+<th><a href="" class="tooltip3">example miRBase miRNA with the same seed<span>this field displays the ids of any reference mature miRNAs from related species that have a seed sequence identical to that of the reported mature miRNA. The seed is here defined as nucleotides 2-8 from the 5' end of the mature miRNA. If more than one reference mature miRNA have identical seed, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs from related species is displayed.</span></a></th>
+
+<th><a href="" class="tooltip3">UCSC browser<span>if a species name was input to miRDeep2, then clicking this field will initiate a UCSC blat search of the consensus precursor sequence against the reference genome.</span></a></th>
+
+<th><a href="" class="tooltip3">NCBI blastn<span>clicking this field will initiate a NCBI blastn search of the consensus precursor sequence against the nr/nt database (non-redundant collection of all NCBI nucleotide sequences).</span></a></th>
+
+<th><a href="" class="tooltip3">consensus mature sequence<span>this is the consensus mature miRNA sequence as inferred from the deep sequencing reads.</span></a></th>
+
+<th><a href="" class="tooltip3">consensus star sequence<span>this is the consensus star miRNA sequence as inferred from the deep sequencing reads.</span></a></th>
+
+<th><a href="" class="tooltip4">consensus precursor sequence<span>this is the consensus precursor miRNA sequence as inferred from the deep sequencing reads. Note that this is the inferred Drosha hairpin product, and therefore does not include substantial flanking genomic sequence as does most miRBase precursors.</span></a></th>
+
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_6.pdf">chrII:11534525-11540624_6</a></td>
+			<td nowrap="nowrap">1.0e+5
+</td>
+            <td>-</td>
+            <td></td>
+			<td>200394</td>
+			<td>200381</td>
+            <td>0</td>
+            <td>13</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-35" target="_blank"> cel-miR-35</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=ugcugguuucuuccacagugguacuuuccauuagaacuaucaccggguggaaacuagcagu"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=ugcugguuucuuccacagugguacuuuccauuagaacuaucaccggguggaaacuagcagu&JOB_TITLE=chrII:11534525-11540624_6&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccggguggaaacuagcagu</td>
+            <td>ugcugguuucuuccacaguggua</td>
+            <td>ugcugguuucuuccacagugguacuuuccauuagaacuaucaccggguggaaacuagcagu</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_10.pdf">chrII:11534525-11540624_10</a></td>
+			<td nowrap="nowrap">6.1e+4
+</td>
+            <td>-</td>
+            <td></td>
+			<td>119663</td>
+			<td>119545</td>
+            <td>0</td>
+            <td>118</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-37" target="_blank"> cel-miR-37</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=uguggguguccguugcggugcuacauucucuaaucuguaucaccgggugaacacuugcagu"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=uguggguguccguugcggugcuacauucucuaaucuguaucaccgggugaacacuugcagu&JOB_TITLE=chrII:11534525-11540624_10&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccgggugaacacuugcagu</td>
+            <td>uguggguguccguugcggugcua</td>
+            <td>uguggguguccguugcggugcuacauucucuaaucuguaucaccgggugaacacuugcagu</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_16.pdf">chrII:11534525-11540624_16</a></td>
+			<td nowrap="nowrap">1.7e+4
+</td>
+            <td>-</td>
+            <td></td>
+			<td>33350</td>
+			<td>33300</td>
+            <td>0</td>
+            <td>50</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-40" target="_blank"> cel-miR-40</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=aguggauguaugccaugaugauaagauaucagaaauccuaucaccggguguacaucagcuaa"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=aguggauguaugccaugaugauaagauaucagaaauccuaucaccggguguacaucagcuaa&JOB_TITLE=chrII:11534525-11540624_16&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccggguguacaucagcuaa</td>
+            <td>aguggauguaugccaugaugaua</td>
+            <td>aguggauguaugccaugaugauaagauaucagaaauccuaucaccggguguacaucagcuaa</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_8.pdf">chrII:11534525-11540624_8</a></td>
+			<td nowrap="nowrap">7.4e+3
+</td>
+            <td>-</td>
+            <td></td>
+			<td>14668</td>
+			<td>14617</td>
+            <td>0</td>
+            <td>51</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-36" target="_blank"> cel-miR-36</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=cgccaauuuucgcuucagugcuagaccauccaaagugucuaucaccgggugaaaauucgcaug"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=cgccaauuuucgcuucagugcuagaccauccaaagugucuaucaccgggugaaaauucgcaug&JOB_TITLE=chrII:11534525-11540624_8&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccgggugaaaauucgcaug</td>
+            <td>cgccaauuuucgcuucagugcua</td>
+            <td>cgccaauuuucgcuucagugcuagaccauccaaagugucuaucaccgggugaaaauucgcaug</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_14.pdf">chrII:11534525-11540624_14</a></td>
+			<td nowrap="nowrap">1.9e+3
+</td>
+            <td>-</td>
+            <td></td>
+			<td>3872</td>
+			<td>3014</td>
+            <td>1</td>
+            <td>857</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-39" target="_blank"> cel-miR-39</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=agcugauuucgucuugguaauaagcucgucauugagauuaucaccggguguaaaucagcuug"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=agcugauuucgucuugguaauaagcucgucauugagauuaucaccggguguaaaucagcuug&JOB_TITLE=chrII:11534525-11540624_14&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccggguguaaaucagcuug</td>
+            <td>agcugauuucgucuugguaaua</td>
+            <td>agcugauuucgucuugguaauaagcucgucauugagauuaucaccggguguaaaucagcuug</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_18.pdf">chrII:11534525-11540624_18</a></td>
+			<td nowrap="nowrap">8.4e+1
+</td>
+            <td>-</td>
+            <td></td>
+			<td>164</td>
+			<td>68</td>
+            <td>9</td>
+            <td>87</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-41" target="_blank"> cel-miR-41</a></td>
+			<td nowrap="nowrap"></td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=ggugguuuuucucugcagugauagauacuucuaacaacucgcuaucaccgggugaaaaaucaccua"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=ggugguuuuucucugcagugauagauacuucuaacaacucgcuaucaccgggugaaaaaucaccua&JOB_TITLE=chrII:11534525-11540624_18&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ggugguuuuucucugcagugaua</td>
+            <td>ucaccgggugaaaaaucaccua</td>
+            <td>ggugguuuuucucugcagugauagauacuucuaacaacucgcuaucaccgggugaaaaaucaccua</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_12.pdf">chrII:11534525-11540624_12</a></td>
+			<td nowrap="nowrap">5.5</td>
+            <td>-</td>
+            <td></td>
+			<td>2140</td>
+			<td>2132</td>
+            <td>8</td>
+            <td>0</td>
+            <td>yes</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-38" target="_blank"> cel-miR-38</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=uccgguuuuuuccguggugauaacgcauccaaaagucucuaucaccgggagaaaaacuggagu"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=uccgguuuuuuccguggugauaacgcauccaaaagucucuaucaccgggagaaaaacuggagu&JOB_TITLE=chrII:11534525-11540624_12&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccgggagaaaaacuggagu</td>
+            <td>uccgguuuuuuccguggugaua</td>
+            <td>uccgguuuuuuccguggugauaacgcauccaaaagucucuaucaccgggagaaaaacuggagu</td>
+			</tr>
+		<tr><td><a href="file:///pdfs/chrII:11534525-11540624_11.pdf">chrII:11534525-11540624_11</a></td>
+			<td nowrap="nowrap">-0.2</td>
+            <td>-</td>
+            <td></td>
+			<td>119546</td>
+			<td>119545</td>
+            <td>1</td>
+            <td>0</td>
+            <td>no</td>
+			<td nowrap="nowrap"><a href="http://www.mirbase.org/cgi-bin/query.pl?terms=cel-miR-37" target="_blank"> cel-miR-37</a></td>
+			<td nowrap="nowrap">cbr-miR-35</td>
+            <td><a href="http://genome.ucsc.edu/cgi-bin/hgBlat?org=C. elegans&type=BLAT's guess&userSeq=ucaccgggugaacacuugcagugguccucgugguuucucugugagccagguccuguuccgguuuuuuccguggugaua"  target="_blank">blat</a></td>
+            <td><a href=http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=ucaccgggugaacacuugcagugguccucgugguuucucugugagccagguccuguuccgguuuuuuccguggugaua&JOB_TITLE=chrII:11534525-11540624_11&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.  target="_blank">blast</a></td>
+            <td>ucaccgggugaacacuugcagu</td>
+            <td>uguuccgguuuuuuccguggugaua</td>
+            <td>ucaccgggugaacacuugcagugguccucgugguuucucugugagccagguccuguuccgguuuuuuccguggugaua</td>
+			</tr>
+</table></font></table>
+</body>
+</html>

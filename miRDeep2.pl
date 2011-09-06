@@ -805,15 +805,15 @@ sub output_results{
     if($file_mature_ref_this_species !~ /none/i){
 		
         if($options{'q'}){
-            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'} -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -g $sc -y $time $sort_by_sample";
+            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'} -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample";
         }else{
-            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -r ${scripts}Rfam_for_miRDeep.fa -g $sc -y $time  $sort_by_sample";
+            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time  $sort_by_sample";
         }
     }else{
         if($options{'q'}){
-            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'}  -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -g $sc -y $time $sort_by_sample";
+            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'}  -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample";
         }else{
-            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -g $sc -s $dir/survey.csv -c -e -r ${scripts}Rfam_for_miRDeep.fa -y $time $sort_by_sample";
+            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -v $sc -s $dir/survey.csv -c -e -r ${scripts}Rfam_for_miRDeep.fa -y $time $sort_by_sample";
         }
     }
 

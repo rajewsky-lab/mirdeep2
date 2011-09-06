@@ -63,13 +63,20 @@ if($options{a}){
     
 #    system("cat $dir/reads_vs_precursors.arf $dir/mature_vs_precursors.arf > $dir/signature_unsorted.arf");
     #Sortarf("$dir/signature_unsorted.arf");
-	system("sort -k6 $dir/signature_unsorted.arf > $outfile");
+	presort("$dir/signature_unsorted.arf");
+	system("sort -nk1 $dir/signature_unsorted.arf.tmp > $dir/signature_unsorted.arf.tmp2");
+	system("cut -f2-14 $dir/signature_unsorted.arf.tmp2 > $outfile");
+#	system("sort -V -k6 $dir/signature_unsorted.arf > $outfile");
+	
 
 }else{
 
     if($options{b}){print STDERR "sorting rows\n";}
 	#Sortarf("$dir/reads_vs_precursors.arf");
-	system("sort -k6 $dir/reads_vs_precursors.arf > $outfile");
+	presort("$dir/reads_vs_precursors.arf");
+	system("sort -nk1 $dir/reads_vs_precursors.arf.tmp > $dir/reads_vs_precursors.arf.tmp2");
+	system("cut -f2-f14 $dir/reads_vs_precursors.arf.tmp2 > $outfile");
+#	system("sort -V -k6 $dir/reads_vs_precursors.arf > $outfile");
 }
 
 
@@ -87,6 +94,28 @@ if($options{b}){print STDERR "signature file prepared\n\n";}
 ##                                                        ##
 ############################################################
 ############################################################
+
+sub presort{
+	my $file=shift;
+	open IK,"$file" or die "no arf file given\n";
+	open IKT,">$file.tmp" or die "tmp file could not be opened\n";
+	
+	my %index=();
+	my $count=0;
+	my @l;
+
+	while(<IK>){
+		@l=split();
+		if(not $index{$l[5]}){
+			$count++;
+			$index{$l[5]}=$count;
+		}
+		print IKT "$index{$l[5]}\t$_";
+	}
+	close IK;
+	close IKT;
+}
+
 
 sub Sortarf {
 	my $file=shift;

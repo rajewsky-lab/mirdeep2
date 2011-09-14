@@ -57,10 +57,7 @@ if($options{'u'}){
     die "\n";
 }
 
-
-if(not $options{'p'} or not $options{'m'} or not $options{'r'} ){
-    print STDERR "
-usage:
+my $usage="usage:
   \tperl quantifier.pl [options] -p precursor.fa -m mature.fa -r reads.fa -s star.fa -t species -y [timestamp] -d [pdfs] -o [sort] -k [stringent] -c config.txt -g [number of mismatches in reads vs precursor mappings]
 
 [options]
@@ -91,9 +88,34 @@ usage:
   \t-j           do not create an output.mrd file and pdfs if specified\n
   \t-w           considers the whole precursor as the 'mature sequence'
 \n";
-exit;
 
+if(not $options{'p'} or not $options{'r'}){
+    die $usage;
 }
+
+if(not $options{'w'} and not $options{'m'}){
+    die $usage;
+}
+if($options{'w'}){
+    $options{'m'}="$options{'p'}.dummy";
+    open IN,"$options{'p'}";
+    open OUT,">$options{'p'}.dummy";
+    while(<IN>){
+      if(/>/){print OUT;
+      }else{
+        print OUT substr($_,0,18),"\n";
+      }
+    }
+    close IN;
+    close OUT;
+
+    $options{'e'}=0;
+    $options{'f'}=0;
+}
+
+
+
+
 if($options{'t'}){
   $species = $options{'t'};
 }
@@ -120,7 +142,8 @@ if(not $options{'o'}){
 
 
 my ( $name0, $path0, $extension0 ) = fileparse ( $options{'p'}, '\..*' );
-my ( $name1, $path1, $extension1 ) = fileparse ( $options{'m'}, '\..*' );
+my ( $name1, $path1, $extension1 );
+my ( $name1, $path1, $extension1 ) = fileparse ( $options{'m'}, '\..*' );# if(not defined $options{'w'});
 my ( $name2, $path2, $extension2 ) = fileparse ( $options{'r'}, '\..*' );
 my ( $name3, $path3, $extension3 );
 if($options{'s'}){
@@ -221,7 +244,8 @@ chdir($outdir);
 ##now analyze expression file
 print STDERR "analyzing data\n";
 ReadinPrecursorFile(); 
-ReadinMatureMappingFile(); 
+
+ReadinMatureMappingFile();
 
 if($options{'s'}){
 	ReadinStarMappingFile(); 

@@ -1,5 +1,5 @@
 Authors : Marc Friedlaender and Sebastian Mackowiak.
-Date:     07/20/2010
+Date:     11/01/2011
 
 This is miRDeep2 developed by Marc Friedlaender and Sebastian Mackowiak.
 miRDeep2 discovers active known or novel miRNAs from deep sequencing data (Solexa/Illumina, 454, ...).
@@ -295,18 +295,25 @@ mapper.pl reads.fa -c -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -s reads_colla
 
 
 
-Example use 5:
+Example use 5: (experimental)
 
 The user has already removed 3' adapters in color space and has mapped the reads against the genome
-using the BWA tool. The BWA output file is named reads_vs_genome.sam. Notice that the BWA output
-contains extra fields that are not required for SAM format. Our converter requires these fields and
-thus may not work with all types of SAM files. The user wishes to generate 'reads_collapsed.fa'
-and 'reads_vs_genome.arf' to input to miRDeep2:
+using bwa/bowtie resulting in a sam file. 
+Note that each genome locus to which a read was aligned has to occur
+in its own line. Otherwise only the first genome locus of each line will be taken!
+The mapping output file is named mapped.sam. 
+The user wishes to generate the files 'reads_collapsed.fa'
+and 'reads_collapsed_vs_genome.arf' as input to miRDeep2:
 
-bwa_sam_converter.pl reads_vs_genome.sam reads.fa reads_vs_genome.arf
+perl sam_reads_collapse.pl mapped.sam reads_collapsed.fa
+perl bwa_sam_converter.pl -i mapped.sam -t read_1_to_1.txt -o reads_collapsed_vs_genome.arf
 
-mapper.pl reads.fa -c -i -j -l 18 -m -s reads_collapsed.fa
 
+If read ids are already collapsed and in correct miRDeep2 format (eg. ">ABC_1_x10", see File Formats at the bottom or consult the online documentation)
+then the sam file just needs to be converted:
+
+
+perl bwa_sam_converter.pl -i mapped.sam -o reads_collapsed_vs_genome.arf
 
 
 Example use 6:
@@ -1129,3 +1136,32 @@ options:
 
 notes:
 -
+
+
+##########################
+File Formats
+.fa
+The fasta files that contain sequencing reads used by miRDeep2 are ordinary fasta files with a predefined identifier format. It comprises three values separated by underscore. The first value is a three letter code which is intended to be a tag for the sample a read is coming from. The second value is a running number that is used to make sure that identifiers are uniquely assigned to sequences from the same sample. The third value starts with and 'x' followed by an integer number that indicates the occurrence of a read sequence in a sample. The sequence in a fasta file that is supplied to miRDeep2 is not allowed to contain characters others than A, C, G, T and N. If the id line or the sequence line do not follow these conventions miRDeep2 will abort with a warning message. Example entry from a fasta file that can be supplied to miRDeep2
+
+>PAN_123456_x969696
+ATACAATCTACTGTCTTTCCT
+
+.arf
+The arf format is a proprietary file format generated and processed by miRDeep2. It contains information of reads mapped to a reference genome. Each line in such a file contains 13 columns. Example line:
+
+#1                    2     3    4     5                        6        7     8           9           10                       11   12   13
+PAN_123456_x969696    21    1    21    ATACAATCTACTGTCTTTCCT    chr22    21    46508682    46508702    ATACAATCTACTGTCTTTCCT    +    1    mmmmmmmmmmmmmmmmmmmmm
+
+1    read identifier
+2    length of read sequence
+3    start position in read sequence that is mapped
+4    end position in read sequence that is mapped
+5    read sequence
+6    identifier of the genome-part to which a read is mapped to. This is either a scaffold id or a chromosome name
+7    length of the genome sequence a read is mapped to
+8    start position in the genome where a read is mapped to
+9    end position in the genome where a read is mapped to
+10   genome sequence to which a read is mapped
+11   genome strand information. Plus means the read is aligned to the sense-strand of the genome. Minus means it is aligned to the antisense-strand of the genome.
+12   Number of mismatches in the read mapping
+13   Edit string that indicates matches by lowercase 'm' and mismatches by uppercase 'M' 

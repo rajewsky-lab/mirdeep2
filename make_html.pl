@@ -157,7 +157,7 @@ my $col_loop = 'orange';
 
 ## options
 my %options=();
-getopts("ug:v:f:ck:os:t:w:er:q:dx:zy:ab:p:",\%options);
+getopts("ug:v:f:ck:os:t:er:q:dx:zy:ab:p:V:",\%options);
 
 my %pres_coords;
 if($options{'p'}){
@@ -171,19 +171,8 @@ if($options{'x'} and not $options{'q'}){
     die "\nError:\n\toption -x can only be used together with option -q\n\n";
 }
 
-## determine pdf path when running on a cluster
-my $pdf_path;
-
-if($options{'w'}){
-    $pdf_path = "http://localhost:8001/links/miRDeep/$options{'w'}";
-}
-
-
 ## obtain current working directory
 my $cwd = cwd;
-if(not $options{'w'}){
-    $pdf_path = "file://$cwd";
-}
 
 ## order output by sample (give -o option) or just by beginning position (no -o option)
 
@@ -840,7 +829,7 @@ if(not $novelc){
 			#print STDERR "==$percentage\n";
 
             print HTML <<EOF;
-            <tr><td><a href="$pdf_path/pdfs_$time/$id.pdf">$hash{$id}{'oid'}</a></td>
+            <tr><td><a href="pdfs_$time/$id.pdf">$hash{$id}{'oid'}</a></td>
                 <td nowrap="nowrap">$science</td>
                 <td>$percentage</td>
                 <td>$hash{$id}{'rfam'}</td>
@@ -976,7 +965,7 @@ print HTML  "</tr>";
 				}
 				
 				print HTML <<EOF;
-				<tr><td><a href="$pdf_path/pdfs_$time/$id.pdf">$hash{$id}{'oid'}</a></td>
+				<tr><td><a href="pdfs_$time/$id.pdf">$hash{$id}{'oid'}</a></td>
                 <td nowrap="nowrap">$science</td>
                 <td>$percentage</td>
                 <td>$hash{$id}{'rfam'}</td>
@@ -1020,12 +1009,12 @@ print HTML  "</tr>";
 ##################################################################
 
 if($options{'k'}){
-    PrintHtmlTableHeader("miRBase miRNAs in dataset");
+    PrintHtmlTableHeader("mature miRBase miRNAs in dataset");
 
 
     if($csv){
         print CSV "\n\n\n";
-        PrintHtmlTableHeader("miRBase miRNAs in dataset",1);
+        PrintHtmlTableHeader("mature miRBase miRNAs in dataset",1);
     }
     
     
@@ -1118,7 +1107,7 @@ if($options{'k'}){
         
         
         print HTML <<EOF;
-		<tr><td><a href="$pdf_path/pdfs_$time/$id.pdf">$hash{$id}{'oid'}</a></td>
+		<tr><td><a href="pdfs_$time/$id.pdf">$hash{$id}{'oid'}</a></td>
 			<td nowrap="nowrap">$science</td>
             <td>$percentage</td>
             <td>$hash{$id}{'rfam'}</td>
@@ -1169,7 +1158,7 @@ if($options{'p'}){
 ##################################################################
 
 if($options{'q'}){
-    PrintHtmlTableHeader("miRBase miRNAs not detected by miRDeep2");
+    PrintHtmlTableHeader("mature miRBase miRNAs not detected by miRDeep2");
     PrintKnownnotfound();
 
 }else{
@@ -2605,6 +2594,7 @@ sub ReadInParameters(){
 	if(-f "mirdeep_runs/run_${time}/run_${time}_parameters"){
 		print HTML "<h2>Parameters used</h2>\n";
 		print HTML " <table border=\"0\">\n";
+		print HTML "<tr><td>miRDeep2 version</td><td>$options{'V'}</td></tr><br>\n";
 		open PAR,"<mirdeep_runs/run_${time}/run_${time}_parameters" or print STDERR "File with parameters could not be openend\n";
 		while(<PAR>){
 			if(/args\s+(\S.+)/){
@@ -2638,7 +2628,7 @@ sub ReadInParameters(){
 				print HTML "<tr><td>minimum read stack height</td><td>$1</td></tr>\n";
 				next;
 			}elsif(/option{b}\s*=\s*(\S+)/){
-				print HTML "<tr><td>minimum score for precursors shown in table</td><td>$1</td></tr>\n";
+				print HTML "<tr><td>minimum score for novel precursors shown in table</td><td>$1</td></tr>\n";
 				next;
 			}elsif(/option{c}\s*=\s*(\S+)/){
 				print HTML "<tr><td>randfold analysis disabled</td><td>yes</td></tr>\n";
@@ -2738,7 +2728,7 @@ $h{8}{1} = 'star read count';
 $h{8}{2} = 'this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the consensus star miRNA, including 2 nts upstream and 5 nts downstream.';
 $h{9}{1} = 'significant randfold p-value';
 $h{9}{2} = 'this field indicates if the estimated randfold p-value of the miRNA hairpin is equal to or lower than 0.05 (see Bonnet et al., Bioinformatics, 2004).';
-$h{10}{1} = 'miRBase miRNA';
+$h{10}{1} = 'mature miRBase miRNA';
 $h{10}{2} = 'this field displays the ids of any reference mature miRNAs for the species that map perfectly (full length, no mismatches) to the reported miRNA hairpin. If this is the case, the reported miRNA hairpin is assigned as a known miRNA. If not, it is assigned as a novel miRNA. If more than one reference mature miRNA map to the miRNA hairpin, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs for the species is displayed. Clicking this field will link to miRBase.';
 $h{11}{1} = 'example miRBase miRNA with the same seed';
 $h{11}{2} = 'this field displays the ids of any reference mature miRNAs from related species that have a seed sequence identical to that of the reported mature miRNA. The seed is here defined as nucleotides 2-8 from the 5\' end of the mature miRNA. If more than one reference mature miRNA have identical seed, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs from related species is displayed.';
@@ -2845,7 +2835,7 @@ for(sort {$a <=> $b} keys %h){
 
        }else{ 
  	    print HTML "$p1$h{$_}{1}$p2$h{$_}{2}$q\n\n";
-	   if($hl eq 'miRBase miRNAs in dataset' and $_ eq 4){
+	   if($hl =~ /miRBase miRNAs in dataset/ and $_ eq 4){
 	       print HTML "$p1$h{$_}{3}$p2$h{$_}{4}$q\n\n";
 	   }
 
@@ -3070,7 +3060,7 @@ sub PrintKnownnotfound{
                 print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
             }else{
 				if($hash_q{$id}{"freq_total"} > 0){
-					print HTML "<tr><td nowrap=\"nowrap\"><a href=\"$pdf_path/pdfs_$time/$id.pdf\">$id</a></td>\n";
+					print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>\n";
 				}else{
 					print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
 				}
@@ -3184,17 +3174,11 @@ print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}
 					print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
 				}else{
 					if($hash_q{$id}{"freq_total"} > 0){
-						print HTML "<tr><td nowrap=\"nowrap\"><a href=\"$pdf_path/pdfs_$time/$id.pdf\">$id</a></td>\n";
+						print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>\n";
 					}else{
 						print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
 					}
-					#print HTML "<tr><td nowrap=\"nowrap\"><a href=\"$pdf_path/pdfs_$time/$id.pdf\">$id</a></td>\n";
 				}
-				#    if($id =~ /548f/){
-#                 print $hash_q{$id}{"freq_total"},"\n";
-#                 print $hash_q{$id}{"freq_mature"},"\n";
-#                 print "$oid\t$id\n";
-#             }
                 print HTML <<EOF;
 				<td></td>
 					<td></td>
@@ -3246,7 +3230,7 @@ print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}
            if($options{'d'}){
                 print HTML "<tr><td nowrap=\"nowrap\">$_*</td>\n";
             }else{
-                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"$pdf_path/pdfs_$time/$_.pdf\">$_*</a></td>\n";
+                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$_.pdf\">$_*</a></td>\n";
             }
                 print HTML <<EOF;
 
@@ -3330,7 +3314,7 @@ EOF
   if($options{'d'}){
                 print HTML "<tr><td nowrap=\"nowrap\">$_</td>\n";
             }else{
-                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"$pdf_path/pdfs_$time/$_.pdf\">$_</a></td>\n";
+                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$_.pdf\">$_</a></td>\n";
             }
                 print HTML <<EOF;
 

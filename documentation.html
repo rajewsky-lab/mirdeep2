@@ -31,7 +31,7 @@ A spreadsheet and a html file with an overview of all detected miRNAs in the dee
 -c            disable randfold analysis
 
 -g int        maximum number of precursors to analyze when automatic excision gearing is used.
-              default=50.000, if set to -1 all precursors will be analyzed
+              default=50000, if set to -1 all precursors will be analyzed
 
 -t species    species being analyzed - this is used to link to the appropriate UCSC browser
 
@@ -131,13 +131,15 @@ The user wishes to parse a GEO file to fasta format and process it as in example
 <pre>geo2fasta.pl GSM.txt &gt; reads.fa
 mapper.pl reads.fa -c -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -s reads_collapsed.fa 
 </pre>
-<h4>Example use 5:</h4>
-The user has already removed 3' adapters in color space and has mapped the reads against the genome using the BWA tool. The BWA output file is named reads_vs_genome.sam. Notice that the BWA output contains extra fields that are not required for SAM format.
- Our converter requires these fields and thus may not work with all types of SAM files. The user wishes to generate 'reads_collapsed.fa' and 'reads_vs_genome.arf' to input to miRDeep2:
-<pre>bwa_sam_converter.pl reads_vs_genome.sam reads.fa reads_vs_genome.arf
-
-mapper.pl reads.fa -c -i -j -l 18 -m -s reads_collapsed.fa
-</pre>
+<h4>Example use 5 (experimental):</h4>
+The user has already removed 3' adapters in color space and has mapped the reads against the genome using bwa/bowtie resulting in a sam file. Note that each genome locus to which a read was aligned has to occur in its own line. Otherwise only the first genome locus of each line will be taken! The mapping output file is named mapped.sam. The user wishes to generate the files 'reads_collapsed.fa' and 'reads_collapsed_vs_genome.arf' as input to miRDeep2:
+<p></p>
+<pre>perl sam_reads_collapse.pl mapped.sam reads_collapsed.fa</pre>
+<pre>perl bwa_sam_converter.pl -i mapped.sam -t read_1_to_1.txt -o reads_collapsed_vs_genome.arf</pre>
+<p></p>
+If read ids are already collapsed and in correct miRDeep2 format (eg. &quot;&gt;ABC_1_x10&quot;, see file formats) then the sam file just needs to be converted:
+<p></p>
+<pre>perl bwa_sam_converter.pl -i mapped.sam -o reads_collapsed_vs_genome.arf</pre>
 <h4>Example use 6:</h4>
 The user has sequencing data from different samples e.g. different cell-types. A config.txt file has to be created in which each line designates file locations and a unique 3 letter code. For instance:
 <pre>sequencing_data_sample1.fa	sd1

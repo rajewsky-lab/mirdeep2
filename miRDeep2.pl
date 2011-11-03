@@ -13,13 +13,15 @@ use Term::ANSIColor;
 
 ## generate log file for run, all output will be printed to it
 
+my $version="2.0.0.3";    
+
 print "
 
 #####################################
 #                                   # 
 # miRDeep2                          # 
 #                                   #
-# last change: 07/07/2011           # 
+# last change: 11/01/2011           # 
 #                                   #
 #####################################
 
@@ -819,10 +821,8 @@ sub output_results{
 
     if($options{t}){$line.=" -t $options{t}";}
 
-    if($options{a}){$line.=" -v $options{a}"};
-
     print STDERR "$line 2> /dev/null\n\n";
-    my $ret_make_html=`$line 2> /dev/null`;
+    my $ret_make_html=`$line -V $version 2> /dev/null`;
     end();
     return;
 }

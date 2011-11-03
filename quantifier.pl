@@ -35,11 +35,15 @@ while(<DATA>){
 
 ## options
 my %options=();
-getopts("p:m:r:s:t:y:dokuc:nxg:e:f:vjw",\%options);
+getopts("p:m:r:s:t:y:dokuc:nxg:e:f:vjwT:",\%options);
 
 ## number of mismatches when mapping reads to precursors, default one
 my $mismatches = 1;
 $mismatches = $options{'g'} if(defined $options{'g'});
+
+
+my $threads=1;
+$threads = $options{'T'} if($options{'T'});
 
 my $upstream = 2;
 my $downstream = 5;
@@ -346,15 +350,15 @@ sub Mapping{
 ## map mature sequences against precursors
     print STDERR "mapping mature sequences against index\n";
 #    print STDERR "\nbowtie -f -v 0 -a --best --strata --norc miRNA_precursor $name1.converted ${name1}_mapped.bwt\n\n";
-    $err = `bowtie -f -v 0 -a --best --norc miRNA_precursor mature.converted ${name1}_mapped.bwt`;
+    $err = `bowtie -p $threads -f -v 0 -a --best --norc miRNA_precursor mature.converted ${name1}_mapped.bwt`;
     
 ## map reads against precursors
     print STDERR "mapping read sequences against index\n"; 
-    $err=`bowtie -f -v $mismatches -a --best --norc miRNA_precursor $name2.converted ${name2}_mapped.bwt`;
+    $err=`bowtie -p $threads -f -v $mismatches -a --best --norc miRNA_precursor $name2.converted ${name2}_mapped.bwt`;
     
     if($options{'s'}){
         print STDERR "mapping star sequences against index\n";
-        $err = `bowtie -f -v 0 -a --best --norc miRNA_precursor star.converted ${name3}_mapped.bwt`;
+        $err = `bowtie -p $threads -f -v 0 -a --best --norc miRNA_precursor star.converted ${name3}_mapped.bwt`;
     }
 } 
 
@@ -462,7 +466,6 @@ sub ConvertFastaFile{
 Please make sure that the given species argument matches the species id in your file $file or say none\n\n\n";
 	}
 }
-
 
 
 

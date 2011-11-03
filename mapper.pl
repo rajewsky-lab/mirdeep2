@@ -7,6 +7,7 @@ use File::Copy;
 use File::Path;
 use Term::ANSIColor;
 
+
 ####################################### USAGE ####################################################
 
 my $usage =
@@ -54,6 +55,8 @@ Other:
 
 -n              overwrite existing files
 
+-o              number of threads to use for bowtie 
+
 Example of use:
 
 $0 reads_seq.txt -a -h -i -j -k TCGTATGCCGTCTTCTGCTTGT  -l 18 -m -p h_sapiens_37_asm -s reads.fa -t reads_vs_genome.arf -v
@@ -91,7 +94,7 @@ foreach(@ARGV){
 check_line($line);
 
 my %options=();
-getopts("abcdeg:hijk:l:mp:qs:t:uvnr:",\%options);
+getopts("abcdeg:hijk:l:mp:qs:t:uvnr:o:",\%options);
 
 
 `rm $options{'s'}` if(defined $options{'s'} and -f $options{'s'} and $options{'n'});
@@ -103,6 +106,12 @@ check_options();
 
 
 #################################### GLOBAL VARIABLES ################################################
+my $threads=1;
+$threads=$options{'o'} if(exists $options{'o'});
+
+my $cores=`grep -ic ^processor /proc/cpuinfo`;
+if($threads > $cores){die "You specified more threads than you have cores on your workstation\n";}
+
 
 my $mismatches_seed=0;
 
@@ -345,7 +354,7 @@ sub map_reads{
 
 	print MAP "bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt\n\n";
 
-    my $ret_mapping=`bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt`;
+    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt`;
     
     my $file_mapping_latest="$dir/mappings.bwt";
     
@@ -432,6 +441,12 @@ sub check_options{
     
     my $files_output=0;
     
+	if(exists $options{'o'}){
+		if($options{'o'} =~ /\d+/ and $options{'o'} > 0){}else{
+
+		die "options{'o'} must be a positive integer\n";}
+	}
+
     if($options{s}){$files_output++;}
     
     if($options{t}){$files_output++;}

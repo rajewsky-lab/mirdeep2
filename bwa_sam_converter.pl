@@ -2,19 +2,44 @@
 
 use strict;
 
-my $usage = "\nError:\nperl bwa_sam_converter.pl mapped.sam reads.fa reads_vs_genome.arf multiple\n
-If output_reads.fa is not specified a file called reads_ready.fa is automatically created\n
-If mapped.arf is not specified a file called signature.arf is automatically created\n\n";
+use Getopt::Std;
+
+my $usage = "\nError:\nperl bwa_sam_converter.pl -i mapped.sam -t reads_1_1.txt -o reads_collapsed_vs_genome.arf multiple\n
+
+[options]:
+	-i    file with read mappings in sam format
+	-o    output file which will be in arf format
+	-t    file with mappings of original ids to miDeep2 ids
+
+";
 
 
-my $sam = shift or die $usage;
-my $rout = shift;
-my $arf = shift;
-my $multi =shift;
 
-open IN,"<$sam" or die "$usage";
+my %options;
+getopts("i:o:t:n:",\%options);
+
+
+my $sam = $options{'i'};
+my $arf=$options{'o'};
+my $r11=$options{'t'};
+my $multi=$options{'n'};
+
+
+my %r11;
 
 my @line;
+if($options{'t'}){
+open IN,"$r11";
+while(<IN>){
+    chomp;
+    @line=split(",");
+    $r11{$line[0]}=$line[1];
+}
+close IN;
+
+}
+
+open IN,"<$sam" or die "$usage";
 my @edit_string;
 my @ref_seq;
 my $num;
@@ -30,16 +55,10 @@ my @cigar;          ## the cigar string in sam file refers just to the read sequ
 my $print_read;     
 
 
-if(not $rout){
-    open OUT,">reads.fa" or die "cannot create file reads.fa\n";
-}else{
-    open OUT,">$rout" or die "cannot create file $rout.fa\n";
-}
-
 if(not $arf){
-    open ARF,">reads_vs_genome.arf" or die "cannot create file reads_vs_genome.arf\n";
+	die $usage;
 }else{
-    open ARF,">$arf" or die "cannot create file $arf\n";
+open ARF,">$arf" or die "cannot create file $arf\n";
 }
 
 my $count=0;
@@ -55,6 +74,8 @@ my $edit_s;
 my $cline;
 
 my %reads;
+my %seq;
+
 
 while(<IN>){
 	next if(/^\@/);
@@ -64,6 +85,11 @@ while(<IN>){
     $edit_str="";
     @line = split(/\t/);
 
+
+    
+    if($options{'t'}){
+       next if(not $r11{$line[0]});
+    }
     ## next if read is not aligned
     next if($line[1] eq 4);
 
@@ -180,30 +206,14 @@ while(<IN>){
         }
     }
 
-    if($reads{$line[0]} and $reads{$line[0]}{'mm'} > $edit ){
-        $reads{$line[0]}{'mm'} = $edit;
-        $reads{$line[0]}{'seq'} = $line[9];
-    }else{
-        $reads{$line[0]}{'mm'} = $edit;
-        $reads{$line[0]}{'seq'} = $line[9];
-    }
-
-    #print OUT $genome_seq;
-    #print OUT "\n";
-
-    if($line[0] !~ /_x\d+/){
-        $line[0].="_x1";
-    }
-
-    print ARF "$line[0]\t",length($line[9]),"\t1\t",length($line[9]),"\t",lc $line[9],"\t$line[2]\t",length($genome_seq),"\t$line[3]\t",($line[3] -1 + (length($genome_seq))),"\t",lc $genome_seq,"\t$strand\t$edit\t$edit_s\n";
+if($options{'t'}){
+    print ARF "$r11{$line[0]}\t",length($line[9]),"\t1\t",length($line[9]),"\t",lc $line[9],"\t$line[2]\t",length($genome_seq),"\t$line[3]\t",($line[3] -1 + (length($genome_seq))),"\t",lc $genome_seq,"\t$strand\t$edit\t$edit_s\n";
+}else{
+   print ARF "$line[0]\t",length($line[9]),"\t1\t",length($line[9]),"\t",lc $line[9],"\t$line[2]\t",length($genome_seq),"\t$line[3]\t",($line[3] -1 + (length($genome_seq))),"\t",lc $genome_seq,"\t$strand\t$edit\t$edit_s\n";
+}
 }  
 close IN;
 
-for(keys %reads){
-    print OUT ">$_\n$reads{$_}{'seq'}\n";
-}
-
-close OUT;
 
 
 sub FLAGinfo{

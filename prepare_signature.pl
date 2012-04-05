@@ -75,13 +75,13 @@ if($options{a}){
 	#Sortarf("$dir/reads_vs_precursors.arf");
 	presort("$dir/reads_vs_precursors.arf");
 	system("sort -nk1 $dir/reads_vs_precursors.arf.tmp > $dir/reads_vs_precursors.arf.tmp2");
-	system("cut -f2-f14 $dir/reads_vs_precursors.arf.tmp2 > $outfile");
+	system("cut -f2-14 $dir/reads_vs_precursors.arf.tmp2 > $outfile");
 #	system("sort -V -k6 $dir/reads_vs_precursors.arf > $outfile");
 }
 
 
 ## remove temporary directory
-rmtree($dir);
+#rmtree($dir);
 
 if($options{b}){print STDERR "signature file prepared\n\n";}
 

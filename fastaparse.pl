@@ -25,7 +25,6 @@ getopts("a:bs",\%options);
 my $running=0;
 
 
-
 parse_fasta($file_fasta);
 
 
@@ -72,12 +71,13 @@ sub resolve{
     my $lng=length $seq;
 
     if($options{a} and $lng<$options{a}){
-
+        print STDERR ">$id\n$seq\n";
 	return;
     }
 
     if($options{b} and not($seq=~/^(a|c|g|t|u|n)+$/i)){
 	
+        print STDERR ">$id\n$seq\n";
 	return;
     }
 

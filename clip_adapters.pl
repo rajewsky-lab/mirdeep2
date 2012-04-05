@@ -66,10 +66,13 @@ sub remove_adapter{
     
     my $seq_clipped;
     
-    if($seq=~/(\w{18,})$prefix/){
+    if($seq=~/(\w+)$prefix/){
 	
 	$seq_clipped=$1;
-	
+
+    }elsif(substr($seq,0,6) eq $prefix){
+	$seq_clipped=$prefix;
+
     }else{
 	
 	my $finish=0;

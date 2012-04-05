@@ -1,0 +1,24 @@
+Version 2.0.0.4
+The quantifier.pl now calculates correctly the remaining read counts.
+The normalization of read counts in the quantifier.pl
+has changed a bit. Each miRNA read count is now divided by the total number of sequenced miRNA read counts and then multiplied by 10E6.
+The --strata option is added to mapping of reads to the miRBase precursors in the quantifier module.
+Quantifier is updated so the 5p and 3p annotation for some species is handled correctly.
+The quantifier crashed when the file supplied by option -s could not be opened.
+The quantifier has now an additional -W option which will cause reads to be added to a precursor in a weighted way.
+That means if a read maps to two different precursors each of them will get this particular read only 0.5 times attached.
+
+The miRDeep2 html output has been updated so that for known miRNAs
+the field 'mature miRBase miRNA' now contains the miRNA that matches
+the predicted mature sequence or in case that the predicted star
+sequence matches a known miRNA this is then shown instead.
+MirDeep2 is updated so the 5p and 3p annotation for some species is handled correctly when specified an additional -P option.
+
+The install.pl script can also use curl if wget is not available on the machine.
+This is useful for MACOSX users.
+
+The mapper.pl now also determines the number of cores on Mac machines correctly.
+
+A bug has been fixed in the prepare_signature.pl file. It crashed when no known_mature_mirna file was supplied.
+
+RNAfold2 can be used as well now if already installed. Otherwise version 1.8.4 of the Vienna package is downloaded when running the install.pl script.

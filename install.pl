@@ -1,6 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use LWP::Simple;
+
+
+
 
 print STDERR "\n
 ###############################################################################################
@@ -35,6 +39,22 @@ if($gcc !~ /(GCC)/i){
 } 
 
 
+my $wget=`wgetx`;
+my $curl=`curl 2>&1`;
+
+my $dtool='';
+my $dopt='';
+
+if($wget =~ /URL/i){
+	$dtool ="wget";
+	
+}elsif($curl){
+	$dtool ="curl";
+	$dopt=" -O";
+}else{
+	die "No commandline download tool found on your system. Please install wget or curl on your machine\n";
+}
+
 my $dir=`pwd 2>&1`;
 
 chomp $dir;
@@ -52,6 +72,7 @@ if(not -d 'mirdeep2' and $dir !~ /mirdeep2/){
     chomp $dir;
 }
 
+my $dfile='';
 
 ##only attach to config file if not yet existing
 my $in=`grep  "$dir/mirdeep2:*" ~/.bashrc`;
@@ -81,7 +102,7 @@ my $a=`uname -a`;
 
 my $bowtie;
 
-my $bowtie_version="0.12.5";
+my $bowtie_version="0.12.7";
 
 my $binst=`bowtie --version 2>&1`;
 
@@ -99,15 +120,21 @@ if($binst =~ /version\s*(\S*)/i){
             $bowtie = "bowtie-$bowtie_version-linux-i386.zip";
         }
         
-        if(not -f $bowtie){ 
-	    $err=system("wget http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie");
-            if($err){
-		my $retry=system("wget http://garr.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie");
-		if($retry){
-		    die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
-		}else{
-		}
-            } 
+        if(not -f $bowtie){
+			 
+			if(check("http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie")){
+				$err=system("$dtool http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie $dopt");
+				if($err){
+					die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
+				}
+            }elsif(check("http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie")){
+				$err=system("$dtool http://garr.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie $dopt");
+				if($err){
+					die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
+				}
+			}else{
+				die "\nError:\n\t$bowtie not found on server http://garr.dl.sourceforge.net/project/bowtie-bio/bowtie/ \n\n\n";
+			}
         }
         
         if(not -f "$bowtie"){
@@ -150,13 +177,17 @@ if($ret == 0){
    print STDERR "RNAfold                                                   already installed, nothing to do ...\n";
 }else{
     if(not -d "ViennaRNA-1.8.4"){
-        
-        if(not -f "ViennaRNA-1.8.4.tar.gz"){
+        $dfile="ViennaRNA-1.8.4.tar.gz";
+        if(not -f $dfile){
             print STDERR "Downloading Vienna package now\n\n";
-            $err=system("wget http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz");
-            if($err){
-                die "Download of Vienna package not successful\n\n";
-            }
+			if(check("http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz")){
+				$err=system("$dtool http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz $dopt");
+				if($err){
+					die "Download of Vienna package not successful\n\n";
+				}
+			}else{
+				die "Vienna package not found at  http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz\n";
+			}
     }
         
         
@@ -203,9 +234,10 @@ if($ret == 0){
     print STDERR "randfold\t\t\t\talready installed, nothing to do ...\n";
 }else{
 
-    if(not -f "squid-1.9g.tar.gz"){
+	$dfile="squid-1.9g.tar.gz";
+    if(not -f $dfile){
         print STDERR "Downloading SQUID library now\n\n";
-        `wget ftp://selab.janelia.org/pub/software/squid/squid-1.9g.tar.gz`;
+        `$dtool ftp://selab.janelia.org/pub/software/squid/squid-1.9g.tar.gz $dopt`;
     }
 
     if(not -f "squid-1.9g.tar.gz"){
@@ -221,9 +253,10 @@ if($ret == 0){
         chdir("..");
     }
 
-    if(not -f "randfold-2.0.tar.gz"){
+	$dfile="randfold-2.0.tar.gz";
+    if(not -f $dfile ){
         print STDERR "Downloading randfold now\n\n";
-        `wget http://bioinformatics.psb.ugent.be/supplementary_data/erbon/nov2003/downloads/randfold-2.0.tar.gz`;
+        `$dtool http://bioinformatics.psb.ugent.be/supplementary_data/erbon/nov2003/downloads/randfold-2.0.tar.gz $dopt`;
     }
 
 
@@ -301,9 +334,10 @@ if($ret == 0){
 }else{
 
 
-    if(not -f "PDF-API2-0.73.tar.gz"){
+	$dfile="PDF-API2-0.73.tar.gz";
+    if(not -f $dfile){
         print STDERR "Downloading PDF-API2 now\n\n";
-        `wget http://search.cpan.org/CPAN/authors/id/A/AR/AREIBENS/PDF-API2-0.73.tar.gz`;
+        `$dtool http://search.cpan.org/CPAN/authors/id/A/AR/AREIBENS/PDF-API2-0.73.tar.gz $dopt`;
     }
 
     if(not -f "PDF-API2-0.73.tar.gz"){
@@ -418,4 +452,15 @@ sub checkBIN{
 	}
     close IN;
     return $found;
+}
+
+
+## this routine checks if files exists on remote servers
+sub check{
+	my ($url) = @_;
+	if (head($url)) {
+		return 1;
+	}else{
+		return 0;
+	}
 }

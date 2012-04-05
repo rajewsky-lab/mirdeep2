@@ -11,6 +11,7 @@ use Math::Trig;             ## needed for sinus function
 use List::Util qw(min max); ## needed to provide min and max function for lists  
 use File::Basename;
 
+
 Usage() if(not $ARGV[0] or $ARGV[0] =~ /-*-he*l*p*/);
 
 my $n_count = 0;
@@ -157,7 +158,18 @@ my $col_loop = 'orange';
 
 ## options
 my %options=();
-getopts("ug:v:f:ck:os:t:er:q:dx:zy:ab:p:V:",\%options);
+getopts("ug:v:f:ck:os:t:er:q:dx:zy:ab:p:V:E",\%options);
+
+if($options{'u'}){
+    print "\n\nAvailable species organisms were:\n\n";
+   for(keys %organisms){
+        print "$_\n";
+    }
+    print "\n\n\n";
+    exit;
+}
+
+
 
 my %pres_coords;
 if($options{'p'}){
@@ -222,14 +234,7 @@ if($options{'z'}){
     exit;
 }
 
-if($options{'u'}){
-    print "\n\nAvailable species organisms were:\n\n";
-   for(keys %organisms){
-        print "$_\n";
-    }
-    print "\n\n\n";
-    exit;
-}
+
 
 ## scan program parameters
 if($options{'f'}){
@@ -260,6 +265,7 @@ if($options{'v'}){
 
 ## read in known miRNA identifier
 my %knownones;
+my %starknownones;
 my %seen;
 if($options{'k'}){
     open KN,"<$options{'k'}" or die "Error: $options{'k'} file not found\n";
@@ -650,6 +656,7 @@ while(<IN>){
 			$seen{"$1$2"} = 1;
 	    }
 
+
 	    ## check here if expected sequence is hit partially by at least one read ## maybe full coverage should be check => later
 	    if($star_exp_hit eq 0 and $hash{$id}{"reads"}{$1}{$counter}{"seq"} =~ /$hash{$id}{"star_seq"}/i){
 			$star_exp_hit = 1;
@@ -660,15 +667,27 @@ while(<IN>){
         if($knownones{"$1$2"} and $reads){
         #    print MMU "$1\n";
             if(not $hash{$id}{"known"}){
-                $hash{$id}{"known"} = "$1$2" ;
+				#die "$id $1$2";
+                $hash{$id}{"known"} = "$1$2";
 		
 		## now check if mature of miRDeep is same as mirbase or not
 		if(index($knownones{"$1$2"},substr($hash{$id}{'mat_seq'},4,12))>=0){
 		    $hash{$id}{'mirbase'} = 'TRUE';
+			$hash{$id}{'mirbase-out'} = "$1$2";
+			## if star sequence mirbase mature then output star
 		}elsif(index($knownones{"$1$2"},substr($hash{$id}{'star_seq'},4,12))>=0){
 		    $hash{$id}{'mirbase'} = 'STAR';
-		}else{
+			$hash{$id}{'mirbase-out'} = "$1$2";
+
+			## if mature matches mirbase star then output star sequence, else output NA and precursor would be a novel prediction
+			# if(index($starknownones{"$1$2"},substr($hash{$id}{'mat_seq'},4,12))>=0){
+			# 	$hash{$id}{'mirbase-out'} = "$1$2";
+			# }else{
+			# 	$hash{$id}{'mirbase-out'} = "NA";
+			# }
+		}else{## this case should not happen
 		    $hash{$id}{'mirbase'} = 'NA';
+			$hash{$id}{'mirbase-out'} = "NA";
 		}
 
             }
@@ -1009,12 +1028,12 @@ print HTML  "</tr>";
 ##################################################################
 
 if($options{'k'}){
-    PrintHtmlTableHeader("mature miRBase miRNAs in dataset");
+    PrintHtmlTableHeader("mature miRBase miRNAs detected by miRDeep2");
 
 
     if($csv){
         print CSV "\n\n\n";
-        PrintHtmlTableHeader("mature miRBase miRNAs in dataset",1);
+        PrintHtmlTableHeader("mature miRBase miRNAs detected by miRDeep2",1);
     }
     
     
@@ -1041,7 +1060,6 @@ if($options{'k'}){
 		}else{
 			$known="<td nowrap=\"nowrap\"></td>";
 		}
-        
 
 	 	if($csv){
             my $s_star=$hash{$id}{'star_seq'};
@@ -1125,7 +1143,7 @@ if($options{'k'}){
             <td>$s_star</td>
             <td>$hash{$id}{"ucsc_seq"}</td>
 EOF
-
+## <td nowrap="nowrap">$hash{$id}{"cons_seed"}</td>
 
 if($options{'p'}){
 	my $offset=index($hash{$id}{'pri_seq'},$hash{$id}{'ucsc_seq'});
@@ -1158,7 +1176,7 @@ if($options{'p'}){
 ##################################################################
 
 if($options{'q'}){
-    PrintHtmlTableHeader("mature miRBase miRNAs not detected by miRDeep2");
+#    PrintHtmlTableHeader("mature miRBase miRNAs not detected by miRDeep2");
     PrintKnownnotfound();
 
 }else{
@@ -2015,7 +2033,7 @@ sub DrawStructure{
     ## run RNAplot to create secondary structure ps file
     my $cw =cwd;
     #print STDERR "$sid\tcwd\t$cw\n";
-    system("RNAfold -d < $cwd/pdfs_$time/${filename}.tmp > $cwd/pdfs_$time/tmp");
+    system("RNAfold -d 0 < $cwd/pdfs_$time/${filename}.tmp > $cwd/pdfs_$time/tmp");
 
     #exit;
     my $in_pos=0;
@@ -2692,7 +2710,7 @@ $h{8}{2} = 'this is the number of reads that map to the predicted miRNA hairpin 
 $h{9}{1} = 'significant randfold p-value';
 $h{9}{2} = 'this field indicates if the estimated randfold p-value of the excised potential miRNA hairpin is equal to or lower than 0.05 (see Bonnet et al., Bioinformatics, 2004).';
 $h{10}{1} = 'miRBase miRNA';
-$h{10}{2} = 'this field displays the ids of any reference mature miRNAs for the species that map perfectly (full length, no mismatches) to the reported miRNA hairpin. If this is the case, the reported miRNA hairpin is assigned as a known miRNA. If not, it is assigned as a novel miRNA. If more than one reference mature miRNA map to the miRNA hairpin, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs for the species is displayed.';
+$h{10}{2} = 'this field displays the ids of any reference mature miRNAs for the species that map perfectly (full length, no mismatches) to the reported miRNA hairpin. If this is the case, the reported miRNA hairpin is assigned as a known miRNA. If not, it is assigned as a novel miRNA. If more than one reference mature miRNA maps to the miRNA hairpin, then only the id of the reference miRBase miRNA that matches the predicted mature sequence is output.';
 $h{11}{1} = 'example miRBase miRNA with the same seed';
 $h{11}{2} = 'this field displays the ids of any reference mature miRNAs from related species that have a seed sequence identical to that of the reported mature miRNA. The seed is here defined as nucleotides 2-8 from the 5\' end of the mature miRNA. If more than one reference mature miRNA have identical seed, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs from related species is displayed.';
 $h{12}{1} = 'UCSC browser';
@@ -2709,7 +2727,7 @@ $h{17}{1} = 'precursor coordinate';
 $h{17}{2} = 'The given precursor coordinates refer do absolute position in the mapped reference sequence';
     
 
-}elsif($hl =~ /miRBase miRNAs in dataset/i){
+}elsif($hl =~ /miRBase miRNAs detected by miRDeep2/i){
 $h{1}{1} = 'tag id';
 $h{1}{2} = 'this is a tag id assigned by miRDeep2. The first part of the id designates the chromosome or genome contig on which the miRNA gene is located. The second part is a running number that is added to avoid identical ids. The running number is incremented by one for each potential miRNA precursor that is excised from the genome. Clicking this field will display a pdf of the structure, read signature and score breakdown of the miRNA.';
 $h{2}{1} = 'miRDeep2 score';
@@ -2729,7 +2747,7 @@ $h{8}{2} = 'this is the number of reads that map to the miRNA hairpin and are co
 $h{9}{1} = 'significant randfold p-value';
 $h{9}{2} = 'this field indicates if the estimated randfold p-value of the miRNA hairpin is equal to or lower than 0.05 (see Bonnet et al., Bioinformatics, 2004).';
 $h{10}{1} = 'mature miRBase miRNA';
-$h{10}{2} = 'this field displays the ids of any reference mature miRNAs for the species that map perfectly (full length, no mismatches) to the reported miRNA hairpin. If this is the case, the reported miRNA hairpin is assigned as a known miRNA. If not, it is assigned as a novel miRNA. If more than one reference mature miRNA map to the miRNA hairpin, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs for the species is displayed. Clicking this field will link to miRBase.';
+$h{10}{2} = 'this field displays the ids of any reference mature miRNAs for the species that map perfectly (full length, no mismatches) to the reported miRNA hairpin. If this is the case, the reported miRNA hairpin is assigned as a known miRNA. If not, it is assigned as a novel miRNA. If more than one reference mature miRNA maps to the miRNA hairpin, then only the id of the reference miRBase miRNA that matches the predicted mature sequence is output.';
 $h{11}{1} = 'example miRBase miRNA with the same seed';
 $h{11}{2} = 'this field displays the ids of any reference mature miRNAs from related species that have a seed sequence identical to that of the reported mature miRNA. The seed is here defined as nucleotides 2-8 from the 5\' end of the mature miRNA. If more than one reference mature miRNA have identical seed, then only the id of the miRNA that occurs last in the input file of reference mature miRNAs from related species is displayed.';
 $h{12}{1} = 'UCSC browser';
@@ -2748,7 +2766,7 @@ $h{17}{2} = 'The given precursor coordinates refer do absolute position in the m
 
 
 $h{4}{3} = 'predicted mature seq. in accordance with miRBase mature seq.';
-$h{4}{4} = 'If the predicted miRDeep2 sequence overlaps with the miRBase annotated mature sequence than this is indicated by a cross. If the predicted miRDeep2 star sequence overlaps with the miRBase annotated mature sequence this is inidicated by an exclamation mark.';
+$h{4}{4} = 'If the predicted miRDeep2 sequence overlaps with the miRBase annotated mature sequence than this is indicated by \'TRUE\'. If the predicted miRDeep2 star sequence overlaps with the miRBase annotated mature sequence this is inidicated by \'STAR\'.';
 
 if($options{'p'}){
    # $h{17}{1} = 'genomic precursor position';
@@ -2808,13 +2826,13 @@ if($options{'p'}){
                 $f =0;
                 print CSV "$h{$_}{1}";
             }else{
-				if($hl =~ /miRBase miRNAs in dataset/i and $_ == 5){
+				if($hl =~ /miRBase miRNAs detected/i and $_ == 5){
 					print CSV "$h{'mirbase'}{1}";
 				}
                 print CSV "\t$h{$_}{1}";
             }
         }
-        print CSV "\tprecursor coordinate\n";
+        print CSV "\n";
         return;
     }
 
@@ -2835,7 +2853,7 @@ for(sort {$a <=> $b} keys %h){
 
        }else{ 
  	    print HTML "$p1$h{$_}{1}$p2$h{$_}{2}$q\n\n";
-	   if($hl =~ /miRBase miRNAs in dataset/ and $_ eq 4){
+	   if($hl =~ /miRBase miRNAs detected/ and $_ eq 4){
 	       print HTML "$p1$h{$_}{3}$p2$h{$_}{4}$q\n\n";
 	   }
 
@@ -2856,7 +2874,40 @@ for(sort {$a <=> $b} keys %h){
 sub PrintKnownnotfound{
     my %not_seen; 
     my %signature;
-    ## only performed when option z is NOT given, so when the standard make_html.pl call is done
+    
+	my %error=();
+
+	## read in error messages of mirdeep2 run
+	if($options{'E'}){
+		my $infile=$options{'s'};
+		$infile =~ s/survey.csv/error.output.mrd/;
+		open IN,$infile or print STDERR "$infile not found\n";
+		my $in=0;
+		my $id;
+		my $mess='';
+		while(<IN>){
+			if(/>(\S+)/){$in=1;$id=$1;$mess='';next;}
+			if(/^exp/){$in=0;next;}
+			if($in){
+				$mess.=$_;
+			}
+			if(not $in){
+				next if(/pri_seq/);
+				next if(/pri_struct/);
+				if(/^(\S+)/){
+
+					if($knownones{$1} and not $seen{$1}){
+						$error{$1}{$id}.=$mess;
+					}
+				}
+			}
+		}
+		close IN;
+	}
+
+
+
+	## only performed when option z is NOT given, so when the standard make_html.pl call is done
     if(not $options{'z'}){
 
         ## this are all reads of known miRBase miRNAs seen in output.mrd
@@ -2883,12 +2934,12 @@ sub PrintKnownnotfound{
             }
             close IN;
         }
-    }else{ ## close options{'z'}
-        ## create HTML for quantifier module
-        open HTML,">expression_${time}.html" or die "cannot create expression_${time}.html\n";
-        CreateHTML(); ##
-        PrintHtmlTableHeader();
-    }
+    }# else{ ## close options{'z'}
+    #     ## create HTML for quantifier module
+    #     open HTML,">expression_${time}.html" or die "cannot create expression_${time}.html\n";
+    #     CreateHTML(); ##
+    #     PrintHtmlTableHeader();
+    # }
     ## now read in the mature_ref_this_species mapped against precursors from the quantifier module 
 	## store ids in hashes
 	
@@ -3039,224 +3090,380 @@ sub PrintKnownnotfound{
 	
     #if make_html was called by quantifier.pl then output all precursors that are expressed
     if($options{'f'} =~ /miRBase.mrd/){
-        for my $id(sort {$hash_q{$b}{'freq_mature'} <=> $hash_q{$a}{'freq_mature'}} keys %hash_q){
-            $oid = $hairpin2mature2{$id};
-			## set blat link
-            if($org eq ""){
-                $blat = '<td> - </td>';
-            }else{
-                $blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
-            }
+#         for my $id(sort {$hash_q{$b}{'freq_mature'} <=> $hash_q{$a}{'freq_mature'}} keys %hash_q){
+#             $oid = $hairpin2mature2{$id};
+# 			## set blat link
+#             if($org eq ""){
+#                 $blat = '<td> - </td>';
+#             }else{
+#                 $blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
+#             }
 
-            ##here the belonging precursor is shown
-            $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+#             ##here the belonging precursor is shown
+#             $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
 			
-            $sf = $hash_q{$id}{"freq_star"};
-            $mf = $hash_q{$id}{"freq_mature"};
+#             $sf = $hash_q{$id}{"freq_star"};
+#             $mf = $hash_q{$id}{"freq_mature"};
 			
-            ## print miRBase id instead of precursor
+#             ## print miRBase id instead of precursor
 			
-            if($options{'d'}){
-                print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
-            }else{
-				if($hash_q{$id}{"freq_total"} > 0){
-					print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>\n";
-				}else{
-					print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
-				}
-            }
-                print HTML <<EOF;
-			<td></td>
-            <td></td>
-            <td>$hash_q{$id}{'rfam'}</td>
-            <td>$hash_q{$id}{"freq_total"}</td>
+#             if($options{'d'}){
+#                 print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
+#             }else{
+# 				if($hash_q{$id}{"freq_total"} > 0){
+# 					print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>\n";
+# 				}else{
+# 					print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
+# 				}
+#             }
+
+#              print HTML <<EOF;
+# 			<td/></td>
+# 			<td></td>
+#             <td>$hash_q{$id}{'rfam'}</td>
+#             <td>$hash_q{$id}{"freq_total"}</td>
             
-			<!--			<td>$hash_q{$id}{"freq_mature"}</td> -->
-			<td>$mf</td>
-			<!--            <td>$exprs{$id}</td>-->
-            <td>$hash_q{$id}{"freq_loop"}</td>
-			<!--            <td>$hash_q{$id}{"freq_star"}</td> -->
-			<td>$sf</td>
-            <td></td>
-			$known
-			<td nowrap="nowrap">$hash_q{$id}{"cons_seed"}</td>
-            $blat
-            <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
-            <td>$hash_q{$id}{'mat_seq'}</td>
-            <td>$hash_q{$id}{'star_seq'}</td>
-            <td>$hash_q{$id}{'pri_seq'}</td>
-			</tr>     
-EOF
-print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}\t$hash_q{$id}{'freq_loop'}\t$hash_q{$id}{'freq_star'}\t$oid\t-\t-\t-\t$hash_q{$id}{'mat_seq'}\t$hash_q{$id}{'star_seq'}\t$hash_q{$id}{'pri_seq'}\n" if($csv);
+# 			<!--			<td>$hash_q{$id}{"freq_mature"}</td> -->
+# 			<td>$mf</td>
+# 			<!--            <td>$exprs{$id}</td>-->
+#             <td>$hash_q{$id}{"freq_loop"}</td>
+# 			<!--            <td>$hash_q{$id}{"freq_star"}</td> -->
+# 			<td>$sf</td>
+#             <td></td>
+# 			$known
+# 			<td nowrap="nowrap">$hash_q{$id}{"cons_seed"}</td>
+#             $blat
+#             <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
+#             <td>$hash_q{$id}{'mat_seq'}</td>
+#             <td>$hash_q{$id}{'star_seq'}</td>
+#             <td>$hash_q{$id}{'pri_seq'}</td>
+# 			</tr>     
+# EOF
+# print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}\t$hash_q{$id}{'freq_loop'}\t$hash_q{$id}{'freq_star'}\t$oid\t-\t-\t-\t$hash_q{$id}{'mat_seq'}\t$hash_q{$id}{'star_seq'}\t$hash_q{$id}{'pri_seq'}\n" if($csv);
+
+# 		}
+# 		close CSV;
+    }else{ ## if processing only the output of a normal mirdeep run
+		
+		## testing, Parse quantifier html and print then when necessary
+		my %exhtml=();
+		my $start=0;
+		my $mirc;
+		
+		my $rt=0;
+
+		open IN,"expression_analyses/expression_analyses_$options{'y'}/expression_$options{'y'}.html" or die "No file found called expression_analyses/expression_analyses_$options{'y'}/expression_$options{'y'}.html\n";
+		while(<IN>){
+			if(/miRBase precursor id/){
+				$start=1;
+			}
+			next if(!$start);
+			## read in header
+			if(/nowrap/){
+				$start=2;
+			}
+			if(/^\s+<\/tr>\s*$/){
+				$start=3;
+			}
+
+			if($start == 1){
+				$exhtml{'header'}.=$_;
+			}elsif($start == 2){
+				if(/pdf/){
+					if(/([a-zA-Z0-9-]+)<\/a><\/td>/){
+						$mirc=$1;
+						$exhtml{$mirc}.=$_;
+					}
+				}else{
+					$exhtml{$mirc}.=$_;
+				}
+			}
 
 		}
-		close CSV;
-    }else{ ## if processing only the output of a normal mirdeep run
+		close IN;
 
+		print HTML "<br><br><h2>mature miRBase miRNAs not detected by miRDeep2</h2><br><font face=\"Times New Roman\" size=\"2\">\n <table border=\"1\"> $exhtml{'header'}";
+		my @csvout;
+		while($exhtml{'header'} =~ /tooltip\d+\">(.+)<span>/g){
+			push(@csvout,$1);
+		}
+		print CSV join("\t",@csvout),"\n" if($csv);
+		
+		my %skip;
+		
 		for my $oid(sort {$exprs{$b} <=> $exprs{$a}} keys %exprs){
 			## if miRNA is in hash not_seen and signature or quantifier module then trigger output creation
+			next if($skip{$mature2hairpin{$oid}});
+			$skip{$mature2hairpin{$oid}}=1;
 			if(($not_seen{$oid} and $signature{$oid}) or $options{'z'}){ 
+				$exhtml{$mature2hairpin{$oid}}=~ s/<td>\s*<\/td>/<td>-<\/td>/g;
 				
-				if($oid =~ /^(\S+)-5p/){
-					next if($exprs{"${1}-3p"} > $exprs{$oid});
-				}elsif($oid =~ /^(\S+)-3p/){
-					next if($exprs{"${1}-5p"} >= $exprs{$oid});
-				}else{
+				#die $exhtml{$mature2hairpin{$oid}};
+				@csvout=split("\n",$exhtml{$mature2hairpin{$oid}});
+				
+				my $count;
+				my $icount;
+				my $sum=0;
+				my $in;
+				my ($notp,$line);
+				
+				foreach(@csvout){
+					$notp=0;
+					$line=$_;
+
+					if(/>\S+<\/a><\/td>/){
+						if(/pdf\s*<\/div>(\S+)<\/a><\/td>/){
+							print CSV $1,"\t" if($csv);
+						}
+						
+						if(/nobr/){
+							$icount=0;
+							$in=1;
+							while(/<nobr>(\d+)/g){
+								$notp=1; ## do not print names of matures in here
+								$in++;
+								next if($in % 2 ==1); 
+								$sum+=$1;
+								$icount++;
+								last if($count== $icount);
+							}
+							if($line =~ /^(.+<\/a>)<\/td><td><nobr>/){
+								$line = $1;
+							}
+						}
+					}elsif($icount > 0 and /<\/table>/){
+						print CSV "$sum\t" if($csv);
+						print HTML "$sum</td>";
+						$icount =0;
+						$sum=0;
+						
+						
+
+					}elsif(/norm/){
+						$count=0;
+						
+						while(/norm/g){ $count++; }
+						#$notp=1;
+						$line=substr($line,0,7);
+						
+
+					}elsif(/>(\d+\.*\d*)<\/td>/){
+						print CSV $1,"\t" if($csv);
+					}elsif(/<td>\s*([acgtACGTuU]+)\s*<\/td>/){
+						while(/<td>\s*([acgtACGTuU]+)\s*<\/td>/g){
+							print CSV $1,"\t" if($csv);
+						}
+					}elsif(/"nowrap">(\d+)<\/td>/){
+						print CSV $1,"\t" if($csv);
+					}else{
+
+					}
+
+					if($notp){
+					}else{
+						if(/^\s*-\s*$/ and $csv){
+							print CSV "-\t";
+						}elsif(/<td>\s*-\s*<\/td>/ and $csv){
+							print CSV "-\t";
+						}
+						print CSV "-\t" if(/blast.ncbi/ and $csv);
+						print HTML $line;
+					}
+		   
 				}
+				print CSV "\n" if($csv);
+
+				## print to HTML now
+				
+				# while($exhtml{$mature2hairpin{$oid}} =~ /<td>(\S+)<\/td>/g){
+				# 	print "$1\n";
+
+
+# 				exit;
+# 				print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}\t$hash_q{$id}{'freq_loop'}\t$hash_q{$id}{'freq_star'}\t$oid\t-\t-\t-\t$hash_q{$id}{'mat_seq'}\t$hash_q{$id}{'star_seq'}\t$hash_q{$id}{'pri_seq'}\n" if($csv);
+
+
+
+
+
+# 				next;### this was executed before
+
+				
+
+
+# 				if($oid =~ /^(\S+)-5p/){
+# 					next if($exprs{"${1}-3p"} > $exprs{$oid});
+# 				}elsif($oid =~ /^(\S+)-3p/){
+# 					next if($exprs{"${1}-5p"} >= $exprs{$oid});
+# 				}else{
+# 				}
                 
 				
 				
-				$id = $mature2hairpin{$oid}; ## this is now the name of the precursor
-#            if($id =~ /-1224/){print "$id\n";}
-				$hash_q{$id}{"pdf"} = 1;
-				$sig++;
-            ## set blat link
-				if($org eq ""){
-					$blat = '<td> - </td>';
-				}else{
-					$blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
-				}
-				my $s_star=$hash_q{$id}{'star_seq'};
-				$s_star=$hash_q{$id}{'star_seq_obs'} if($hash_q{$id}{'star_seq_obs'});
-				my $s_mat = $hash_q{$id}{'mat_seq'};
+# 				$id = $mature2hairpin{$oid}; ## this is now the name of the precursor
+# #            if($id =~ /-1224/){print "$id\n";}
+# 				$hash_q{$id}{"pdf"} = 1;
+# 				$sig++;
+#             ## set blat link
+# 				if($org eq ""){
+# 					$blat = '<td> - </td>';
+# 				}else{
+# 					$blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
+# 				}
+# 				my $s_star=$hash_q{$id}{'star_seq'};
+# 				$s_star=$hash_q{$id}{'star_seq_obs'} if($hash_q{$id}{'star_seq_obs'});
+# 				my $s_mat = $hash_q{$id}{'mat_seq'};
 				
-				##here the belonging precursor is shown
-				$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+# 				##here the belonging precursor is shown
+# 				$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
 				
-				$sf = $hash_q{$id}{"freq_star"};
-				$mf = $hash_q{$id}{"freq_mature"};
+# 				$sf = $hash_q{$id}{"freq_star"};
+# 				$mf = $hash_q{$id}{"freq_mature"};
 				
-				if($hash_q{$id}{"freq_mature"} ne $exprs{$oid} ){
-					$mf = $exprs{$oid};
-					if($sf){
-						$sf = $hash_q{$id}{"freq_mature"};
-					}
-				}
+# 				if($hash_q{$id}{"freq_mature"} ne $exprs{$oid} ){
+# 					$mf = $exprs{$oid};
+# 					if($sf){
+# 						$sf = $hash_q{$id}{"freq_mature"};
+# 					}
+# 				}
 				
-				if($options{'z'}){
-					my $m;
+# 				if($options{'z'}){
+# 					my $m;
 					
-					if($oid =~ /3p/){
-						$m = $hash_q{$id}{'mat_seq'};
-						$s_mat = $s_star;
-						$s_star = $m;
-					}
-					if($hash_q{$id}{"freq_mature"} < $hash_q{$id}{"freq_star"}){
-						## swap read count entries
-						#$m = $hash_q{$id}{"freq_mature"};
-						#$hash_q{$id}{"freq_mature"} = $hash_q{$id}{"freq_star"};
-						#$hash_q{$id}{"freq_star"} = $m;
-#                    $mf = $hash_q{$id}{"freq_star"};
-#                    $sf = $hash_q{$id}{"freq_mature"};
+# 					if($oid =~ /3p/){
+# 						$m = $hash_q{$id}{'mat_seq'};
+# 						$s_mat = $s_star;
+# 						$s_star = $m;
+# 					}
+# 					if($hash_q{$id}{"freq_mature"} < $hash_q{$id}{"freq_star"}){
+# 						## swap read count entries
+# 						#$m = $hash_q{$id}{"freq_mature"};
+# 						#$hash_q{$id}{"freq_mature"} = $hash_q{$id}{"freq_star"};
+# 						#$hash_q{$id}{"freq_star"} = $m;
+# #                    $mf = $hash_q{$id}{"freq_star"};
+# #                    $sf = $hash_q{$id}{"freq_mature"};
 						
-						## swap sequence entries
+# 						## swap sequence entries
 						
 						
-						$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+# 						$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
 						
-						my $a = $hash_q{$id}{'exp'};
-						$a =~ s/M/Q/g;
-						$a =~ s/S/M/g;
-						$a =~ s/Q/S/g;                    
-						$hash_q{$id}{'exp'} =$a;
+# 						my $a = $hash_q{$id}{'exp'};
+# 						$a =~ s/M/Q/g;
+# 						$a =~ s/S/M/g;
+# 						$a =~ s/Q/S/g;                    
+# 						$hash_q{$id}{'exp'} =$a;
 						
-					}else{
-						if($oid =~ /3p/){
-							$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
-						}
-					}
+# 					}else{
+# 						if($oid =~ /3p/){
+# 							$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+# 						}
+# 					}
 					
-				}
+# 				}
 				
-				## print miRBase id instead of precursor
+# 				## print miRBase id instead of precursor
 				
-				if($options{'d'}){
-					print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
-				}else{
-					if($hash_q{$id}{"freq_total"} > 0){
-						print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>\n";
-					}else{
-						print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
-					}
-				}
-                print HTML <<EOF;
-				<td></td>
-					<td></td>
-					<td>$hash_q{$id}{'rfam'}</td>
-					<td>$hash_q{$id}{"freq_total"}</td>
-					
-					<!--			<td>$hash_q{$id}{"freq_mature"}</td> -->
-					<td>$mf</td>
-<!--            <td>$exprs{$oid}</td>-->
-<td>$hash_q{$id}{"freq_loop"}</td>
-<!--            <td>$hash_q{$id}{"freq_star"}</td> -->
-<td>$sf</td>
-<td></td>
-$known
-<td nowrap="nowrap">$hash_q{$id}{"cons_seed"}</td>
-$blat
-<td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
-<td>$s_mat</td>
-<td>$s_star</td>
-<td>$hash_q{$id}{'pri_seq'}</td>
-</tr>     
-EOF
-if(not $hash_q{$id}{'freq_total'}){$hash_q{$id}{'freq_total'}=0;}
-if(not $hash_q{$id}{'freq_mature'}){$hash_q{$id}{'freq_mature'}=0;}
-if(not $hash_q{$id}{'freq_loop'}){$hash_q{$id}{'freq_loop'}=0;}
-if(not $hash_q{$id}{'freq_star'}){$hash_q{$id}{'freq_star'}=0;}
-if(not $hash_q{$id}{'star_seq'}){$hash_q{$id}{'star_seq'}='-';}
-print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}\t$hash_q{$id}{'freq_loop'}\t$hash_q{$id}{'freq_star'}\t$oid\t-\t-\t-\t$hash_q{$id}{'mat_seq'}\t$hash_q{$id}{'star_seq'}\t$hash_q{$id}{'pri_seq'}\n" if($csv);
+# 				if($options{'d'}){
+# 					print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
+# 				}else{
+# 					if($hash_q{$id}{"freq_total"} > 0){
+# 						print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>\n";
+# 					}else{
+# 						print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
+# 					}
+# 				}
 
-##print also star if mapped reads greater than to the mature
+#             print HTML "<td>";   
+
+# 			for my $k(keys %{$error{$id}}){
+# #				die "id: $k\n$error{$id}{$k}\n";
+# 				print HTML "id: $k\n$error{$id}{$k}";
+# 			}
 
 
-		 if($hash_q{$id}{'freq_star'} >= $hash_q{$id}{'freq_mature'} and 0){
+#                 print HTML <<EOF;
+# 				</td>
+# 					<td></td>
+# 					<td>$hash_q{$id}{'rfam'}</td>
+# 					<td>$hash_q{$id}{"freq_total"}</td>
 					
-        ## set blat link
-        if($org eq ""){
-            $blat = '<td> - </td>';
-        }else{
-            $blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
-        }
-        my $s_star=$hash_q{$id}{'star_seq'};
-        $s_star=$hash_q{$id}{'star_seq_obs'} if($hash_q{$id}{'star_seq_obs'});
+# 					<!--			<td>$hash_q{$id}{"freq_mature"}</td> -->
+# 					<td>$mf</td>
+# <!--            <td>$exprs{$oid}</td>-->
+# <td>$hash_q{$id}{"freq_loop"}</td>
+# <!--            <td>$hash_q{$id}{"freq_star"}</td> -->
+# <td>$sf</td>
+# <td></td>
+# $known
+# <td nowrap="nowrap">$hash_q{$id}{"cons_seed"}</td>
+# $blat
+# <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
+# <td>$s_mat</td>
+# <td>$s_star</td>
+# <td>$hash_q{$id}{'pri_seq'}</td>
+# </tr>     
+# EOF
+# if(not $hash_q{$id}{'freq_total'}){$hash_q{$id}{'freq_total'}=0;}
+# if(not $hash_q{$id}{'freq_mature'}){$hash_q{$id}{'freq_mature'}=0;}
+# if(not $hash_q{$id}{'freq_loop'}){$hash_q{$id}{'freq_loop'}=0;}
+# if(not $hash_q{$id}{'freq_star'}){$hash_q{$id}{'freq_star'}=0;}
+# if(not $hash_q{$id}{'star_seq'}){$hash_q{$id}{'star_seq'}='-';}
+# print CSV "$id\t-\t-\t-\t$hash_q{$id}{'freq_total'}\t$hash_q{$id}{'freq_mature'}\t$hash_q{$id}{'freq_loop'}\t$hash_q{$id}{'freq_star'}\t$oid\t-\t-\t-\t$hash_q{$id}{'mat_seq'}\t$hash_q{$id}{'star_seq'}\t$hash_q{$id}{'pri_seq'}\n" if($csv);
+
+# ##print also star if mapped reads greater than to the mature
+
+
+# 		 if($hash_q{$id}{'freq_star'} >= $hash_q{$id}{'freq_mature'} and 0){
+					
+#         ## set blat link
+#         if($org eq ""){
+#             $blat = '<td> - </td>';
+#         }else{
+#             $blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
+#         }
+#         my $s_star=$hash_q{$id}{'star_seq'};
+#         $s_star=$hash_q{$id}{'star_seq_obs'} if($hash_q{$id}{'star_seq_obs'});
         
 
-        ##here the belonging precursor is shown
-        $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$_\" target=\"_blank\">$_*</a></td>";
-        $e_count++;
+#         ##here the belonging precursor is shown
+#         $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$_\" target=\"_blank\">$_*</a></td>";
+#         $e_count++;
 
-           if($options{'d'}){
-                print HTML "<tr><td nowrap=\"nowrap\">$_*</td>\n";
-            }else{
-                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$_.pdf\">$_*</a></td>\n";
-            }
-                print HTML <<EOF;
+#            if($options{'d'}){
+#                 print HTML "<tr><td nowrap=\"nowrap\">$_*</td>\n";
+#             }else{
+#                 print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$_.pdf\">$_*</a></td>\n";
+#             }
 
-			<td></td>
-            <td></td>
-            <td>$hash_q{$id}{'rfam'}</td>
-			<td>$hash_q{$id}{"freq_total"}</td>
-<!--			<td>$hash_q{$id}{"freq_mature"}</td> -->
-<td>$mf</td>
-            <td>$hash_q{$id}{"freq_loop"}</td>
-<!--            <td>$hash_q{$id}{"freq_star"}</td> -->
-<td>$sf</td>
-            <td></td>
-			$known
-			<td nowrap="nowrap">$hash_q{$id}{"cons_seed"}</td>
-            $blat
-            <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
-            <td>$s_star</td>
-            <td>$hash_q{$id}{'mat_seq'}</td>
-            <td>$hash_q{$id}{'pri_seq'}</td>
-			</tr>     
-EOF
-}
-        }
-    }
-}
+
+
+#                 print HTML <<EOF;
+
+# 			<td></td>
+#             <td></td>
+#             <td>$hash_q{$id}{'rfam'}</td>
+# 			<td>$hash_q{$id}{"freq_total"}</td>
+# <!--			<td>$hash_q{$id}{"freq_mature"}</td> -->
+# <td>$mf</td>
+#             <td>$hash_q{$id}{"freq_loop"}</td>
+# <!--            <td>$hash_q{$id}{"freq_star"}</td> -->
+# <td>$sf</td>
+#             <td></td>
+# 			$known
+# 			<td nowrap="nowrap">$hash_q{$id}{"cons_seed"}</td>
+#             $blat
+#             <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
+#             <td>$s_star</td>
+#             <td>$hash_q{$id}{'mat_seq'}</td>
+#             <td>$hash_q{$id}{'pri_seq'}</td>
+# 			</tr>     
+# EOF
+# 		 }
+ 			}
+
+		}
+	}
 	close CSV;
     return;
     ## read in all miRBase not in data
@@ -3614,6 +3821,9 @@ sub Usage{
     print STDERR "-d \t do not generate pdfs\n\n\n";
     print STDERR "-a \tprint genomic coordinates of mature sequence (still testing)\n";
     print STDERR "-b \tsupply confidence file\n";
+	print STDERR "-V \tmiRDeep2 version used\n\n";
+#	print STDERR "-E \t not fully implemented yet: prints error messages for known precursors that have not been scored by miRDeep2\n";
+
 	exit;
 }
 

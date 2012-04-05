@@ -33,7 +33,7 @@ Preprocessing/mapping:
 -j              remove all entries that have a sequence that contains letters
                 other than a,c,g,t,u,n,A,C,G,T,U,N
 -k seq          clip 3' adapter sequence
--l int          discard reads shorter than int nts
+-l int          discard reads shorter than int nts, default = 18
 -m              collapse reads
 
 -p genome       map to genome (must be indexed by bowtie-build). The 'genome'
@@ -85,6 +85,10 @@ print MAP "mapper command:\t$0 @ARGV\n";
 
 my $file_reads=shift or die $usage;
 
+if(not -f "$file_reads"){
+	die "No config or reads file could be found\n$usage";
+}
+
 my $line=$file_reads;
 
 foreach(@ARGV){
@@ -100,6 +104,8 @@ getopts("abcdeg:hijk:l:mp:qs:t:uvnr:o:",\%options);
 `rm $options{'s'}` if(defined $options{'s'} and -f $options{'s'} and $options{'n'});
 `rm $options{'t'}` if(defined $options{'t'} and -f $options{'t'} and $options{'n'});
 
+if(not $options{'l'}){$options{'l'} = 18; }
+
 check_options();
 
 
@@ -109,9 +115,22 @@ check_options();
 my $threads=1;
 $threads=$options{'o'} if(exists $options{'o'});
 
-my $cores=`grep -ic ^processor /proc/cpuinfo`;
-if($threads > $cores){die "You specified more threads than you have cores on your workstation\n";}
 
+## check number of cores on the system and threads to be used
+my $cores=`grep -ic ^processor /proc/cpuinfo`;
+if($cores !~ /^\d+$/){
+	$cores=`sysctl -n hw.physicalcpu`;
+	if($cores !~ /^\d+$/){
+		$cores=`sysctl -n hw.logicalcpu`;
+	}
+}
+if($cores !~ /^\d+$/){
+	$cores=1;
+}
+
+if($threads > $cores){ print STDERR "More threads specified than cores on the system. Reducing the number of threads to $cores\n"; $threads=$cores;}
+
+my $orig_file_reads;
 
 my $mismatches_seed=0;
 
@@ -124,8 +143,7 @@ if($options{g}){$prefix_global=$options{g};}
 ####################################### MAIN ########################################################
 
 
-my $dir=make_dir_tmp();
-
+my $dir;#=make_dir_tmp();
 
 if($options{d}){
 
@@ -182,6 +200,7 @@ sub handle_config_file{
 
 
 sub make_dir_tmp{
+    my ($pref)=@_;
     my $ctime=time();
     my ($sec,$min,$hour,$day,$month,$year) = localtime($ctime);
     $year+=1900;
@@ -193,7 +212,7 @@ sub make_dir_tmp{
 	my $num=rand(1);
 	my $chance=substr($num,2,10);
     #make temporary directory
-    my $dir="dir_mapper_${chance}_$time";
+    my $dir="dir_mapper${pref}_${chance}_$time";
     mkdir $dir;
     return $dir;
 }
@@ -217,7 +236,8 @@ sub handle_one_file{
 sub process_reads{
    
     my($file_reads_latest,$prefix)=@_;
-     
+    $orig_file_reads=$file_reads_latest;
+    $dir=make_dir_tmp("_${prefix}_$orig_file_reads"); 
     #parse Solexa to fasta
     if($options{h}){
 
@@ -272,9 +292,9 @@ sub process_reads{
 
 	if($options{v}){print STDERR "discarding sequences with non-canonical letters\n";}
 
-		print MAP "fastaparse.pl $file_reads_latest -b > $dir/reads_letters.fa\n";
+		print MAP "fastaparse.pl $file_reads_latest -b > $dir/reads_letters.fa 2>$dir/reads_discarded.fa\n";
 
-	my $ret_clip=`fastaparse.pl $file_reads_latest -b > $dir/reads_letters.fa`;
+	my $ret_clip=`fastaparse.pl $file_reads_latest -b > $dir/reads_letters.fa 2>$dir/reads_discarded.fa`;
 
 	$file_reads_latest="$dir/reads_letters.fa";
     }
@@ -302,9 +322,9 @@ sub process_reads{
 
 	if($options{v}){print STDERR "discarding short reads\n";}
 
-		print MAP "fastaparse.pl $file_reads_latest -a $options{l} > $dir/reads_no_short.fa\n";
+		print MAP "fastaparse.pl $file_reads_latest -a $options{l} > $dir/reads_no_short.fa 2>$dir/reads_too_short\n";
 
-	my $ret_rem_short=`fastaparse.pl $file_reads_latest -a $options{l} > $dir/reads_no_short.fa`;
+	my $ret_rem_short=`fastaparse.pl $file_reads_latest -a $options{l} > $dir/reads_no_short.fa 2>$dir/reads_too_short.fa`;
 
 	$file_reads_latest="$dir/reads_no_short.fa";
     }
@@ -352,9 +372,10 @@ sub map_reads{
 		$mapping_loc=$options{'r'};
 	}
 
-	print MAP "bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt\n\n";
+	print MAP "bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt\n\n";
+#bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt\n\n";
 
-    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt`;
+    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt`;
     
     my $file_mapping_latest="$dir/mappings.bwt";
     
@@ -378,9 +399,7 @@ sub map_reads{
         
     #printing mappings
     if($options{t}){
-
-	cat_to($file_mapping_latest,$options{t});
-
+		cat_to($file_mapping_latest,$options{t});
 #	my $ret=`cat $file_mapping_latest >> $options{t}`;
     }
 

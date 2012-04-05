@@ -1,34 +1,46 @@
 #!/usr/bin/perl
-
 use strict;
-
 use Getopt::Std;
 
-my $usage = "\nError:\nperl bwa_sam_converter.pl -i mapped.sam -t reads_1_1.txt -o reads_collapsed_vs_genome.arf multiple\n
+## converts bowtie sam files to arf files and if desired creates correct read ids for miRDeep2
+
+my $usage = "\nError:\nperl bwa_sam_converter.pl -i samfile -o reads_output_file -a arf_output_file 
 
 [options]:
 	-i    file with read mappings in sam format
-	-o    output file which will be in arf format
-	-t    file with mappings of original ids to miDeep2 ids
-
+	-o    collapsed read output file
+	-a    mapping file in arf format
+	-c    collapse sam file first and create correct mirdeep2 ids
+    -t    tag for temporary directory
+	-n    do not delete temporary directory
 ";
 
 
-
 my %options;
-getopts("i:o:t:n:",\%options);
+getopts("i:o:t:cna:",\%options);
+
+my $time=time();
+my $tmp_dir="bwasamconv_$time$options{'t'}";
+
+mkdir $tmp_dir;
+chdir $tmp_dir;
 
 
-my $sam = $options{'i'};
-my $arf=$options{'o'};
-my $r11=$options{'t'};
-my $multi=$options{'n'};
+my $sam="../$options{'i'}";
+if($options{'c'}){
+  sam_reads_collapse($sam);
+}
+
+
+my $arf=$options{'a'};
+my $r11="read_1_to_1.txt"; ## internal file 
+#my $multi=$options{'n'};
 
 
 my %r11;
 
 my @line;
-if($options{'t'}){
+if($options{'c'}){
 open IN,"$r11";
 while(<IN>){
     chomp;
@@ -39,7 +51,6 @@ close IN;
 
 }
 
-open IN,"<$sam" or die "$usage";
 my @edit_string;
 my @ref_seq;
 my $num;
@@ -56,9 +67,9 @@ my $print_read;
 
 
 if(not $arf){
-	die $usage;
+	die "Arf file $arf not found\n$usage";
 }else{
-open ARF,">$arf" or die "cannot create file $arf\n";
+open ARF,">../$arf" or die "cannot create file $arf\n";
 }
 
 my $count=0;
@@ -76,7 +87,7 @@ my $cline;
 my %reads;
 my %seq;
 
-
+open IN,"<$sam" or die "Sam file $sam not found\n$usage";
 while(<IN>){
 	next if(/^\@/);
     $cline = $_;
@@ -87,7 +98,7 @@ while(<IN>){
 
 
     
-    if($options{'t'}){
+    if($options{'c'}){
        next if(not $r11{$line[0]});
     }
     ## next if read is not aligned
@@ -194,7 +205,7 @@ while(<IN>){
 
 
 ### here reverse if not multi
-    if(not $multi){
+#    if(not $multi){
 
         if($strand eq "-"){
             $genome_seq = reverse($genome_seq);
@@ -204,15 +215,27 @@ while(<IN>){
             $edit_s = reverse($edit_s);
             
         }
-    }
+#    }
 
-if($options{'t'}){
+if($options{'c'}){
     print ARF "$r11{$line[0]}\t",length($line[9]),"\t1\t",length($line[9]),"\t",lc $line[9],"\t$line[2]\t",length($genome_seq),"\t$line[3]\t",($line[3] -1 + (length($genome_seq))),"\t",lc $genome_seq,"\t$strand\t$edit\t$edit_s\n";
 }else{
    print ARF "$line[0]\t",length($line[9]),"\t1\t",length($line[9]),"\t",lc $line[9],"\t$line[2]\t",length($genome_seq),"\t$line[3]\t",($line[3] -1 + (length($genome_seq))),"\t",lc $genome_seq,"\t$strand\t$edit\t$edit_s\n";
 }
 }  
 close IN;
+
+
+if($options{'o'}){
+system("mv reads_collapsed.fa ../$options{'o'}");
+}
+
+chdir "..";
+
+if(!$options{'n'}){
+   system("rm -rf $tmp_dir");
+}
+
 
 
 
@@ -257,6 +280,77 @@ sub FLAGinfo{
     }
     return($rev);
 }
+
+
+
+
+
+sub sam_reads_collapse{
+	my ($file)=@_;
+	open IN,"$file" or die "Sam file $file not found\n";
+
+
+	my ($foo,$output,$finalid);
+	my @ids;
+
+	while(<IN>){
+		next if(/^@/);
+		@line=split();
+		
+		$foo=$line[1];
+		$rev= 0x10;
+		$strand = '+';
+		if(($foo & $rev) == $rev){$strand = '-';}
+        if($strand eq "-"){
+            $line[9] = reverse($line[9]);
+            $line[9] =~ tr/ACGTUacgtu/TGCAATGCAA/;
+        }
+		if(not $seq{$line[9]}){
+			$seq{$line[9]}="$line[0]";
+		}else{
+			$seq{$line[9]}.=",$line[0]";
+			
+		}
+	}
+	close IN;
+	
+	open OUT,">reads_collapsed.fa" or die "File reads_collapsed.fa could not be created\n";
+	open OUT2,">reads_N_to_1.txt" or die "File reads_N_to_1.txt could not be created\n";
+	open OUT3,">read_1_to_1.txt" or die "file not created\n";
+	my $c=0;
+	
+	my $pref='seq';
+	my $css=0;
+	
+	for my $k( keys %seq){
+		@ids=split(",",$seq{$k});
+		#$c=($#ids)
+		$finalid='';
+		if($ids[0] =~ /(\S+)_x(\d+)$/){
+			$c = $2;
+			$finalid=$1;
+		}else{
+			$finalid=$ids[0];
+			$c=1;
+		}
+		foreach my $i(@ids[1..$#ids]){
+			if($ids[$i] =~ /_x(\d+)$/){
+				$c += $1;
+			}else{
+				$c++;
+			}
+			print OUT2 "$i,$ids[0]\n";
+		}
+		$css++;
+		print OUT ">${pref}_${css}_x$c\n$k\n";
+		print OUT3 "$ids[0],${pref}_${css}_x$c\n";
+	}
+	close OUT;
+	close OUT2;
+	close OUT3;
+}
+
+
 
 __DATA__
 0   .

@@ -174,13 +174,28 @@ my %hp;
 ## options
 my %options=();
 
-getopts("ugv:f:ck:os:t:w:er:q:dx:zy:ab:i:j:lm:",\%options);
+getopts("ugv:f:ck:os:t:w:er:q:dx:y:ab:i:j:lm:M:PW:",\%options);
+
+my %weighted=();
+if(-s $options{'W'}){
+	open IN,$options{'W'} or die "Could not open file $options{'W'}\n";
+	while(<IN>){
+		if(/(\S+)\s+(\d+)/){
+			$weighted{$1}=$2;
+		}
+	}
+	close IN;
+}
+
+
 
 ## everything else given to it corresponds to the samples
-my @files_mirnaex = @ARGV;
+my @files_mirnaex=split(",",$options{'M'});
 foreach(@files_mirnaex){
    print STDERR "$_ file with miRNA expression values\n";
 }
+ 
+
 
 #die "here in makehtml2\n";
 
@@ -240,28 +255,16 @@ if($options{b}){
 }
 
 
-## this option is only set if the quantifier module is used alone!!!
-if($options{'z'}){
+PrintQuantifier();
 
-    PrintQuantifier();
+CloseHTML();
+system("cp expression_analyses/expression_analyses_${time}/expression_${time}.html expression_${time}.html");
 
-    CloseHTML();
-    if(not $options{'d'}){
-        $mirbase = 1;
-        CreateStructurePDFQuantifier(%hash_q);
-    }
 
-    exit;
+if(not $options{'d'}){
+	$mirbase = 1;
+	CreateStructurePDFQuantifier(%hash_q);
 }
-die "herere\n";
-
-
-## Specificity value hash for each score cutoff value
-my %SP_values;
-
-
-
-
 exit;
 
 
@@ -418,9 +421,15 @@ sub CreateStructurePDFQuantifier{
                     $hash2{$read}=length($v1); ## begin of read in precursor
                     if($hash{$sid}{"reads"}{$tag}{$read}{"rid"} =~ /_x(\d+)/){
                         my $dc = $1;
+						if($options{'W'}){
+							$dc/=$weighted{$hash{$sid}{"reads"}{$tag}{$read}{"rid"}};
+							#die "here  ===  $hash{$sid}{'reads'}{$tag}{$read}{'rid'} $dc\n";
+						}
+
                         $totalreads+= $dc;
                     
-                        $hash2c{$tag}{$v2}+=$1;     ## number of reads with same sequence
+                        #$hash2c{$tag}{$v2}+=$1;     ## number of reads with same sequence
+						$hash2c{$tag}{$v2}+=$dc;
                         $hash2key{$read}=$v2;
                         $hash2order{$read} = $read;
                         $hash2mm{$read}=$hash{$sid}{"reads"}{$tag}{$read}{"mm"}; ## number of mismatches with precursor sequence
@@ -547,6 +556,7 @@ sub CreateHistogramQuantifier{
 sub CreatePDFQuantifier{
     my ($hash) = @_;
     $pdf=PDF::API2->new; 
+	
     $spacer = length($sid);
     $pdf->mediabox('A4');
     $page=$pdf->page;
@@ -568,13 +578,19 @@ sub CreatePDFQuantifier{
 
     ## here should be written how many annotated stuff is actually there and how many not
     my $jk =10;
-    for(sort {$$hash{$sid}{'mapped'}{$b} <=> $$hash{$sid}{'mapped'}{$a}} keys %{$$hash{$sid}{'mapped'}}){
+	# old
+    #for(sort {$$hash{$sid}{'mapped'}{$b} <=> $$hash{$sid}{'mapped'}{$a}} keys %{$$hash{$sid}{'mapped'}}){
+	#new
+	my @h2m=split(",",$hairpin2mature{$sid});
+	foreach my $h(@h2m){
+		next if($h =~ /^\s*$/);
+
         if($options{'t'}){
             next if($_ !~ $options{'m'});
         }
         $spaces = " " x ($spacer - length($_));
-        $gfx->textlabel($xposshift+20,$y+230-$jk+$madd+$downy,$trb,8,"$_ read count",-color=>'black');      
-        $gfx->textlabel($xposshift+110,$y+230-$jk+$madd+$downy,$trb,8,": $$hash{$sid}{'mapped'}{$_}",-color=>'black');
+        $gfx->textlabel($xposshift+20,$y+230-$jk+$madd+$downy,$trb,8,"$h read count",-color=>'black');      
+        $gfx->textlabel($xposshift+110,$y+230-$jk+$madd+$downy,$trb,8,": $$hash{$sid}{'mapped'}{$h}",-color=>'black');
         $jk+=10;
     }
 
@@ -669,7 +685,7 @@ sub CreateAlignmentQuantifier{
                 $gfx->textlabel($position_hash{0},$y,$trb,6,$hash2seq{$k},-color=>'black');
                 
                 ## matches and read numbers
-                $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,$hash2c{$tag}{$hash2key{$k}} ,-color=>'black');
+                $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,int($hash2c{$tag}{$hash2key{$k}}) ,-color=>'black');
                 $gfx->textlabel($xposshift+70+ $lstruct_multi,$y,$trb,6,$hash2mm{$k} ,-color=>'black');
                 $gfx->textlabel($xposshift+110+ $lstruct_multi,$y,$trb,6,$hash2sample{$k} ,-color=>'black');
                 
@@ -703,7 +719,7 @@ sub CreateAlignmentQuantifier{
             $gfx->textlabel($position_hash{0},$y,$trb,6,$hash2seq{$k},-color=>'black');
             
             ## matches and read numbers
-            $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,$hash2c{$tag}{$hash2key{$k}} ,-color=>'black');
+            $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,int($hash2c{$tag}{$hash2key{$k}}) ,-color=>'black');
             $gfx->textlabel($xposshift+70+ $lstruct_multi,$y,$trb,6,$hash2mm{$k} ,-color=>'black');
             $gfx->textlabel($xposshift+110+ $lstruct_multi,$y,$trb,6,$hash2sample{$k} ,-color=>'black');
             
@@ -779,7 +795,7 @@ sub DrawStructure{
     ## run RNAplot to create secondary structure ps file
     my $cw =cwd;
     #print STDERR "$sid\tcwd\t$cw\n";
-    system("RNAfold -d < $cwd/pdfs_$time/${filename}.tmp > $cwd/pdfs_$time/tmp");
+    system("RNAfold -d 0 < $cwd/pdfs_$time/${filename}.tmp > $cwd/pdfs_$time/tmp");
 
     #exit;
     my $in_pos=0;
@@ -1456,15 +1472,31 @@ $h{4}{1} = '-';
 $h{4}{1} .="&#160" x 5;
 $h{4}{2} = '-';
 $h{5}{1} = 'total read count';
+
+if($options{'P'}){
+	$h{5}{2} = 'this is the sum of read counts for the 5p and 3p sequences.';
+	$h{6}{1} = '5p read counts';
+	$h{6}{2} = 'this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the 5p sequence, including 2 nts upstream and 5 nts downstream. In parenthesis are normalized read counts shown.';
+	$h{8}{1} = '3p read counts';
+	$h{8}{2} = 'this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the 3p sequence, including 2 nts upstream and 5 nts downstream. In parenthesis are normalized read counts shown.';
+	$h{9}{1} = 'remaining reads';
+	$h{9}{2} = 'this is the number of reads that did not map to any of the 5p or 3p sequences';
+
+}else{
 $h{5}{2} = 'this is the sum of read counts for the mature and star miRNAs.';
 $h{6}{1} = 'mature read count(s)';
 $h{6}{2} = 'this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the mature miRNA, including 2 nts upstream and 5 nts downstream. If more than one mature sequence is given this will be a comma separated list. In parenthesis are normalized read counts shown.';
-$h{7}{1} = '-    ';
-$h{7}{2} = '-    ';
 $h{8}{1} = 'star read count';
 $h{8}{2} = 'this is the number of reads that map to the miRNA hairpin and are contained in the sequence covered by the star miRNA, including 2 nts upstream and 5 nts downstream. This field is empty unless a reference star miRNA was given as input to quantifier.pl. If more than one mature sequence is given this will be a comman separated list';
 $h{9}{1} = 'remaining reads';
 $h{9}{2} = 'this is the number of reads that did not map to any of the mature and star sequences';
+}
+
+$h{7}{1} = '-    ';
+$h{7}{2} = '-    ';
+
+
+
 $h{10}{1} = '-'; #'miRBase mature id';
 $h{10}{2} = '-'; #'Clicking this field will link to miRBase.';
 $h{11}{1} = '-';
@@ -1473,10 +1505,18 @@ $h{12}{1} = 'UCSC browser';
 $h{12}{2} = 'if a species name was input to miRDeep2, then clicking this field will initiate a UCSC blat search of the miRNA precursor sequence against the reference genome.';
 $h{13}{1} = 'NCBI blastn';
 $h{13}{2} = 'clicking this field will initiate a NCBI blastn search of the miRNA precursor sequence against the nr/nt database (non-redundant collection of all NCBI nucleotide sequences).';
-$h{14}{1} = 'miRBase mature sequence(s)';
-$h{14}{2} = 'this is/are the mature miRNA sequence(s) input to quantifier.pl.';
-$h{15}{1} = 'miRBase star sequence(s)';
-$h{15}{2} = 'this is/are the star miRNA sequence(s) input to quantifier.pl. This field is empty unless a reference star miRNA was given as input to quantifier.pl.';
+if($options{'P'}){
+	$h{14}{1} = 'miRBase 5p sequence(s)';
+	$h{14}{2} = 'this is/are the 5p miRNA sequence(s) input to quantifier.pl.';
+	$h{15}{1} = 'miRBase 3p sequence(s)';
+	$h{15}{2} = 'this is/are the 3p miRNA sequence(s) input to quantifier.pl.';
+}else{
+	$h{14}{1} = 'miRBase mature sequence(s)';
+	$h{14}{2} = 'this is/are the mature miRNA sequence(s) input to quantifier.pl.';
+	$h{15}{1} = 'miRBase star sequence(s)';
+	$h{15}{2} = 'this is/are the star miRNA sequence(s) input to quantifier.pl. This field is empty unless a reference star miRNA was given as input to quantifier.pl.';
+}
+
 $h{16}{1} = 'miRBase precursor sequence';
 $h{16}{2} = 'this is the precursor miRNA sequence input to quantifier.pl.';
 if($options{'a'}){
@@ -1512,14 +1552,13 @@ print HTML <<EOF;
 EOF
 for(sort {$a <=> $b} keys %h){
 
-    if($options{'z'}){
-        next if($_ == 2);
-        next if($_ == 3);
-        next if($_ == 4);
-        next if($_ == 7);
-        next if($_ == 10);
-        next if($_ == 11);
-    }
+	next if($_ == 2);
+	next if($_ == 3);
+	next if($_ == 4);
+	next if($_ == 7);
+	next if($_ == 10);
+	next if($_ == 11);
+	
 
     if($_ ne 16){
         if($_ eq 9 and $hl !~ /not/){
@@ -1546,7 +1585,7 @@ sub PrintQuantifier{
     my $reads;
 
     ## create HTML for quantifier module
-    open HTML,">expression_${time}.html" or die "cannot create expression_${time}.html\n";
+    open HTML,">expression_analyses/expression_analyses_${time}/expression_${time}.html" or die "cannot create expression_analyses/expression_analyses_${time}/expression_${time}.html\n";
     CreateHTML(); ##
     PrintHtmlTableHeader();
     
@@ -1571,7 +1610,7 @@ sub PrintQuantifier{
 		
         ## here comes up the trouble when two mature map to same precursor
         $mature2hairpin{$line[0]}=$line[2]; 
-		$hairpin2mature{$line[2]}=$line[0];
+		$hairpin2mature{$line[2]}.="$line[0],";
         $exprs{$line[0]} = $line[1];
         $exprs2{$line[2]}{$line[0]} = $line[1];
 	}
@@ -1613,7 +1652,22 @@ sub PrintQuantifier{
             chomp $seq;
             $seq  =lc($seq);
             $seq =~ tr/t/u/;
-            $hm{$id} = $seq;
+
+			if($options{'P'}){
+				if($id =~ /-5p/){
+					$hm{$id}=$seq;
+				}elsif(/-3p/){
+					$hs{$id}=$seq;
+				}else{
+#					print STDERR "option P is used but no 3p or 5p identifier found in $id";
+					$hs{$id}=$seq;
+					$hm{$id}=$seq;
+				}
+
+			}else{
+				$hm{$id} = $seq;
+			}
+
 #            die "$id\t$seq\n";
         }
     }
@@ -1759,6 +1813,7 @@ sub PrintQuantifier{
         ## read in here everything that mapped to the precursor
         elsif(/^(\S+) read count\s*(\d+)/){ ## everything else is just read in as id with real name
             $hash_q{$id}{'mapped'}{$1} = $2;
+#			print STDERR "yeah $1\n";
         }
         elsif(/^pri_seq\s+(\S+)/){
             $hash_q{$id}{"pri_seq"}=$1;
@@ -1832,17 +1887,53 @@ sub PrintQuantifier{
     for my $id(sort {$hash_q{$b}{"freq_total"} <=> $hash_q{$a}{"freq_total"}} keys %exprs2){
         my %mature = (); ## make hash for mature and star
         my %star = ();
-            
+		my $ind;
+
+
         my $s_star= $hash_q{$id}{'star_seq'};
             ## now go over everything that is expressed
-        for my $k2(keys %{$exprs2{$id}}){ ##k1 == precursor, k2 == mirna mapped to it;
-            if($k2 =~ /\*/){
-                $star{$k2} = $exprs2{$id}{$k2};
-            }else{
-                $mature{$k2} = $exprs2{$id}{$k2};
-            }
-            
+      
+		for my $k2(keys %{$exprs2{$id}}){ ##k1 == precursor, k2 == mirna mapped to it;
+
+			if($options{'P'}){
+				if($k2 =~ /-3p/){
+					$star{$k2} = $exprs2{$id}{$k2};
+				}elsif($k2 =~ /-5p/){
+					$mature{$k2} = $exprs2{$id}{$k2};
+				}else{
+					$ind= index($hash_q{$id}{"pri_seq"},$hash_q{$id}{"mat_seq"});
+#					print STDERR "===  $ind  $id $k2  ", length($hash_q{$id}{"pri_seq"})/2,"\n";
+
+					if($ind >  length($hash_q{$id}{"pri_seq"})/2 ){
+						$star{$k2} = $exprs2{$id}{$k2};
+					}elsif($ind >0){
+						$mature{$k2} = $exprs2{$id}{$k2};
+					}else{
+						print STDERR "Could not determine where $k2 sits in precursor\nPutting it to the 5p species hash\n";
+						$mature{$k2} = $exprs2{$id}{$k2};
+					}
+				}
+			}else{
+				if($k2 =~ /\*/){
+					$star{$k2} = $exprs2{$id}{$k2};
+				}else{
+					$mature{$k2} = $exprs2{$id}{$k2};
+				}
+			}
+
         }
+
+
+
+
+  # for my $k2(keys %{$exprs2{$id}}){ ##k1 == precursor, k2 == mirna mapped to it;
+  #           if($k2 =~ /\*/){
+  #               $star{$k2} = $exprs2{$id}{$k2};
+  #           }else{
+  #               $mature{$k2} = $exprs2{$id}{$k2};
+  #           }
+            
+  #       }
         #$id = $mature2hairpin{$oid}; ## this is now the name of the precursor
 #            if($id =~ /-1224/){print "$id\n";}
             $hash_q{$id}{"pdf"} = 1;
@@ -1871,18 +1962,19 @@ sub PrintQuantifier{
             }
             
 
-
+		## do not print precursors with 0 reads mapped to it
+		next if(not $hash_q{$id}{"freq_total"});
             ## print miRBase id instead of precursor
             if($options{'d'} or not $hash_q{$id}{"freq_total"}){ ## no link to pdf
-                print HTML "<tr><td nowrap=\"nowrap\">$id</td>\n";
+                print HTML "<tr><td nowrap=\"nowrap\"><div style=\"visibility: hidden\">$id.pdf </div>$id</a></td>";
             }else{
-                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"$pdf_path/pdfs_$time/$id.pdf\">$id</a></td>\n";
+                print HTML "<tr><td nowrap=\"nowrap\"><a href=\"pdfs_$time/$id.pdf\">$id</a></td>";
             }
             print HTML <<EOF;
-            <td>$hash_q{$id}{"freq_total"}</td>
-            
 
+            <td>$hash_q{$id}{"freq_total"}</td>            
             <td>
+
 EOF
 
 $mf = "<table>";
@@ -1897,21 +1989,22 @@ for my $sample(sort keys %exprs_sample){                                        
 
 for my $mx(keys %mature){ 
 #    $mf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td><td> $mature{$mx} </td>";
-$mf .= "<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td>";
+$mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td>";
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
         $mf .= "<td><nobr>$exprs_sample{$sample}{$id}{$mx}</nobr></td>";
 #		die $exprs_sample{$sample}{$id}{$mx};
     }
 
-    $mf .= "</tr>";
-    $s_mat .= "<tr><td> $hm{$mx} </td></tr>";
+    $mf .= "</tr>\n";
+    $s_mat .= "<tr><td>$hm{$mx}</td></tr>";
 }
-$mf .= "</table>";
+$mf .= "</table>\n";
 $s_mat .= "</table>";
 
 print HTML "
-$mf</td>
-";
+$mf
+</td>
+\n";
 
 		if((scalar keys %star) > 0){
 $s_star = "<table>";
@@ -1927,253 +2020,41 @@ for my $sample(sort keys %exprs_sample){                                        
 for my $sx(keys %star){
 #    $sf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td><td>    $star{$sx} </td>";
  
-$sf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td>";
+$sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td>";
 
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
-        $sf .= "<td><nobr>$exprs_sample{$sample}{$id}{$sx}</nobr></td>";
+        $sf .= "<td><nobr>$exprs_sample{$sample}{$id}{$sx}</nobr></td>\n";
     }
-    $sf .="</td>";
+    $sf .="</tr>\n";
     
-   $s_star .= "<tr><td> $hs{$sx} </td></tr>";
+   $s_star .= "<tr><td>$hs{$sx}</td>\n</tr>";
 }
-$sf .= "</table>";
+$sf .= "</table>\n";
 $s_star .= "</table>";
 }else{
-	$sf = '';
-	$s_star= '';
+	$sf = '-';
+	$s_star= '-';
 }
 
+print HTML "
+<td>
+$sf
+</td>
+\n";
 
 print HTML <<EOF;
 
-            <td>$sf</td>
+           
 			<td nowrap="nowrap">$hash_q{$id}{"remaining_rc"}</td>
             $blat
             <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
-            <td>$s_mat</td>
-            <td>$s_star</td>
-            <td>$hash_q{$id}{'pri_seq'}</td>
+            <td>$s_mat</td>\n<td>$s_star</td>\n<td>$hash_q{$id}{'pri_seq'}</td>
 			</tr>     
 EOF
         
 }
 
 }## end of function
-
-# sub check_Rfam{
-#     my %hash = @_;
-    
-#     my $err;
-#     if($options{'q'}){
-#         open TMP,">expression_analyses/expression_analyses_${time}/identified_precursors.fa" or die "Error: could not create file expression_analyses/expression_analyses_${time}/identified_precursors.fa\n";
-#     }else{
-#         open TMP,">mirdeep_runs/run_${time}/identified_precursors.fa" or die "Error: could not create file mirdeep_runs/run_${time}/identified_precursors.fa\n";
-#     }
-#     my ($seqm,$seql,$seqs);
-#     for(keys %hash){
-#         chomp;
-#         $seqm = $hash{$_}{'mat_seq'};
-#         $seqm =~ tr/uUacg/TTACG/;
-        
-#         $seql = $hash{$_}{'loop_seq'};
-#         $seql =~ tr/uUacg/TTACG/;
-
-#         $seqs = $hash{$_}{'star_seq'};
-#         $seqs =~ tr/uUacg/TTACG/;
-        
-
-#       print TMP ">$_\n$hash{$_}{'ucsc_seq'}\n";
-#         print TMP ">M:$_\n$seqm\n";
-#         if(length($seql) > 15){
-#             print TMP ">L:$_\n$seql\n";
-#         }
-#         print TMP ">S:$_\n$seqs\n";
-#     }
-#     close TMP;
-
-#     ## get script directory
-#     my $scripts=`which miRDeep2.pl`;
-#     $scripts =~ s/miRDeep2.pl//;
-#     $scripts =~ s/\s+//g;
-
-
-#     ## bowtie index is placed in folder indexes in folder that holds the mirdeep2 scripts
-#     print STDERR "Build bowtie index of Rfam entries\n\n";
-#     if(not -d "${scripts}indexes"){
-#         mkdir("${scripts}indexes");
-#     }
-
-#     if(not -f "${scripts}indexes/Rfam_index.1.ebwt"){
-#         $err = `bowtie-build $options{'r'} ${scripts}indexes/Rfam_index`;
-#     }
-
-#     #print STDERR "mapping precursor sequences against index\n";
-#     print STDERR "Mapping mature,star and loop sequences against index\n";
-#     ## I think 0 MM would be too conservative
-#     if($options{'q'}){
-#         $err = `bowtie -f -v 1 -a --best --strata --norc ${scripts}indexes/Rfam_index expression_analyses/expression_analyses_${time}/identified_precursors.fa expression_analyses/expression_analyses_${time}/rfam_vs_precursor.bwt`;
-#         open IN,"<expression_analyses/expression_analyses_${time}/rfam_vs_precursor.bwt" or die "Error: file expression_analyses/expression_analyses_${time}/rfam_vs_precursor.bwt not found\n";
-#     }else{
-#         $err = `bowtie -f -v 1 -a --best --strata --norc ${scripts}indexes/Rfam_index mirdeep_runs/run_${time}/identified_precursors.fa mirdeep_runs/run_${time}/rfam_vs_precursor.bwt`;
-#         open IN,"<mirdeep_runs/run_${time}/rfam_vs_precursor.bwt" or die "Error: file mirdeep_runs/run_${time}/rfam_vs_precursor.bwt not found\n";
-#     }
-    
-    
-#     my @line;
-#     my @ids;
-#     while(<IN>){
-#         @line = split(/\t/);
-#         @ids = split(/:/,$line[0]);
-#         if($line[2] =~ /rRNA/i){
-#             ##     id       M/S     type    counter
-#             $hash{$ids[1]}{$ids[0]}{'rRNA'}{'c'}++;
-#         }
-#         elsif($line[2] =~ /tRNA/i){
-#             $hash{$ids[1]}{$ids[0]}{'tRNA'}{'c'}++;
-#         }else{
-#             $hash{$ids[1]}{'rfam'} = '';
-#         }
-#     }
-#     close IN;
-    
-#     my @str = qw(M L S);
-
-#     my $count_o;
-
-#     for(keys %hash){
-#         $count_o =0;
-#         for(my $i=0; $i < 3; $i++){
-#             $count_o++ if($hash{$_}{$str[$i]}{'rRNA'}{'c'} > 0);
-#         }
-#         if($count_o > 1){
-#             $hash{$_}{'rfam'} = 'rRNA';
-#             next;
-#         }
-        
-#         $count_o = 0;
-#         for(my $i = 0; $i < 3; $i++){
-#             $count_o++ if($hash{$_}{$str[$i]}{'rRNA'}{'c'} > 0 or $hash{$ids[1]}{$str[$i]}{'tRNA'}{'c'} > 0);
-#         }
-#         if($count_o > 1){
-#             $hash{$_}{'rfam'} = 'rRNA/tRNA';
-#             next;
-#         }
-        
-#         $count_o =0;
-#         for(my $i=0; $i < 3; $i++){
-#             $count_o++ if($hash{$_}{$str[$i]}{'tRNA'}{'c'} > 0);
-#         }
-#         if($count_o > 1){
-#             $hash{$_}{'rfam'} = 'tRNA';
-#             next;
-#         }
-#     }        
-# }    
-
-# sub getEvalue{
-#     my ($v,$dig) = @_;
-
-#   if($v eq 0){ 
-#         return(0);
-#     }
-#     my $sign="";
-
-#     if($v < 0){
-#         $sign = "-";
-#         $v = abs($v);
-#     } 
-
-#     my $count =0;
-
-#     while($v >= 10){
-#         $count++;
-#         $v /= 10;
-#     }
-
-#     while($v < 1 and $v < 0.1){
-#         $count--;
-#         $v *= 10;
-#         if($v >= 1){
-#             last;
-#         }
-#     }
-
-#     if($v !~ /\./){
-#         $v .= ".";
-#     }
-
-
-#     if(length($v) > ($dig+2)){
-#         $v = substr($v,0,($dig+2));
-#     }else{
-#         $v .= "0" x ( ($dig+2)-length($v));
-#     }
-    
-#     if(not $count){
-#         return("$sign$v");
-#     }else{
-#         if($count > 0){
-#             return("$sign${v}e+$count\n");
-#         }else{
-#             return("$sign${v}e$count\n");
-#         }
-#     }
-# }
-
-# sub get_mature_pos{
-#     open IN,$options{'f'} or die "no input file given\n";
-
-#     my %hash;
-#     my $id;
-#     my $start = -1;
-#     my $seq;
-#     my ($pos,$rpos,$pos_last,$end,$read);
-
-#     while(<IN>){
-#         chomp;
-#         if(/>(\S+)/){ $id = $1; }
-        
-#         if(/exp\s+(\S+)/) { 
-#             $seq = $1;
-#             $start = index($seq,'M'); 
-#             $end = rindex($seq,'M'); 
-            
-#         }
-        
-#         if(/^(\S+_x\d+)\s+(\S+)/){
-#             $read = $1;
-#             $seq = $2;
-#             $seq =~ tr/acgtuACGTU/AAAAAAAAAA/;
-#             $pos = index($seq,'A');
-#             $rpos = rindex($seq,'A');
-#             if($pos eq $start and $rpos eq $end and not defined $hash{$read}){
-#                 $hash{$id} = $read;
-                
-#                 #print "$read\t$id\n";
-
-#             }
-#         }
-#     }
-#     close IN;
-
-#     open IN,"mirdeep_runs/run_$time/tmp/signature.arf" or die "no signature file given for parsing\n";
-
-#     my @line;
-
-#     while(<IN>){
-#         chomp;
-#         @line = split();
-#         if($hash{$line[5]} and $hash{$line[5]} eq $line[0]){
-#             $mature_pos_hash{$line[5]}{'s'} = $line[7];
-#             $mature_pos_hash{$line[5]}{'e'} = $line[8];
-#             $mature_pos_hash{$line[5]}{'strand'} = $line[10];
-# #            die $line[5],"\n";
-#         }
-        
-#     }
-#     close IN;
-# #    exit;
-# }
         
 
 sub Usage{
@@ -2184,7 +2065,6 @@ sub Usage{
     print STDERR "-s file\t supply survey file if score cutoff is used to get information about how big is the confidence of resulting reads\n\n\n";
     print STDERR "-e \t report complete survey file\n";
     print STDERR "-g \t report survey for current score cutoff\n";
-#    print STDERR "-w project_folder\t automatically used when running webinterface, otherwise don't use it\n";
     print STDERR "-r file\t Rfam file to check for already reported small RNA sequences\n\n";
     print STDERR "-q file\t miRBase.mrd file produced by quantifier module\n";
     print STDERR "-x file\t signature.arf file with mapped reads to precursors\n";

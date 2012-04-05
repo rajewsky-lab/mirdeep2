@@ -283,12 +283,17 @@ sub excise{
                     my $excise_beg=$db_beg-70;
                     my $excise_end=$db_end+20;
                     
-                    
+					## correction if beg pos is negative
+					$excise_beg=0 if($excise_beg < 0);
+
                     #print out in fasta format
                     print_positions($db,\$strand,$db_seq,\$db_lng,\$excise_beg,\$excise_end,\$freq,$z);
                     
                     $excise_beg=$db_beg-20;
                     $excise_end=$db_end+70;
+
+					## correction if beg pos is negative
+					$excise_beg=0 if($excise_beg < 0);
                     
                     print_positions($db,\$strand,$db_seq,\$db_lng,\$excise_beg,\$excise_end,\$freq,$z);                
                     #the most 3' position that has yet been excised

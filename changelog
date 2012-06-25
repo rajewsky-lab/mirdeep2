@@ -1,18 +1,25 @@
+Version 2.0.0.5
+The quantifier.pl has a new switch '-U' that causes the usage of only uniquely mapping reads to reference precursors.
+The mapper.pl reports now the number and percentage of mapped and unmapped reads from the collapsed reads file to a reference genome.
+miRDeep2 now aborts now when no precursors were excised.
+A bed file of all miRDeep2 detected precursors is created in the end.
+An additional check of the arf file ids and genome file ids was added to make sure that ids in both files really match.
+An additional check for the presence of the Rfam indices was added.
+A bug was fixed that occurred when the miRDNA ids were too long.
+The html file in the end does not abort anymore when the Rfam index is missing.
+
+
 Version 2.0.0.4
 The quantifier.pl now calculates correctly the remaining read counts.
-The normalization of read counts in the quantifier.pl
-has changed a bit. Each miRNA read count is now divided by the total number of sequenced miRNA read counts and then multiplied by 10E6.
+Reads that map to more than one precursor are now added in a weighted way
+to each precursor. The normalization of read counts in the quantifier.pl
+has changed a bit. Each miRNA read count is now divided by the total number of sequenced miRNA read counts and then multiplied by 10E9.
 The --strata option is added to mapping of reads to the miRBase precursors in the quantifier module.
-Quantifier is updated so the 5p and 3p annotation for some species is handled correctly.
-The quantifier crashed when the file supplied by option -s could not be opened.
-The quantifier has now an additional -W option which will cause reads to be added to a precursor in a weighted way.
-That means if a read maps to two different precursors each of them will get this particular read only 0.5 times attached.
 
 The miRDeep2 html output has been updated so that for known miRNAs
 the field 'mature miRBase miRNA' now contains the miRNA that matches
 the predicted mature sequence or in case that the predicted star
 sequence matches a known miRNA this is then shown instead.
-MirDeep2 is updated so the 5p and 3p annotation for some species is handled correctly when specified an additional -P option.
 
 The install.pl script can also use curl if wget is not available on the machine.
 This is useful for MACOSX users.

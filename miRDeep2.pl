@@ -13,15 +13,15 @@ use Term::ANSIColor;
 
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.0.4";    
+my $version="2.0.0.5";
 
 print "
 
 #####################################
-#                                   # 
-# miRDeep$version                    # 
 #                                   #
-# last change: 05/04/2012           # 
+# miRDeep$version                    #
+#                                   #
+# last change: 25/06/2012           #
 #                                   #
 #####################################
 
@@ -36,7 +36,7 @@ This script enacts the miRDeep pipeline. The input files are:
 reads         deep sequences in fasta format. The identifier should contain a prefix, a running
               number and a '_x' to indicate the number of reads that have this sequence.
               There should be no redundancy in the sequences.
-genome        genome contigs in fasta format. The identifiers should be unique. 
+genome        genome contigs in fasta format. The identifiers should be unique.
 mappings      file_reads mapped against file_genome. The mappings should be in arf format.
               For details on the format see the documentation.
 miRNAs_ref    miRBase miRNA sequences in fasta format. These should be the known mature
@@ -72,7 +72,7 @@ Options:
 
 -d            disable pdf generation
 
--t species    species being analyzed - this is used to link to the appropriate UCSC browser entry 
+-t species    species being analyzed - this is used to link to the appropriate UCSC browser entry
 
 -u            output list of UCSC browser species that are supported and exit
 
@@ -82,7 +82,7 @@ Options:
 
 -s file       File with known miRBase star sequences
 
--r string     Prefix for output file names           
+-r string     Prefix for output file names
 
 -z tag        Additional tag appended to current time stamp
 
@@ -94,9 +94,9 @@ miRDeep2.pl reads.fa genome.fa reads_vs_genome.arf mautre_ref_miRNAs.fa mature_o
 
 ";
 
-## -q file       miRBase.mrd file from quantifier module to show miRBase miRNAs in data that were not scored by miRDeep2
+## -q file  miRBase.mrd file from quantifier module to show miRBase miRNAs in data that were not scored by miRDeep2
 
-## hardcoded variables 
+## hardcoded variables
 my $read_align_mismatches = 1;
 
 
@@ -144,7 +144,7 @@ my $file_reads=shift or die "$usage\n\nError: no reads file specified\n";
 
 my $file_genome=shift or die "$usage\n\nError: no genome file specified\n";
 
-my $file_reads_vs_genome=shift or die "$usage\n\nError: no mapping file specified\n"; 
+my $file_reads_vs_genome=shift or die "$usage\n\nError: no mapping file specified\n";
 
 ## remove pathname if any
 my $parsed_arf;
@@ -170,7 +170,6 @@ Either specify a valid fasta file or say none\n\n";
 
 ############################################# GLOBAL VARIABLES ####################################################
 
-
 my %options=();
 
 getopts("a:b:cdt:uvq:s:z:r:p:g:EP",\%options);
@@ -178,17 +177,17 @@ getopts("a:b:cdt:uvq:s:z:r:p:g:EP",\%options);
 my $max_pres=50000;
 $max_pres=$options{'g'} if(defined $options{'g'});
 
-## minimal precursor length, used for precheck of precursor file 
+## minimal precursor length, used for precheck of precursor file
 my $minpreslen=40;
 if($options{'p'}){
 	$minpreslen=$options{'p'}
 };
 
-my $stack_height_min; 
+my $stack_height_min;
 
-if($options{a}){$stack_height_min=$options{a};} 
+if($options{a}){$stack_height_min=$options{a};}
 
-my $dir; 
+my $dir;
 my $dir_tmp;
 
 if(defined $options{'z'}){$time.=$options{'z'}};
@@ -222,6 +221,8 @@ perform_controls();
 make_survey();
 
 output_results();
+
+make_bed();
 
 remove_dir_tmp();
 
@@ -262,13 +263,13 @@ sub test_input_files{
 
 ################################
 ## precheck for each file
-################################ 
+################################
     open IN,"<$file_reads";
 	my $line=<IN>;
 	chomp $line;
     if($line !~ /^>\S+/){
         printErr();
-        die "The first line of file $file_reads does not start with '>identifier'  
+        die "The first line of file $file_reads does not start with '>identifier'
 Reads file $file_reads is not a valid fasta file\n\n";
     }
 	if($line =~ /\s/){
@@ -289,13 +290,18 @@ Reads file $file_reads is not a fasta file\n\n";
 	chomp $line;
     if($line !~ />\S+/){
         printErr();
-        die "The first line of file $file_genome does not start with '>identifier'  
+        die "The first line of file $file_genome does not start with '>identifier'
 Genome file $file_genome is not a fasta file\n\n";
     }
 	if($line =~ /\s/){
 		printErr();
         die "Genome file $file_genome has not allowed whitespaces in its first identifier\n\n";
 	}
+
+	## get genome ids
+	my $tmps=`grep ">" $file_genome`;
+	my %genomeids = map { $_ => 1 } split("\n",$tmps);
+
 
 
     if(<IN> !~ /^[ACGTUNacgtun]*$/){
@@ -305,7 +311,7 @@ Allowed characters are ACGTUN
 Genome file $file_genome is not a fasta file\n\n";
     }
     close IN;
-	
+
     open IN,"<$file_reads_vs_genome";
     if(<IN> !~ /^(\S+_x\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+([+-])\s+(\d+)\s*([mDIM]*)$/){
         printErr();
@@ -318,14 +324,21 @@ The genomeID is not allowed to contain whitespaces.
 ";
     }
     close IN;
-    
+
+	## get ids from arf file and compare them with ids from the genome file
+	$tmps = `cut -f6 $file_reads_vs_genome|sort -u`;
+	foreach my $s(split("\n",$tmps)){
+		if(not $genomeids{">$s"}){ die "The mapped reference id $s from file $file_reads_vs_genome is not an id of the genome file $file_genome\n\n";}
+	}
+
+
     if($file_mature_ref_this_species !~ /none/){
         open IN,"<$file_mature_ref_this_species";
 		my $line=<IN>;
 		chomp $line;
         if($line !~ />\S+/){
             printErr();
-            die "The first line of file  $file_mature_ref_this_species does not start with '>identifier'  
+            die "The first line of file  $file_mature_ref_this_species does not start with '>identifier'
 miRNA reference this species file $file_mature_ref_this_species is not a fasta file\n\n";
         }
 		if($line =~ /\s/){
@@ -349,7 +362,7 @@ miRNA reference this species file $file_mature_ref_this_species is not a fasta f
 		chomp $line;
         if($line !~ />\S+/){
             printErr();
-            die "The first line of file  $file_mature_ref_other_species does not start with '>identifier'  
+            die "The first line of file  $file_mature_ref_other_species does not start with '>identifier'
 miRNA reference other species file $file_mature_ref_other_species is not a fasta file\n\n";
         }
 		if($line =~ /\s/){
@@ -371,7 +384,7 @@ miRNA reference other species file $file_mature_ref_other_species is not a fasta
 		chomp $line;
         if($line !~ />\S+/){
             printErr();
-            die "The first line of file $file_precursors does not start with '>identifier'  
+            die "The first line of file $file_precursors does not start with '>identifier'
 precursor file $file_precursors is not a fasta file\n\n";
         }
 		if($line =~ /\s/){
@@ -411,32 +424,32 @@ If you have precursors with less than $minpreslen please use option -p <int> to 
         start();
         print STDERR "sanity_check_mature_ref.pl $file_mature_ref_this_species\n\n";
         my $ret_file_mature_ref_this_species=`sanity_check_mature_ref.pl $file_mature_ref_this_species 2>&1`;
-        
-        if($ret_file_mature_ref_this_species){        
+
+        if($ret_file_mature_ref_this_species){
             printErr();
             die "problem with $file_mature_ref_this_species\n".$ret_file_mature_ref_this_species;
         }
         end();
     }
-	
+
     if($file_mature_ref_other_species !~ /none/){
         start();
-        
+
         print STDERR "sanity_check_mature_ref.pl $file_mature_ref_other_species\n\n";
         my $ret_file_mature_ref_other_species=`sanity_check_mature_ref.pl $file_mature_ref_other_species 2>&1`;
-        
+
         if($ret_file_mature_ref_other_species){
             printErr();
             die "problem with $file_mature_ref_other_species\n".$ret_file_mature_ref_other_species;
         }
         end();
     }
-	
+
 
     print STDERR "sanity_check_reads_ready_file.pl $file_reads\n\n";
     start();
     my $ret_test_file_reads=`sanity_check_reads_ready_file.pl $file_reads 2>&1`;
-    
+
     if($ret_test_file_reads){
         printErr();
         die "problem with $file_reads\n".$ret_test_file_reads;
@@ -445,18 +458,18 @@ If you have precursors with less than $minpreslen please use option -p <int> to 
     start();
     print STDERR "sanity_check_genome.pl $file_genome\n\n";
     my $ret_test_file_genome=`sanity_check_genome.pl $file_genome 2>&1`;
-    
+
     if($ret_test_file_genome){
         printErr();
         die "problem with $file_genome\n".$ret_test_file_genome;
     }
     end();
     start();
-    
+
     print STDERR "sanity_check_mapping_file.pl $file_reads_vs_genome\n\n";
     my $ret_test_file_reads_genome=`sanity_check_mapping_file.pl $file_reads_vs_genome 2>&1`;
-    
-    if($ret_test_file_reads_genome){        
+
+    if($ret_test_file_reads_genome){
         printErr();
         die "problem with $file_reads_vs_genome\n". $ret_test_file_reads_genome;
     }
@@ -464,16 +477,16 @@ If you have precursors with less than $minpreslen please use option -p <int> to 
 
     if($file_precursors !~ /none/){
         start();
-        
+
         print STDERR "sanity_check_mature_ref.pl $file_precursors\n\n";
         my $ret_file_precursors=`sanity_check_mature_ref.pl $file_precursors 2>&1`;
-        
+
         if($ret_file_precursors){
             printErr();
             die "problem with $file_precursors\n".$ret_file_precursors;
         }
         end();
-        
+
         start();
         if($file_mature_ref_this_species !~ /none/i){
             print STDERR "Quantitation of expressed miRNAs in data\n\n\n";
@@ -503,16 +516,16 @@ If you have precursors with less than $minpreslen please use option -p <int> to 
             print STDERR $quant,"\n";
             `$quant`;
             $options{'q'} = "expression_analyses/expression_analyses_$time/miRBase.mrd";
-            
+
             end();
         }else{
-            print STDERR "Pre-quantitation is skipped caused by missing file with known miRNAs\n\n\n";   
+            print STDERR "Pre-quantitation is skipped caused by missing file with known miRNAs\n\n\n";
         }
 
     }else{
-        print STDERR "Pre-quantitation is skipped caused by missing file with known precursor miRNAs\n\n\n";   
+        print STDERR "Pre-quantitation is skipped caused by missing file with known precursor miRNAs\n\n\n";
     }
-    
+
     return;
 }
 
@@ -526,14 +539,14 @@ sub make_dir_tmp{
         mkdir("mirdeep_runs");
     }
 
-    
+
     $dir="mirdeep_runs/run_$time";
 
     print STDERR "mkdir $dir\n\n";
     mkdir("$dir");
 
     $dir_tmp = "$dir/tmp";
-    
+
     mkdir("$dir_tmp");
 
     return;
@@ -543,7 +556,7 @@ sub make_dir_tmp{
 
 
 sub rna2dna{
-    
+
 ##process_input mirna files
     if($file_mature_ref_this_species !~ /none/i){
         start();
@@ -554,12 +567,12 @@ sub rna2dna{
         ##rename orig file
         $file_mature_ref_this_species = $file_mature_ref_this_species_tmp;
     }
-    
+
     if($file_mature_ref_other_species !~ /none/i){
         ##copy file
         my ( $file_mature_ref_other_species_tmp, $path0, $extension0 ) = fileparse (  $file_mature_ref_other_species, '\..*' );
         print STDERR "rna2dna.pl $file_mature_ref_other_species > $dir_tmp/$file_mature_ref_other_species_tmp\n\n";
-        ##here give file name 
+        ##here give file name
         my $ret_parse_mature_ref_other_species=`rna2dna.pl $file_mature_ref_other_species > $dir_tmp/$file_mature_ref_other_species_tmp`;
         ##rename orig file
         $file_mature_ref_other_species =  $file_mature_ref_other_species_tmp;
@@ -570,32 +583,32 @@ sub rna2dna{
         ##copy file
         my ( $file_precursors_tmp, $path0, $extension0 ) = fileparse (  $file_precursors, '\..*' );
         print STDERR "rna2dna.pl $file_precursors > $dir_tmp/$file_precursors_tmp\n\n";
-        ##here give file name 
+        ##here give file name
         my $ret_parse_precursors=`rna2dna.pl $file_precursors > $dir_tmp/$file_precursors_tmp`;
         ##rename orig file
         $file_precursors =  $file_precursors_tmp;
         end();
     }
-	
+
     return 0;
 }
 
 
 sub parse_mappings{
-    
+
     #parse mappings to retain only perfect mappings of reads 18 nt <= length <= 25 nt that map perfectly to five loci or less
-    print "#parsing genome mappings\n"; 
-    print STDERR "#parsing genome mappings\n"; 
-    
+    print "#parsing genome mappings\n";
+    print STDERR "#parsing genome mappings\n";
+
 
 
 	print STDERR "parse_mappings.pl $file_reads_vs_genome -a 0 -b 18 -c 25 -i 5 > $dir_tmp/${parsed_arf}_parsed.arf\n\n";
     start();
-	
+
 
     my $ret_parse_mappings=`parse_mappings.pl $file_reads_vs_genome -a 0 -b 18 -c 25 -i 5 > $dir_tmp/${parsed_arf}_parsed.arf`;
     end();
-	
+
     return 0;
 }
 
@@ -603,10 +616,10 @@ sub parse_mappings{
 sub excise_precursors{
 
     #excise precursors from the genome
-    
+
     print "#excising precursors\n";
     print STDERR "#excising precursors\n";
-    
+
     start();
     my $ret_excise_precursors;
 
@@ -614,21 +627,24 @@ sub excise_precursors{
 
         print STDERR "excise_precursors.pl $file_genome $dir_tmp/${parsed_arf}_parsed.arf $dir_tmp/precursors.coords -a $stack_height_min > $dir_tmp/precursors.fa\n\n";
         $ret_excise_precursors=`excise_precursors.pl $file_genome $dir_tmp/${parsed_arf}_parsed.arf $dir_tmp/precursors.coords -a $stack_height_min > $dir_tmp/precursors.fa`;}
-	
+
 
     else{
         print STDERR "excise_precursors_iterative_final.pl $file_genome $dir_tmp/${parsed_arf}_parsed.arf $dir_tmp/precursors.fa $dir_tmp/precursors.coords $max_pres\n";
         $ret_excise_precursors=`excise_precursors_iterative_final.pl $file_genome $dir_tmp/${parsed_arf}_parsed.arf $dir_tmp/precursors.fa $dir_tmp/precursors.coords $max_pres`;
-       
+
 		open OSS,"<$dir_tmp/precursors.fa_stack" or die "No file $dir_tmp/precursors.fa_stack found\n";
-		
+
 
 		$stack_height_min=<OSS>;
 		chomp $stack_height_min;
 		close OSS;
     }
-    
+
     end();
+
+	die "No precursors excised\n" if(-z "$dir_tmp/precursors.fa" or not -f "$dir_tmp/precursors.fa");
+
     return 0;
 }
 
@@ -644,16 +660,16 @@ sub prepare_signature{
 
     if($file_mature_ref_this_species !~ /none/i){
 
-        print STDERR "prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -a $dir_tmp/$file_mature_ref_this_species -o $dir_tmp/signature.arf 2> /dev/null\n\n";
+        print STDERR "prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -a $dir_tmp/$file_mature_ref_this_species -o $dir_tmp/signature.arf 2>>error_${time}.log\n\n";
         start();
-        my $ret_prepare_signature=`prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -a $dir_tmp/$file_mature_ref_this_species -o $dir_tmp/signature.arf 2> /dev/null`;
+        my $ret_prepare_signature=`prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -a $dir_tmp/$file_mature_ref_this_species -o $dir_tmp/signature.arf 2>>error_${time}.log`;
         end();
 
     }else{
 
-        print STDERR "prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -o $dir_tmp/signature.arf 2> /dev/null\n\n";
+        print STDERR "prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -o $dir_tmp/signature.arf 2>>error_${time}.log\n\n";
         start();
-        my $ret_prepare_signature=`prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -o $dir_tmp/signature.arf 2> /dev/null`;
+        my $ret_prepare_signature=`prepare_signature.pl $file_reads $dir_tmp/precursors.fa $read_align_mismatches -o $dir_tmp/signature.arf 2>>error_${time}.log`;
         end();
 
     }
@@ -669,7 +685,7 @@ sub fold_precursors{
     print STDERR "#folding precursors\n";
     print STDERR "RNAfold < $dir_tmp/precursors.fa -noPS > $dir_tmp/precursors.str\n\n";
     start();
-	my $ret_fold_precursors=system("RNAfold < $dir_tmp/precursors.fa -noPS > $dir_tmp/precursors.str 2>/dev/null");
+	my $ret_fold_precursors=system("RNAfold < $dir_tmp/precursors.fa -noPS > $dir_tmp/precursors.str 2>>error_${time}.log");
 	if($ret_fold_precursors){
 		$ret_fold_precursors=system("RNAfold < $dir_tmp/precursors.fa --noPS > $dir_tmp/precursors.str");
 		if($ret_fold_precursors){
@@ -709,26 +725,32 @@ sub compute_randfold{
 
 
 sub miRDeep_core_algorithm{
-        
+
     #run miRDeep core algorithm
 
     print "#running miRDeep core algorithm\n";
     print STDERR "#running miRDeep core algorithm\n";
     my $line;
 
+	my $longest_id=40;
+	if($file_mature_ref_this_species !~ /none/i){
+		$longest_id= get_longest_id("$dir_tmp/$file_mature_ref_this_species");
+	}
+
+
     start();
 
     if($file_mature_ref_other_species !~ /none/i){
 
-        $line="miRDeep2_core_algorithm.pl $dir_tmp/signature.arf $dir_tmp/precursors.str -s $dir_tmp/$file_mature_ref_other_species -v -50";
+        $line="miRDeep2_core_algorithm.pl $dir_tmp/signature.arf $dir_tmp/precursors.str -s $dir_tmp/$file_mature_ref_other_species -v -50 -l $longest_id";
 
     }else{
- 
-        $line="miRDeep2_core_algorithm.pl $dir_tmp/signature.arf $dir_tmp/precursors.str -v -50";
+
+        $line="miRDeep2_core_algorithm.pl $dir_tmp/signature.arf $dir_tmp/precursors.str -v -50 -l $longest_id";
     }
 
     unless($options{c}){$line.=" -y $dir_tmp/precursors_for_randfold.rand";}
-    
+
     print STDERR "$line > $dir/output.mrd\n";
     my $ret_miRDeep_core=`$line > $dir/output.mrd`;
 	if($options{'E'}){
@@ -767,13 +789,13 @@ sub perform_controls{
         $line="miRDeep2_core_algorithm.pl $dir_tmp/signature.arf $dir_tmp/precursors.str -v -50";
 
     }
-    
+
     unless($options{c}){$line.=" -y $dir_tmp/precursors_for_randfold.rand";}
 
     print STDERR "echo '$line > $dir/output.mrd' > $dir_tmp/command_line\n\n";
     my $ret_command_line=`echo '$line > $dir/output.mrd' > $dir_tmp/command_line`;
-    print STDERR "perform_controls.pl $dir_tmp/command_line $dir_tmp/precursors.str 100 -a > $dir_tmp/output_permuted.mrd 2> /dev/null\n\n";
-    my $ret_perform_controls=`perform_controls.pl $dir_tmp/command_line $dir_tmp/precursors.str 100 -a > $dir_tmp/output_permuted.mrd 2> /dev/null`;
+    print STDERR "perform_controls.pl $dir_tmp/command_line $dir_tmp/precursors.str 100 -a > $dir_tmp/output_permuted.mrd 2>>error_${time}.log\n\n";
+    my $ret_perform_controls=`perform_controls.pl $dir_tmp/command_line $dir_tmp/precursors.str 100 -a > $dir_tmp/output_permuted.mrd 2>>error_${time}.log`;
     end();
     return;
 }
@@ -783,7 +805,7 @@ sub perform_controls{
 sub make_survey{
 
     #get overview of the output:
-    
+
     print "#doing survey of accuracy\n";
     print STDERR "#doing survey of accuracy\n";
 
@@ -835,7 +857,7 @@ sub output_results{
 
 
     if($file_mature_ref_this_species !~ /none/i){
-		
+
         if($options{'q'}){
             $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'} -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample $OE";
         }else{
@@ -851,9 +873,9 @@ sub output_results{
 
     if($options{t}){$line.=" -t $options{t}";}
 
-    print STDERR "$line -V $version 2> /dev/null\n\n";
-    my $ret_make_html=`$line -V $version 2> /dev/null`;
-	
+    print STDERR "$line -V $version\n\n";
+    my $ret_make_html=`$line -V $version`;
+
     end();
     return;
 }
@@ -900,7 +922,7 @@ sub end{
     ($second, $minute, $hour, $dayOfMonth, $month, $yearOffset, $dayOfWeek, $dayOfYear, $daylightSavings) = localtime();
     $second = "0$second" if($second =~ /^\d$/);
     $eTime = "$hour:$minute:$second";
-    
+
     print STDERR "
 ended: $eTime
 total:", int($etime / 3600),"h:",int(($etime % 3600) / 60),"m:",int($etime % 60),"s\n\n";
@@ -929,7 +951,7 @@ sub printUsedParameters{
     if($options{'t'}){print OUT "option{t} =\t$options{'t'}\n";}
     if($options{'v'}){print OUT "option{v} =\tused\n";}
 #    if($options{'q'}){print OUT "option{q} =\t$options{'q'}\n";}
-    
+
     close OUT;
 }
 
@@ -954,31 +976,41 @@ If you used the install.pl script make sure that you started a complete new shel
 If this did not help please restart youer workstation.\n\n";
 
 	my $ret;
-	
+
 	$ret = checkBIN("bowtie --version","version");
 	die "Error: \tbowtie not found\nCheck if bowtie is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
 
 	$ret = checkBIN("RNAfold -h","gamma");
 	die "Error: \tRNAfold not found\nCheck if RNAfold is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
-	
+
 	$ret = checkBIN("randfold","let7");
 	die "Error: \trandfold not found\nCheck if randfold is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
 
 	$ret = checkBIN("perl -e \'use PDF::API2; print \"installed\";\'","installed");
 	die "Error: \tPerl PDF::API2 package not found\nCheck if the perl PDF::API2 package is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
-	
+
 	if(not -f "$scripts/Rfam_for_miRDeep.fa"){
 		die "Error:\t Rfam_for_miRDeep.fa not found in your miRDeep2 scripts directory\nPlease copy this file from the miRDeep2 archive to your miRDeep2 scripts directory\n\n";
-	} 
+	}
 
 	return 0;
 }
 
+sub make_bed{
+	my $res=`mirdeep2bed.pl result_${time}.csv > result_${time}.bed`;
+	if(!$res){
+		return 0;
+	}else{
+		print STDERR $res,"\n";
+		return 1;
+	}
+}
+
 
 sub checkBIN{
-    my ($a,$b) = @_;    
+    my ($a,$b) = @_;
 	my $e = system("$a 1>$dir/tmp/binaries 2>$dir/tmp/binaries2");
-	
+
     open IN,"<$dir/tmp/binaries";
     my $found = 1;
     while(<IN>){
@@ -997,4 +1029,17 @@ sub checkBIN{
 	}
     close IN;
     return $found;
+}
+
+sub get_longest_id{
+	my ($f) = @_;
+	my $l = 0;
+	open IN,$f or die "No file given for checking\n";
+	while(<IN>){
+		if(/>(\S+)/){
+			$l = length($1) if(length($1) > $l);
+		}
+	}
+	close IN;
+	return $l;
 }

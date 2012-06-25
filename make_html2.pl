@@ -1986,7 +1986,7 @@ for my $sample(sort keys %exprs_sample){                                        
     $mf .= "<td>$sample</td>";
 }
 
-
+if(scalar keys %mature != 0){
 for my $mx(keys %mature){ 
 #    $mf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td><td> $mature{$mx} </td>";
 $mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td>";
@@ -1998,6 +1998,17 @@ $mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/qu
     $mf .= "</tr>\n";
     $s_mat .= "<tr><td>$hm{$mx}</td></tr>";
 }
+}else{
+$mf .= "\n<tr><td  nowrap=\"nowrap\"><a>na</a></td>";
+for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
+        $mf .= "<td><nobr>0</nobr></td>";
+#		die $exprs_sample{$sample}{$id}{$mx};
+    }
+
+    $mf .= "</tr>\n";
+    $s_mat .= "<tr><td>-</td></tr>";
+}
+
 $mf .= "</table>\n";
 $s_mat .= "</table>";
 
@@ -2006,35 +2017,43 @@ $mf
 </td>
 \n";
 
-		if((scalar keys %star) > 0){
+#		if((scalar keys %star) > 0){
 $s_star = "<table>";
 $sf = "<table>";
 #$sf .= "<tr><td> miRNA </td><td>total    </td>";
-$sf .= "<tr><td>id</td>";
+$sf .= "<tr><td WIDTH=$width>id</td>";		
 for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
     $sf .= "<td>$sample</td>";
 }
 
 
-
+if((scalar keys %star) != 0){
 for my $sx(keys %star){
 #    $sf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td><td>    $star{$sx} </td>";
  
 $sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td>";
 
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
-        $sf .= "<td><nobr>$exprs_sample{$sample}{$id}{$sx}</nobr></td>\n";
+        $sf .= "<td><nobr>$exprs_sample{$sample}{$id}{$sx}</nobr></td>";
     }
     $sf .="</tr>\n";
     
    $s_star .= "<tr><td>$hs{$sx}</td>\n</tr>";
 }
+}else{
+		$sf .= "\n<tr><td  nowrap=\"nowrap\"><a>na</a></td>";
+		for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
+			$sf .= "<td><nobr>0</nobr></td>";
+#		die $exprs_sample{$sample}{$id}{$mx};
+		}
+
+		$sf .= "</tr>\n";
+		$s_star .= "<tr><td>-</td></tr>";	
+}
+
 $sf .= "</table>\n";
 $s_star .= "</table>";
-}else{
-	$sf = '-';
-	$s_star= '-';
-}
+
 
 print HTML "
 <td>

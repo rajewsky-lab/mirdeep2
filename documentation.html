@@ -42,6 +42,9 @@ A spreadsheet and a html file with an overview of all detected miRNAs in the dee
 -s file       File with known miRBase star sequences
 
 -z tag        Additional tag appended to current time stamp
+
+-P            use this switch if mature_ref_miRNAs contain miRBase v18 identifiers (5p and 3p) instead of previous ids from v17
+
 </pre>
 <h4>Examples: </h4>
 The miRDeep2 module identifies known and novel miRNAs in deep sequencing data. The output of the mapper module can be directly plugged into the miRDeep2 module.
@@ -99,11 +102,11 @@ Preprocessing/mapping:
 -q              map with one mismatch in the seed (mapping takes longer)
 
 -r int          a read is allowed to map up to this number of positions in the genome
-                default is 5 
+                default is 5
 
 Output files:
 -s file         print processed reads to this file
--t file         print read mappings to this file 
+-t file         print read mappings to this file
 
 Other:
 -u              do not remove directory with temporary files
@@ -129,7 +132,7 @@ The user wishes to process the reads as in example use 1 and map the reads as in
 <h4>Example use 4:</h4>
 The user wishes to parse a GEO file to fasta format and process it as in example use 1. The GEO file is in tabular format, with the first column showing the sequence and the second column showing the read counts:
 <pre>geo2fasta.pl GSM.txt &gt; reads.fa
-mapper.pl reads.fa -c -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -s reads_collapsed.fa 
+mapper.pl reads.fa -c -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -s reads_collapsed.fa
 </pre>
 <h4>Example use 5 (experimental):</h4>
 The user has already removed 3' adapters in color space and has mapped the reads against the genome using bwa/bowtie resulting in a sam file. Note that each genome locus to which a read was aligned has to occur in its own line. Otherwise only the first genome locus of each line will be taken! The mapping output file is named mapped.sam. The user wishes to generate the files 'reads_collapsed.fa' and 'reads_collapsed_vs_genome.arf' as input to miRDeep2:
@@ -147,7 +150,7 @@ sequencing_data_sample2.fa	sd2
 sequencing_data_sample3.fa	sd3
 </pre>
 The user wishes then to pool these files and use the generated files reads.fa and reads_vs_genome.fa for the miRDeep2 analysis.
-<pre>mapper.pl config.txt -d -c -i -j -l 18 -m -p genome_index -s reads.fa -t reads_vs_genome.arf 
+<pre>mapper.pl config.txt -d -c -i -j -l 18 -m -p genome_index -s reads.fa -t reads_vs_genome.arf
 </pre>
 Since the reads_vs_genome.arf still contains the 3 letter code for each read mapped to genome the user can then later on dilute the contribution of the different samples to a predicted or known miRNA. It can also be used for example to define 'high confident' predictions if the results are filtered for miRNAs that have sequencing evidence from at least two samples.
 <h4>
@@ -170,15 +173,15 @@ A tab separated file called miRNAs_expressed_all_samples.csv with miRNA identifi
 <h4>options:</h4><pre>
 
 [mandatory parameters]
-        -u      list all values allowed for the species parameter that have an entry at UCSC 
+        -u      list all values allowed for the species parameter that have an entry at UCSC
 
         -p precursor.fa  miRNA precursor sequences from miRBase
         -m mature.fa     miRNA sequences from miRBase
         -r reads.fa      your read sequences
 
 [optional parameters]
-        -c [file]    config.txt file with different sample ids... or just the one sample id 
-        -s [star.fa] optional star sequences from miRBase     
+        -c [file]    config.txt file with different sample ids... or just the one sample id
+        -s [star.fa] optional star sequences from miRBase
         -t [species] e.g. Mouse or mmu
                      if not searching in a specific species all species in your files will be analyzed
                      else only the species in your dataset is considered
@@ -195,6 +198,7 @@ A tab separated file called miRNAs_expressed_all_samples.csv with miRNA identifi
         -j           do not create an output.mrd file and pdfs if specified
 
         -w           considers the whole precursor as the 'mature sequence'
+        -U           discard all read multimapper
 
 </pre>
 <h4>example usage:</h4>

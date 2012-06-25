@@ -54,7 +54,7 @@ my $file_struct=shift or die $usage;
 
 #options
 my %options=();
-getopts("hs:tuv:xy:z",\%options);
+getopts("hs:tuv:xy:zl:",\%options);
 
 
 
@@ -107,7 +107,7 @@ my $out_of_bound;
 
 ##############################################################################################
 
-################################  MAIN  ###################################################### 
+################################  MAIN  ######################################################
 
 
 #print help if that option is used
@@ -145,7 +145,7 @@ sub parse_file_arf{
     my($file)=@_;
 
     open(FILENAME, $file) or die "Could not open file $file";
-    
+
     while (my $line = <FILENAME>){
 	if($line=~/^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/){
 
@@ -165,7 +165,7 @@ sub parse_file_arf{
 
 	    #only reads that map sense to the potential precursor are considered
 	    if($strand eq "-"){next;}
-	    
+
 	    #if the new line concerns a new db (potential precursor) then the old db must be resolved
 	    if($db_old and $db_old ne $db){
 		resolve_potential_precursor();
@@ -190,7 +190,7 @@ sub parse_file_arf{
 }
 
 sub resolve_potential_precursor{
-    
+
 #    dissects the potential precursor in parts by filling hashes, and tests if it passes the
 #    initial filter and the scoring filter
 
@@ -198,11 +198,11 @@ sub resolve_potential_precursor{
     my $ret=1;
 
     fill_structure();
-    
+
     fill_pri();
 
     fill_mature();
-   
+
     fill_star();
 
     fill_loop();
@@ -215,11 +215,11 @@ sub resolve_potential_precursor{
     unless(pass_filtering_initial() and pass_threshold_score()){$ret=0;}
 
     print_results($ret);
-    
+
     reset_variables();
-    
+
     return;
-    
+
 }
 
 
@@ -231,7 +231,7 @@ sub print_results{
 #    print out if the precursor is accepted and accepted precursors should be printed out
 #    or if the potential precursor is discarded and discarded potential precursors should
 #    be printed out
-	
+
     if((not $options{t} and $ret) or ($options{t} and not $ret)){
 	#full output
 	unless($options{u}){
@@ -242,7 +242,7 @@ sub print_results{
 	#limited output (only ids)
 	my $id=$hash_comp{"pri_id"};
 	print "$id\n";
-    }    
+    }
 }
 
 
@@ -291,7 +291,7 @@ sub pass_threshold_score{
 	    $score+=$score_seed_not;
 	}
     }
-   
+
     #if the majority of potential star reads fall as expected from Dicer processing
     if($hash_comp{"star_read"}){
 	$hash_comp{"score_star"}=$score_star;
@@ -322,7 +322,7 @@ sub pass_threshold_score{
 	#randfold value>0.05
 	else{$score+=$score_randfold_not;$hash_comp{"score_randfold"}=$score_randfold_not;}
     }
-    
+
     #round off values to one decimal
     my $round_mfe=round($score_mfe*10)/10;
     my $round_freq=round($score_freq*10)/10;
@@ -332,7 +332,7 @@ sub pass_threshold_score{
     $hash_comp{"score_mfe"}=$round_mfe;
     $hash_comp{"score_freq"}=$round_freq;
     $hash_comp{"score"}=$round;
- 
+
     #return 1 if the potential precursor is accepted, return 0 if discarded
     unless($score>=$score_min){return 0;}
     return 1;
@@ -378,7 +378,7 @@ sub test_seed_conservation{
 
 	return 1;
     }
-    
+
     return 0;
 }
 
@@ -408,14 +408,14 @@ sub pass_filtering_signature{
 
     #number of reads that map inconsistent with Dicer processing
     my $inconsistent=0;
-   
+
 #   number of potential star reads map in good consistence with Drosha/Dicer processing
 #   (3' overhangs relative to mature product)
     my $star_perfect=0;
 
 #   number of potential star reads that do not map in good consistence with 3' overhang
     my $star_fuzzy=0;
- 
+
     my $freq_mature=0;
     my $freq_loop=0;
     my $freq_star=0;
@@ -507,7 +507,7 @@ sub observed_star{
 
 	my @ends=sort {$b<=>$a} keys %{$hash_stars{$beg}};
 	foreach my $end(@ends){
-	    
+
 	    my $freq=$hash_stars{$beg}{$end};
 	    if($freq_max<$freq){
 
@@ -532,7 +532,7 @@ sub observed_star{
 sub test_query{
 
     #test if deep sequence maps in consistence with Dicer processing
-    
+
     my $query=shift;
 
     #begin, end, strand and read count
@@ -549,11 +549,11 @@ sub test_query{
     #the deep sequence is allowed to stretch 5 nt beyond the expected 3' end
     my $fuzz_end=5;
 
-    #if in accordance with Dicer processing, return the type of Dicer product 
+    #if in accordance with Dicer processing, return the type of Dicer product
     if(contained($beg,$end,$hash_comp{"mature_beg"}-$fuzz_beg,$hash_comp{"mature_end"}+$fuzz_end)){return "mature";}
     if(contained($beg,$end,$hash_comp{"star_beg_exp"}-$fuzz_beg,$hash_comp{"star_end_exp"}+$fuzz_end)){return "star";}
     if(contained($beg,$end,$hash_comp{"loop_beg"}-$fuzz_beg,$hash_comp{"loop_end"}+$fuzz_end)){return "loop";}
-  
+
     #if not in accordance, return 0
     return 0;
 }
@@ -609,7 +609,7 @@ sub test_components{
 	$hash_comp{"problem_struct_us_flanks"}="no upstream flanking sequence could be identified\n";
    	return 0;
     }
-     
+
     unless($hash_comp{"flank_second_struct"}){
 	$hash_comp{"problem_struct_ds_flanks"}="no downstream flanking sequence could be identified\n";
     	return 0;
@@ -653,9 +653,9 @@ sub no_bifurcations_precursor{
 }
 
 sub bp_precursor{
- 
+
     #total number of bps in the precursor
- 
+
     my $pre_struct=$hash_comp{"pre_struct"};
 
     #simple pattern matching
@@ -750,11 +750,11 @@ sub fill_structure{
 sub fill_star{
 
     #fills specifics on the expected star strand into 'comp' hash ('component' hash)
-    
+
     #if the mature sequence is not plausible, don't look for the star arm
     my $mature_arm=$hash_comp{"mature_arm"};
     unless($mature_arm){$hash_comp{"star_arm"}=0; return;}
- 
+
     #if the star sequence is not plausible, don't fill into the hash
     my($star_beg_exp,$star_end_exp)=find_star();
     my $star_arm=arm_star($star_beg_exp,$star_end_exp);
@@ -823,19 +823,19 @@ sub find_star{
 sub fill_pri{
 
     #fills basic specifics on the precursor into the 'comp' hash
-    
+
     my $seq=$hash_seq{$db_old};
     my $struct=$hash_struct{$db_old};
     my $mfe=$hash_mfe{$db_old};
     my $length=length $seq;
-    
+
     $hash_comp{"pri_id"}=$db_old;
     $hash_comp{"pri_seq"}=$seq;
     $hash_comp{"pri_struct"}=$struct;
     $hash_comp{"pri_mfe"}=$mfe;
     $hash_comp{"pri_beg"}=1;
     $hash_comp{"pri_end"}=$length;
-    
+
     return;
 }
 
@@ -881,7 +881,7 @@ sub fill_loop{
     }else{
 	$loop_end=$hash_comp{"mature_beg"}-1;
     }
-    
+
     if($hash_comp{"star_arm"} eq "first"){
 	$loop_beg=$hash_comp{"star_end_exp"}+1;
     }else{
@@ -920,12 +920,12 @@ sub fill_lower_flanks{
     }else{
 	$flank_second_beg=$hash_comp{"mature_end"}+1;
     }
-    
+
     if($hash_comp{"star_arm"} eq "first"){
 	$flank_first_end=$hash_comp{"star_beg_exp"}-1;
     }else{
 	$flank_second_beg=$hash_comp{"star_end_exp"}+1;
-    }   
+    }
 
     #unless the positions are plausible, do not fill into hash
     unless(test_flanks($flank_first_end,$flank_second_beg)){return;}
@@ -953,10 +953,10 @@ sub fill_stems_drosha{
 
     my $flank_first_struct=$hash_comp{"flank_first_struct"};
     my $flank_second_struct=$hash_comp{"flank_second_struct"};
-    
+
     my $stem_first=substr($flank_first_struct,-10);
     my $stem_second=substr($flank_second_struct,0,10);
-    
+
     my $stem_bp_first=0;
     my $stem_bp_second=0;
 
@@ -964,19 +964,19 @@ sub fill_stems_drosha{
     while($stem_first=~/\(/g){
 	$stem_bp_first++;
     }
-    
+
     while($stem_second=~/\)/g){
 	$stem_bp_second++;
     }
-    
+
     my $stem_bp=min2($stem_bp_first,$stem_bp_second);
-    
+
     $hash_comp{"stem_first"}=$stem_first;
     $hash_comp{"stem_second"}=$stem_second;
     $hash_comp{"stem_bp_first"}=$stem_bp_first;
     $hash_comp{"stem_bp_second"}=$stem_bp_second;
     $hash_comp{"stem_bp"}=$stem_bp;
-    
+
     return;
 }
 
@@ -984,11 +984,11 @@ sub fill_stems_drosha{
 
 
 sub arm_mature{
- 
+
     #tests whether the mature sequence is in the 5' ('first') or 3' ('second') arm of the potential precursor
 
     my ($beg,$end,$strand)=@_;
- 
+
     #mature and star sequences should alway be on plus strand
     if($strand eq "-"){return 0;}
 
@@ -1129,7 +1129,7 @@ sub excise_seq{
     #rarely, permuted combinations of signature and structure cause out of bound excision errors.
     #this happens once appr. every two thousand combinations
     unless($beg<=length($seq)){$out_of_bound++;return 0;}
- 
+
     #the blast parsed format is 1-indexed, substr is 0-indexed
     my $sub_seq=substr($seq,$beg-1,$end-$beg+1);
 
@@ -1158,13 +1158,13 @@ sub excise_struct{
 
     #the blast parsed format is 1-indexed, substr is 0-indexed
     my $sub_struct=substr($struct,$beg-1,$end-$beg+1);
- 
+
     return $sub_struct;
 }
 
 
 sub create_hash_seeds{
- 
+
     #parses a fasta file with sequences of known miRNAs considered for conservation purposes
     #reads the seeds into a hash
 
@@ -1213,7 +1213,7 @@ sub parse_file_randfold{
 
     open (FILE, "<$file") or die "can not open $file\n";
     while (<FILE>){
-	
+
 	if(/^(\S+)\s+(\S+)\s+(\S+)/){
 	    my $id=$1;
 	    my $randfold=$3;
@@ -1225,10 +1225,10 @@ sub parse_file_randfold{
 }
 
 
-    
+
 
 sub parse_file_struct{
- 
+
     #parses the output from RNAfold and reads it into hashes
 
     my($file) = @_;
@@ -1270,7 +1270,7 @@ sub parse_file_struct{
 		if(/\((\s*-\d+\.\d+)\)/){
 		    $mfe = $1;
 		}
-	    
+
 	    }
         }
     }
@@ -1285,7 +1285,7 @@ sub parse_file_struct{
 }
 
 
-    
+
 sub find_freq{
 
     #finds the frequency of a given read query from its id.
@@ -1307,13 +1307,15 @@ sub print_hash_comp{
 
     my $after;
     my $col1_width = 40;
+	$col1_width=$options{'l'} if($options{'l'});
+	$col1_width+=5;
     my $rseq;
 
     my @sread;
     $hash_comp{"pri_seq"} =~ tr/Tt/Uu/;
     my @pseq = split(//,lc $hash_comp{"pri_seq"});
 
-    my $spacer = " " x ($col1_width - length("pri_seq")); 
+    my $spacer = " " x ($col1_width - length("pri_seq"));
     my $shift;
     my %reads_hash;
 
@@ -1338,7 +1340,7 @@ sub print_hash_comp{
 	if($options{'s'}){
         $spacer2s = " " x ($spacer2 - length($hash_comp{"score_seed"}));
         print "score for cons. seed\t$spacer2s$hash_comp{\"score_seed\"}\n";
-    }	
+    }
 	if($options{'s'} and defined $hash_comp{"seed_family"}){
         $spacer2s = " " x ($spacer2 - length($hash_comp{"seed_family"}));
         print "miRNA with same seed\t$spacer2s$hash_comp{\"seed_family\"}\n";
@@ -1349,7 +1351,7 @@ sub print_hash_comp{
         $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_mature"}));
         print "mature read count\t$spacer2s$hash_comp{\"freq_mature\"}\n";
         $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_loop"}));
-        print "loop read count\t\t$spacer2s$hash_comp{\"freq_loop\"}\n"; 
+        print "loop read count\t\t$spacer2s$hash_comp{\"freq_loop\"}\n";
         $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_star"}));
         print "star read count\t\t$spacer2s$hash_comp{\"freq_star\"}\n";
 
@@ -1376,7 +1378,7 @@ sub print_hash_comp{
 
     #### printing alignment;
     print "exp";
-   
+
     print " " x ($col1_width-3);
 
     if($hash_comp{"problem_structure"}){
@@ -1384,31 +1386,31 @@ sub print_hash_comp{
     }else{
 	print "f" x $hash_comp{"flank_first_end"} ;
 	if($hash_comp{"mature_beg"}  < $hash_comp{"loop_beg"}){
-	    $bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1); 
+	    $bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1);
 	    print $bef;
-	    $bef = "l" x ($hash_comp{"loop_end"}-$hash_comp{"loop_beg"}+1); 
+	    $bef = "l" x ($hash_comp{"loop_end"}-$hash_comp{"loop_beg"}+1);
 	    print $bef;
-	    $bef = "S" x ($hash_comp{"star_end_exp"}-$hash_comp{"star_beg_exp"}+1); 
+	    $bef = "S" x ($hash_comp{"star_end_exp"}-$hash_comp{"star_beg_exp"}+1);
 	    print $bef;
 	}else{
-	    $bef = "S" x ($hash_comp{"star_end_exp"}-$hash_comp{"star_beg_exp"}+1); 
+	    $bef = "S" x ($hash_comp{"star_end_exp"}-$hash_comp{"star_beg_exp"}+1);
 	    print $bef;
-	    $bef = "l" x ($hash_comp{"loop_end"}-$hash_comp{"loop_beg"}+1); 
+	    $bef = "l" x ($hash_comp{"loop_end"}-$hash_comp{"loop_beg"}+1);
 	    print $bef;
-	    
-	    $bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1); 
+
+	    $bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1);
 	    print $bef;
 	}
-	$bef = "f" x ($hash_comp{"pri_end"}-$hash_comp{"flank_second_beg"}+1); 
+	$bef = "f" x ($hash_comp{"pri_end"}-$hash_comp{"flank_second_beg"}+1);
 	print $bef;
     }
-	
+
     if(defined $hash_comp{"star_beg_obs"}){
 
 	print "\nobs";
-   
+
 	print " " x ($col1_width-3);
-	
+
 	if($hash_comp{"problem_structure"}){
 	    print "n" x length($hash_comp{"pri_seq"});
 	}else{
@@ -1416,11 +1418,11 @@ sub print_hash_comp{
 
 		$bef="f" x ($hash_comp{"mature_beg"}-1);
 		print $bef;
-		$bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1); 
+		$bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1);
 		print $bef;
-		$bef = "l" x ($hash_comp{"star_beg_obs"}-$hash_comp{"mature_end"}-1); 
+		$bef = "l" x ($hash_comp{"star_beg_obs"}-$hash_comp{"mature_end"}-1);
 		print $bef;
-		$bef = "S" x ($hash_comp{"star_end_obs"}-$hash_comp{"star_beg_obs"}+1); 
+		$bef = "S" x ($hash_comp{"star_end_obs"}-$hash_comp{"star_beg_obs"}+1);
 		print $bef;
 		$bef="f" x ($hash_comp{"pri_end"}-$hash_comp{"star_end_obs"});
 		print $bef;
@@ -1429,21 +1431,21 @@ sub print_hash_comp{
 
 		$bef="f" x ($hash_comp{"star_beg_obs"}-1);
 		print $bef;
-		$bef = "S" x ($hash_comp{"star_end_obs"}-$hash_comp{"star_beg_obs"}+1); 
+		$bef = "S" x ($hash_comp{"star_end_obs"}-$hash_comp{"star_beg_obs"}+1);
 		print $bef;
-		$bef = "l" x ($hash_comp{"mature_beg"}-$hash_comp{"star_end_obs"}-1); 
+		$bef = "l" x ($hash_comp{"mature_beg"}-$hash_comp{"star_end_obs"}-1);
 		print $bef;
-		$bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1); 
+		$bef = "M" x ($hash_comp{"mature_end"}-$hash_comp{"mature_beg"}+1);
 		print $bef;
 		$bef="f" x ($hash_comp{"pri_end"}-$hash_comp{"mature_end"});
 		print $bef;
 	    }
 	}
     }
-    
-    print "\npri_seq$spacer",lc $hash_comp{"pri_seq"},"\n"; 
-    $spacer = " " x ($col1_width - length("pri_struct")); 
-    print "pri_struct$spacer$hash_comp{\"pri_struct\"}\t#MM\n"; 
+
+    print "\npri_seq$spacer",lc $hash_comp{"pri_seq"},"\n";
+    $spacer = " " x ($col1_width - length("pri_struct"));
+    print "pri_struct$spacer$hash_comp{\"pri_struct\"}\t#MM\n";
     @reads = split(/\n/,$lines);
     $lr = scalar @reads;
     my $rrc = 0;
@@ -1467,29 +1469,29 @@ sub print_hash_comp{
 
     for(my $j = 0; $j < scalar @skeys; $j++){
         if($reads_hash{$skeys[$j]}{"beg"} eq $first){
-            $rorder{$j} = $reads_hash{$skeys[$j]}{"end"};  ## insert key and end position to hash 
+            $rorder{$j} = $reads_hash{$skeys[$j]}{"end"};  ## insert key and end position to hash
         }else{                                             ## if new begin position
-            $first = $reads_hash{$skeys[$j]}{"beg"};       
+            $first = $reads_hash{$skeys[$j]}{"beg"};
             for(sort {$rorder{$a} <=> $rorder{$b}} keys %rorder){ ## sort hash keys by end position
                 push(@elist,$skeys[$_]);                          ## attend keys to elist
             }
-            for(keys %rorder){delete $rorder{$_};}                ## delete hash 
+            for(keys %rorder){delete $rorder{$_};}                ## delete hash
             $rorder{$j} = $reads_hash{$skeys[$j]}{"end"};
         }
     }
-    
+
     for(sort {$rorder{$a} <=> $rorder{$b}} keys %rorder){
         push(@elist,$skeys[$_]);
     }
-    
+
     foreach(@elist){                                                       ## output elist.
         $rseq  = lc $reads_hash{$_}{'seq'};
         $rseq =~ tr/t/u/;
         $bef="." x ($reads_hash{$_}{'beg'}-1);
         $after = "." x ($hash_comp{'pri_end'} - $reads_hash{$_}{"end"});
-        $spacer = " " x ($col1_width - length($reads_hash{$_}{'id'})); 
+        $spacer = " " x ($col1_width - length($reads_hash{$_}{'id'}));
         @sread = split(//,$rseq);
-	
+
 
         my $bshift = 0;
         $rseq = "";
@@ -1499,11 +1501,11 @@ sub print_hash_comp{
                 if($pseq[$i+$reads_hash{$_}{'beg'}-1] eq $sread[$i]){
                     $rseq .=  lc $sread[$i];
                 }else{
-                  
+
                         $sread[$i] = uc $sread[$i];
                         $rseq .= uc $sread[$i];
                 }
-                
+
             }
         }
         print "$reads_hash{$_}{'id'}$spacer$bef$rseq$after\t$reads_hash{$_}{'mm'}\n";
@@ -1525,7 +1527,7 @@ sub print_hash_bp{
     }
     print "\n";
 }
-    
+
 
 
 sub contained{
@@ -1559,23 +1561,23 @@ sub testbeginend{
 
 sub rev_pos{
 
-#   This subroutine reverses the begin and end positions	
-   
+#   This subroutine reverses the begin and end positions
+
     my($beg,$end,$lng)=@_;
-    
+
     my $new_end=$lng-$beg+1;
     my $new_beg=$lng-$end+1;
-    
+
     return($new_beg,$new_end);
 }
 
 sub round {
 
     #rounds to nearest integer
-   
+
     my($number) = shift;
     return int($number + .5);
-    
+
 }
 
 
@@ -1585,7 +1587,7 @@ sub rev{
 
     my($sequence)=@_;
 
-    my $rev=reverse $sequence;   
+    my $rev=reverse $sequence;
 
     return $rev;
 }
@@ -1596,13 +1598,13 @@ sub com{
 
     my($sequence)=@_;
 
-    $sequence=~tr/acgtuACGTU/TGCAATGCAA/;   
- 
+    $sequence=~tr/acgtuACGTU/TGCAATGCAA/;
+
     return $sequence;
 }
 
 sub revcom{
-    
+
     #reverse complement
 
     my($sequence)=@_;
@@ -1616,7 +1618,7 @@ sub revcom{
 sub max2 {
 
     #max of two numbers
-    
+
     my($a, $b) = @_;
     return ($a>$b ? $a : $b);
 }
@@ -1649,7 +1651,7 @@ sub score_freq{
 
     #if no strong evidence for 3' overhangs, limit the score contribution to 0
     unless($options{x} or $hash_comp{"star_read"}){$log_odds=min2($log_odds,0);}
-   
+
     return $log_odds;
 }
 

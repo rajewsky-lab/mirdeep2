@@ -3,11 +3,11 @@
 ######################
 
 ## Author: SM
-## Date: 25/06/2012
-## added weighted read counts
+## Date: 3/02/2012
+## added weighted read counts 
 ## remaining read counts is now correct
 ## read noramlization is now 1000000 * mature-reads/all_mature_reads
-## missing/empty file with star sequences led to abortion of the script when option -s was used
+## missing/empty file with star sequences led to abortion of the script when option -s was used 
 
 ######################
 
@@ -72,7 +72,7 @@ if($options{'u'}){
     for(keys %organisms){
         print STDERR "$_\t$organisms{$_}\n";
     }
-
+    
     die "\n";
 }
 
@@ -82,7 +82,7 @@ my $usage="usage:
 [options]
 
 [mandatory parameters]
-  \t-u\tlist all values allowed for the species parameter that have an entry at UCSC
+  \t-u\tlist all values allowed for the species parameter that have an entry at UCSC 
 
   \t-p precursor.fa  miRNA precursor sequences from miRBase
   \t-m mature.fa     miRNA sequences from miRBase
@@ -90,8 +90,8 @@ my $usage="usage:
   \t-r reads.fa      your read sequences
 
 [optional parameters]
-  \t-c [file]    config.txt file with different sample ids... or just the one sample id
-  \t-s [star.fa] optional star sequences from miRBase
+  \t-c [file]    config.txt file with different sample ids... or just the one sample id 
+  \t-s [star.fa] optional star sequences from miRBase     
   \t-t [species] e.g. Mouse or mmu
   \t             if not searching in a specific species all species in your files will be analyzed
   \t             else only the species in your dataset is considered
@@ -211,7 +211,7 @@ SSS is a three letter code indicating the sample origin
 INT is just a running number
 xINT is the number of read occurrences\n\n
 
-You can use the mapper.pl module to create such a file from a fasta file with
+You can use the mapper.pl module to create such a file from a fasta file with 
 mapper.pl $options{'r'} -c -m -s $options{'r'}.collapsed
 
 See also the mapper.pl help for more information on preprocessing input files.
@@ -233,7 +233,7 @@ if(not $options{'c'}){
        if(/^>(\S\S\S)_\S+_x(\d+)$/){
 		$samples{$1} += $2;
        }
-    }
+    }   
     close IN;
 }else{
 
@@ -248,7 +248,7 @@ if(not $options{'c'}){
                 if(/^>(\S\S\S)_\S+_x(\d+)$/){
 		           $samples{$1} += $2;
                 }
-             }
+             }   
              close FIN;
 			}
 		}
@@ -285,15 +285,15 @@ chdir($outdir);
 }
 ##now analyze expression file
 print STDERR "analyzing data\n";
-ReadinPrecursorFile();
+ReadinPrecursorFile(); 
 
 ReadinMatureMappingFile();
 
 if($options{'s'}){
-	ReadinStarMappingFile();
+	ReadinStarMappingFile(); 
 }
 ReadinReadsMappingFile();
-chdir("../../");
+chdir("../../"); 
 
 PrintExpressionValues();
 PrintExpressionValuesSamples();
@@ -336,7 +336,7 @@ if($organisms{$species} ){
 
 }elsif($rorganisms{$species}){
 
-
+  
      $command="make_html2.pl -q $outdir/miRBase.mrd -k $name1$extension1 -t $species -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
 
 
@@ -369,33 +369,33 @@ sub Mapping{
 ## build bowtie index
     print STDERR "building bowtie index\n";
     $err = `bowtie-build precursor.converted miRNA_precursor`;
-
+    
 ## map mature sequences against precursors
     print STDERR "mapping mature sequences against index\n";
 #    print STDERR "\nbowtie -f -v 0 -a --best --strata --norc miRNA_precursor $name1.converted ${name1}_mapped.bwt\n\n";
-	## do not map mature if options are
+	## do not map mature if options are 
 	if(!$options{'w'}){
 		$err = `bowtie -p $threads -f -v 0 -a --best --strata --norc miRNA_precursor mature.converted ${name1}_mapped.bwt`;
     }
 
 ## map reads against precursors
-    print STDERR "mapping read sequences against index\n";
+    print STDERR "mapping read sequences against index\n"; 
     $err=`bowtie -p $threads -f -v $mismatches -a --best --strata --norc miRNA_precursor $name2.converted ${name2}_mapped.bwt`;
-
+    
     if($options{'s'}){
         print STDERR "mapping star sequences against index\n";
         $err = `bowtie -p $threads -f -v 0 -a --best --strata --norc miRNA_precursor star.converted ${name3}_mapped.bwt`;
     }
-}
+} 
 
 
-sub ConvertFastaFile{
-    my $file = shift;
+sub ConvertFastaFile{ 
+    my $file = shift; 
     my $ofile= shift;
 	my $des = shift;
     my $sp = shift;
-
-    open IN,"$file" or die "File $file not found\n";
+    
+    open IN,"$file" or die "File $file not found\n"; 
     if($des eq ""){
         open OUT,">$outdir/$ofile.converted" or die "file $outdir/$ofile.converted could not be created\n";
     }else{
@@ -486,7 +486,7 @@ sub ConvertFastaFile{
 
     close IN;
     close OUT;
-
+    
     if(not $sp_hits){
 		die "\nError: No entrys for species \"$options{'t'} or $species\" found in file $file
 Please make sure that the given species argument matches the species id in your file $file or say none\n\n\n";
@@ -517,10 +517,10 @@ sub ReadinPrecursorFile{
             $hash_star{$id}{'seq'} = "$hash{$id}{'seq'}$_";
         }
         $hash{$id}{'c'} = 0;
-
+        
 		$hash{$id}{'end'} = length($hash{$id}{'seq'});
-
-
+        
+        
         $hash_star{$id}{'c'} = 0;
 		$hash_star{$id}{'end'} = length($hash_star{$id}{'seq'});
 
@@ -557,11 +557,11 @@ sub ReadinMatureMappingFile{
         }
         next if(not $options{'k'} and $id1 !~ /$id2/i and $id2 !~ /$id1/i); ## stringent mapping let7a only allowed to map pre-let7a if k is given
 
-
+		
 		$cx++;
 		$hash{$line[2]}{'c'}++;           ## how many mature mapped to this precursor
         for my $sample(keys %samples){
-            $hash_sample{$sample}{$line[2]}{'c'}++;
+            $hash_sample{$sample}{$line[2]}{'c'}++; 
         }
         $matches = $hash{$line[2]}{'c'};
 
@@ -581,7 +581,7 @@ sub ReadinMatureMappingFile{
 
 
 	}
-
+    
 	print "\n$cx mature mappings to precursors\n\n";
     close OUT;
     close IN;
@@ -617,17 +617,17 @@ sub ReadinStarMappingFile{
             $id2 = $1;
         }
         next if(not $options{'k'} and $id1 !~ /$id2/i and $id2 !~ /$id1/i);## maybe this can be removed
-
+		
 		$cx++;
 		$hash_star{$line[2]}{'c'}++;
         for my $sample(keys %samples){
-            $hash_star_sample{$sample}{$line[2]}{'c'}++;
+            $hash_star_sample{$sample}{$line[2]}{'c'}++; 
         }
 
 
         #print "$line[2]\t$hash{$line[2]}{'c'}\n";
         $matches = $hash_star{$line[2]}{'c'};
-        ## there is a problem, Hash id is from precursor sequence, mature 7a and 7b map to same precursor
+        ## there is a problem, Hash id is from precursor sequence, mature 7a and 7b map to same precursor 
         $hash_star{$line[2]}{$matches}{'beg'} = $line[3]-$upstream;
         $hash_star{$line[2]}{$matches}{'beg'} = 0 if($hash_star{$line[2]}{$matches}{'beg'} < 0);
         $hash_star{$line[2]}{$matches}{'end'} = $line[3]+length($line[4])-1+$downstream;
@@ -659,7 +659,7 @@ sub ReadinReadsMappingFile{
     my $len_sc;
 
 	my %ids=();
-
+	
 	## get number of times a read was mapped, used for weighting
 	open IN,"${name2}_mapped.bwt" or die "Reads mapping File ${name2}_mapped.bwt not found \n";
 	while(<IN>){
@@ -680,7 +680,7 @@ sub ReadinReadsMappingFile{
     open IN,"${name2}_mapped.bwt" or die "Reads mapping File ${name2}_mapped.bwt not found \n";
 
 
-
+    
     my $matched = 0;
     my $sample;
 
@@ -694,16 +694,16 @@ sub ReadinReadsMappingFile{
 		next if($options{'U'} and $mapcounts{$line[0]} > 1);
 
 
-        $rb = $line[3];
+        $rb = $line[3]; 
         $re = ($line[3]+length($line[4])-1);
-
+        
         next if(not $hash{$line[2]}{'c'});
 
         for(my $i = 1; $i <= $hash{$line[2]}{'c'}; $i++){
 			if($options{'w'}){## if consider complete precursor as mature seq
 				@scores = split(/x/,$line[0]);
-
-				$sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
+				
+				$sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here 
 				$len_sc = $scores[$#scores];
 				if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here
 
@@ -720,11 +720,11 @@ sub ReadinReadsMappingFile{
 				$hash_sample{$sample}{$line[2]}{'r'}+= $len_sc;
 
 			}else{
-
+				
 				if($rb >= $hash{$line[2]}{$i}{'beg'} and $re <= $hash{$line[2]}{$i}{'end'}){
 					@scores = split(/x/,$line[0]);
-
-					$sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
+					
+					$sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here 
 					$len_sc = $scores[$#scores];
 					if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
 					$hash{$line[2]}{$i}{'score'}+= $len_sc; ## hash of pre -> mature -> score
@@ -736,7 +736,7 @@ sub ReadinReadsMappingFile{
 
 					$hash{$line[2]}{'r'} += $len_sc;
 					$hash_sample{$sample}{$line[2]}{'r'}+= $len_sc;
-
+					
 				}
 			}
         }
@@ -746,12 +746,12 @@ sub ReadinReadsMappingFile{
 
 		   if($options{'w'}){
 			   @scores = split(/x/,$line[0]);
-			   $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
+			   $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here 
 			   $len_sc = $scores[$#scores];
 			   if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
 
-
-			   $hash_star{$line[2]}{$i}{'score'}+= $len_sc;
+			   
+			   $hash_star{$line[2]}{$i}{'score'}+= $len_sc;          
 			   $hash_star_sample{$sample}{$line[2]}{$i}{'score'}+= $len_sc;
 			   $matched = 1;
 
@@ -761,12 +761,12 @@ sub ReadinReadsMappingFile{
 		   }else{
 
 			   if($rb >= $hash_star{$line[2]}{$i}{'beg'} and $re <= $hash_star{$line[2]}{$i}{'end'}){
-
+				   
 				   @scores = split(/x/,$line[0]);
-				   $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
+				   $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here 
 				   $len_sc = $scores[$#scores];
 				   if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
-				   $hash_star{$line[2]}{$i}{'score'}+= $len_sc;
+				   $hash_star{$line[2]}{$i}{'score'}+= $len_sc;          
 				   $hash_star_sample{$sample}{$line[2]}{$i}{'score'}+= $len_sc;
 				   $total{$sample}+=$len_sc;
 				   $total_t+=$len_sc;
@@ -775,13 +775,13 @@ sub ReadinReadsMappingFile{
 				   $hash_sample{$sample}{$line[2]}{'r'}+= $len_sc;
 
 				   $matched = 1;
-
+				   
 			   }
 		   }
         }
         if(not $matched){
             @scores = split(/x/,$line[0]);
-            $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
+            $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here 
 			$len_sc=$scores[$#scores];
 			if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
             $hash{$line[2]}{'r'} += $len_sc;
@@ -804,7 +804,7 @@ sub PrintExpressionValues{
 	my %not_seen;
 
 
-
+  
     ## check which mature sequences have a mapped read and which not;
     for(sort keys %hash){
         if($species ne "none"){
@@ -826,7 +826,7 @@ sub PrintExpressionValues{
     }
 
     ## now for the star sequences
-
+    
     for(sort keys %hash_star){
         if($species ne "none"){
             next if($_ !~ /$species/);
@@ -881,7 +881,7 @@ sub PrintExpressionValuesSamples{
 					print OUTG "\t0";
 				}
 			}
-
+			
 			for my $sample(sort keys %hash_sample){
 				next if($sample =~ /config/);
 				if($hash_sample{$sample}{$_}{$i}{'score'} > 0){
@@ -911,7 +911,7 @@ print OUTG "\n";
 					}
 				}
 
-
+				
 				for my $sample(sort keys %hash_sample){
 					next if($sample =~ /config/);
 					if($hash_sample{$sample}{$_}{$i}{'score'} > 0){
@@ -936,8 +936,8 @@ print OUTG "\n";
 		if($star_keys > 0){
 		if($options{'w'}){
 			my $i =1;
-
-
+			
+			
 			print OUTG "$hash_star{$_}{$i}{'mature'}\t$hash_star{$_}{$i}{'score'}\t$_\t$hash_star{$_}{$i}{'score'}";
 			for my $sample(sort keys %hash_star_sample){
 				next if($sample =~ /config/);
@@ -947,7 +947,7 @@ print OUTG "\n";
 				}else{
 					print OUTG "\t0";
 				}
-
+				
 			}
 
 			for my $sample(sort keys %hash_star_sample){
@@ -958,7 +958,7 @@ print OUTG "\n";
 				}else{
 					print OUTG "\t0";
 				}
-
+				
 			}
 
 
@@ -985,7 +985,7 @@ print OUTG "\n";
 					}else{
 					print OUTG "\t0";
 					}
-
+					
 				}
 
 
@@ -1029,7 +1029,7 @@ sub CreateOutputMRD{
     my $id1= '';
     my $id2='';
 	open IN,"<${name1}_mapped.arf";
-	while(<IN>){
+	while(<IN>){        
         $id1= '';
         $id2='';
         @line = split(/\t/);
@@ -1058,7 +1058,7 @@ sub CreateOutputMRD{
             @tmp  = split(//,$hash{$line[5]}{'struct'});
         }
 
-		## this here gets complicated when two times is a 5p and 3p there
+		## this here gets complicated when two times is a 5p and 3p there 
 
         if($line[0] =~ /5p/){
             for(my $i = $line[7]-1; $i <= $line[8]-1; $i++){
@@ -1071,14 +1071,14 @@ sub CreateOutputMRD{
         }else{
             for(my $i = $line[7]-1; $i <= $line[8]-1; $i++){
                 $tmp[$i] = 'M';
-            }
+            }   
         }
 		$hash{$line[5]}{'struct'} = join('',@tmp);
-
+        
 	}
 	close IN;
 
-
+    
     ## now treat the star sequences if given
 
     if($options{'s'}){
@@ -1093,7 +1093,7 @@ sub CreateOutputMRD{
             $id1= '';
             $id2='';
             @line = split(/\t/);
-
+            
             $id1 = $line[0]; ## this is the mature ID
             $id2 = $line[5]; ## this is the precursor ID
 
@@ -1110,7 +1110,7 @@ sub CreateOutputMRD{
 
             next if(not $options{'k'} and $id1 !~ /$id2/i and $id2 !~ /$id1/i); ## maybe this can be removed
             @tmp  = split(//,$hash{$line[5]}{'struct'});
-
+            
             for(my $i = $line[7]-1; $i <= $line[8]-1; $i++){
                 $tmp[$i] = 'S';
             }
@@ -1137,7 +1137,7 @@ sub CreateOutputMRD{
 			}
         ## set loop right now if $found = 2;
 			if($found == 2 ){
-
+				
 				$found = 0;
 				$loop =0;
 				for(my $i=0; $i< scalar @loop; $i++){
@@ -1159,14 +1159,14 @@ sub CreateOutputMRD{
 	$reads=`convert_bowtie_output.pl ${name2}_mapped.bwt > ${name2}_mapped.arf`;
 	open IN,"<${name2}_mapped.arf";
 	my (@rseq,@qseq);
-	my $counter;
+	my $counter; 
 	my $col1_width = 40;
 	my $spacer;
 
+ 
 
 
-
-    ## process the reads now
+    ## process the reads now 
     my @rc;
 	while(<IN>){
 		chomp;
@@ -1180,18 +1180,18 @@ sub CreateOutputMRD{
 		if($species ne "none"){
             next if($line[5] !~ /$species/);
         }
-
-
+		
+		
 
 
         @rc = split("_x",$line[0]);
-
+        
         $hash{$line[5]}{'reads'}{'c'}++;
 		$hash{$line[5]}{'reads'}{'tot'}+= $rc[1]; ## sum up total read count for this precursor
 		$counter = $hash{$line[5]}{'reads'}{'c'};
-
+		
 		$hash{$line[5]}{'reads'}{$counter} = $_; ## all lines of mapping in hash now
-	}
+	}	
     print "after READS READ IN thing\n\n";
 
 
@@ -1200,18 +1200,18 @@ sub CreateOutputMRD{
 		if($species ne "none"){
 			next if($k1 !~ /$species/);
 		}
-
-
+	
+	
 		$hash{$k1}{'seq'} =~ tr/ACGTU/acguu/;
-
+	
 		my @str=`echo $hash{$k1}{'seq'} |RNAfold`;
-
+		
 		my @str1 = split(/\s+/,$str[1]);
-
+  
         ## not yet exactly correct because miRNAs with same precursor have different stars
 		print OUT ">$k1\n";
         $spacer = " " x ($col1_width - length('total read count'));
-
+        
         ## print total read count to precursor
 #NEW
 print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here but not seen yet
@@ -1224,7 +1224,7 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
             $spacer = " " x ($col1_width - length("$mat read count"));
             print OUT "$mat read count$spacer$hash{$k1}{$k2}{'score'}\n";
         }
-
+        
          for my $k2 (keys %{$hash_star{$k1}}){
             next if($k2 !~ /^\d+$/);    ## skip all keys that are not a number
             my $mat = $hash_star{$k1}{$k2}{'mature'};
@@ -1233,7 +1233,7 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
         }
         $spacer = " " x ($col1_width - length('remaining read count'));
 
-		###
+		### 
 #new
 		my $rrc=$hash{$k1}{'r'};
 #old		my $rrc=$hash{$k1}{'reads'}{'tot'};
@@ -1247,31 +1247,31 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 		print OUT "remaining read count$spacer",$rrc,"\n";
 
 
-		$spacer = " " x ($col1_width - length('exp'));
+		$spacer = " " x ($col1_width - length('exp')); 
 		print OUT "exp$spacer$hash{$k1}{'struct'}\n";
-		$spacer = " " x ($col1_width - length('pri_seq'));
+		$spacer = " " x ($col1_width - length('pri_seq')); 
 		print OUT "pri_seq$spacer$hash{$k1}{'seq'}\n";
 		$spacer =   " " x ($col1_width - length('pri_struct'));
-		print OUT "pri_struct$spacer$str1[0]\t#MM\n";
-
-
+		print OUT "pri_struct$spacer$str1[0]\t#MM\n";	
+		
+        
 
 		my @reads_arr;
 		my %reads_hash;
-
+	
 		my @pseq = split(//,lc $hash{$k1}{'seq'});
-
+		
 		## put all reads of key in an array then use mirdeep2 routine
 		for my $k2(keys %{$hash{$k1}{'reads'}}){
-
+			
 			next if($k2 eq 'c');
 			push(@reads_arr,$hash{$k1}{'reads'}{$k2});
 		}
-
+		
 		## now use miRDeep2_core routine
 		my $lr = scalar @reads_arr;
 		my $rrc = 0;
-
+		
 		foreach(@reads_arr){
 			if(/^(\S+)\s+\d+\s+\d+\s+\d+\s+(\S+)\s+\S+\s+\d+\s+(\d+)\s+(\d+)\s+\S+\s+\S+\s+(\d+).+$/){
 				$rrc++;
@@ -1283,40 +1283,40 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 			}
 		}
 
-
+		
 		## sorted keys by begin postion
 		my @skeys = sort { $reads_hash{$a}{"beg"} <=> $reads_hash{$b}{"beg"} } keys %reads_hash;
 		my @elist; # final sorted array
-
+		
 		my $first = $reads_hash{$skeys[0]}{"beg"};  ## all keys that have same begin position should match this value
 		my %rorder;                                 ## temporary hash to store all keys with same begin position
-
+		
 		for(my $j = 0; $j < scalar @skeys; $j++){
 			if($reads_hash{$skeys[$j]}{"beg"} eq $first){
-				$rorder{$j} = $reads_hash{$skeys[$j]}{"end"};  ## insert key and end position to hash
+				$rorder{$j} = $reads_hash{$skeys[$j]}{"end"};  ## insert key and end position to hash 
 			}else{                                             ## if new begin position
-				$first = $reads_hash{$skeys[$j]}{"beg"};
+				$first = $reads_hash{$skeys[$j]}{"beg"};       
 				for(sort {$rorder{$a} <=> $rorder{$b}} keys %rorder){ ## sort hash keys by end position
 					push(@elist,$skeys[$_]);                          ## attend keys to elist
 				}
-					for(keys %rorder){delete $rorder{$_};}                ## delete hash
+					for(keys %rorder){delete $rorder{$_};}                ## delete hash 
 				$rorder{$j} = $reads_hash{$skeys[$j]}{"end"};
 			}
 		}
-
+		
 		for(sort {$rorder{$a} <=> $rorder{$b}} keys %rorder){
 			push(@elist,$skeys[$_]);
 		}
-
+		
 		foreach(@elist){                                                       ## output elist.
 			my $rseq  = lc $reads_hash{$_}{'seq'};
 			$rseq =~ tr/t/u/;
 			my $bef="." x ($reads_hash{$_}{'beg'}-1);
 			my $after = "." x ($hash{$k1}{'end'} - $reads_hash{$_}{"end"});
-			my $spacer = " " x ($col1_width - length($reads_hash{$_}{'id'}));
+			my $spacer = " " x ($col1_width - length($reads_hash{$_}{'id'})); 
 			my @sread = split(//,$rseq);
-
-
+			
+			
 			my $bshift = 0;
 
 			$rseq = "";
@@ -1326,17 +1326,17 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 					if($pseq[$i+$reads_hash{$_}{'beg'}-1] eq $sread[$i]){
 						$rseq .=  lc $sread[$i];
 					}else{
-
+						
 						$sread[$i] = uc $sread[$i];
 						$rseq .= uc $sread[$i];
 					}
-
+						
 				}
 			}
 			print OUT "$reads_hash{$_}{'id'}$spacer$bef$rseq$after\t$reads_hash{$_}{'mm'}\n";
 		}
 		print OUT "\n\n\n";
-
+		
 	} ## close $for my $k1
 	close OUT;
 	chdir("../../");

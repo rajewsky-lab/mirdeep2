@@ -29,6 +29,7 @@ my $lstruct_multi;
 my $sb_obs;
 
 ## read in available organisms at the end of the script
+
 my %organisms;
 while(<DATA>){
     chomp;
@@ -792,6 +793,20 @@ if(not $novelc){
                 if($hash{$id}{'cons_seed'}){print CSV "$hash{$id}{'cons_seed'}\t-\t-\t";} else{ print CSV "-\t-\t-\t";}
                 print CSV "$hash{$id}{'mat_seq'}\t$s_star\t$hash{$id}{'ucsc_seq'}";
 
+				# if($options{'p'}){
+				# 	my $offset=index($hash{$id}{'pri_seq'},$hash{$id}{'ucsc_seq'});
+				# 	if($pres_coords{$id}{'strand'} eq '-'){
+				# 		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}";
+				# 	}else{
+				# 		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
+				# 	}
+
+
+
+				# 	print CSV "\t$pres_coords{$id}{'chr'}:$pres_coords{$id}{'s'}..$pres_coords{$id}{'e'}:$pres_coords{$id}{'strand'}";
+				# }
+
+				
 				if($options{'p'}){
 					my $offset=index($hash{$id}{'pri_seq'},$hash{$id}{'ucsc_seq'});
 					if($pres_coords{$id}{'strand'} eq '-'){
@@ -799,11 +814,8 @@ if(not $novelc){
 					}else{
 						print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
 					}
-
-
-
-					print CSV "\t$pres_coords{$id}{'chr'}:$pres_coords{$id}{'s'}..$pres_coords{$id}{'e'}:$pres_coords{$id}{'strand'}";
 				}
+
 				print CSV "\n";
             }
             
@@ -932,17 +944,31 @@ print HTML  "</tr>";
 					if($hash{$id}{'cons_seed'}){print CSV "$hash{$id}{'cons_seed'}\t-\t-\t";} else{ print CSV "-\t-\t-\t";}
 					print CSV "$hash{$id}{'mat_seq'}\t$s_star\t$hash{$id}{'ucsc_seq'}";
 
+					# if($options{'p'}){
+	# 					my $offset=index($hash{$id}{'pri_seq'},$hash{$id}{'ucsc_seq'});
+	# 					if($pres_coords{$id}{'strand'} eq '-'){
+	# 						print CSV "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}</td>\n";
+	# 					}else{
+	# 						print CSV "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}</td>\n";
+	# }
+
+	# 				}else{
+	# 					print CSV "\tna";
+	# 				}
+
+
 					if($options{'p'}){
 						my $offset=index($hash{$id}{'pri_seq'},$hash{$id}{'ucsc_seq'});
 						if($pres_coords{$id}{'strand'} eq '-'){
-							print CSV "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}</td>\n";
+							print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}";
 						}else{
-							print CSV "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}</td>\n";
-	}
-
-					}else{
-						print CSV "\tna";
+							print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
+						}
 					}
+
+
+
+
 					print CSV "\n";
 					
 				}
@@ -1081,11 +1107,25 @@ if($options{'k'}){
             if($hash{$id}{'cons_seed'}){print CSV "$hash{$id}{'cons_seed'}\t-\t-\t";} else{ print CSV "-\t-\t-\t";}
             print CSV "$hash{$id}{'mat_seq'}\t$s_star\t$hash{$id}{'ucsc_seq'}";
 			
-			if($options{'p'}){
-				print CSV "\t$pres_coords{$id}{'chr'}:$pres_coords{$id}{'s'}..$pres_coords{$id}{'e'}:$pres_coords{$id}{'strand'}";
-			}else{
-				print CSV "\tna";
-			}
+			# if($options{'p'}){
+			# 	print CSV "\t$pres_coords{$id}{'chr'}:$pres_coords{$id}{'s'}..$pres_coords{$id}{'e'}:$pres_coords{$id}{'strand'}";
+			# }else{
+			# 	print CSV "\tna";
+			# }
+
+			
+if($options{'p'}){
+	my $offset=index($hash{$id}{'pri_seq'},$hash{$id}{'ucsc_seq'});
+	if($pres_coords{$id}{'strand'} eq '-'){
+		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}";
+	}else{
+		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
+	}
+}
+
+
+
+
 			print CSV "\n";
 		}
 		
@@ -1544,8 +1584,9 @@ sub CreateStructurePDF{
 sub CreatePDF{
     my %hash = @_;
     $pdf=PDF::API2->new; 
-    $spacer = length($sid);
-    $pdf->mediabox('A4');
+    #$spacer = length($sid);
+    $spacer = 10;
+	$pdf->mediabox('A4');
     $page=$pdf->page;
     $gfx=$page->gfx;
     $text=$gfx;
@@ -3586,14 +3627,24 @@ sub check_Rfam{
 
 
     ## bowtie index is placed in folder indexes in folder that holds the mirdeep2 scripts
-    print STDERR "Build bowtie index of Rfam entries\n\n";
+	my $tmp;
+	print STDERR "Build bowtie index of Rfam entries\n\n";
     if(not -d "${scripts}indexes"){
-        mkdir("${scripts}indexes");
+        $tmp=`mkdir "${scripts}indexes"`;
+		if($tmp){
+			print STDERR $tmp,"\n";
+		}
     }
 
     if(not -f "${scripts}indexes/Rfam_index.1.ebwt"){
         $err = `bowtie-build $options{'r'} ${scripts}indexes/Rfam_index`;
-    }
+		if(not -f "${scripts}indexes/Rfam_index.1.ebwt"){
+			print STDERR "$err\n\nRfam index could not be created in ${scripts}indexes/\nPlease check if miRDeep2 is allowed to create the directory ${scripts}indexes/ and write to it
+The Rfam analysis will be skipped as long as this is not possible\n\n";
+			return 256;
+			
+		}
+	}
 	
     #print STDERR "mapping precursor sequences against index\n";
     print STDERR "Mapping mature,star and loop sequences against index\n";
@@ -3677,7 +3728,7 @@ sub check_Rfam{
 # 		print STDERR "$k\t$hash{$k}{'rfam'}\n";
 # 	}
 
-        
+    return 0;
 }    
 
 sub getEvalue{

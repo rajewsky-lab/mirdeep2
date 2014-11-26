@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use LWP::Simple;
 
 
@@ -38,8 +39,7 @@ if($gcc !~ /(GCC)/i){
     }
 } 
 
-
-my $wget=`wgetx`;
+my $wget=`wget`;
 my $curl=`curl 2>&1`;
 
 my $dtool='';
@@ -61,37 +61,27 @@ chomp $dir;
 
 my $err;
 
-if(not -d 'mirdeep2' and $dir !~ /mirdeep2/){
-    $err=system('tar --no-same-permissions -xvvzf mirdeep2.tar.gz');
-    if($err){
-        die "tar xvvzf mirdeep2.tar.gz could not be executed\n\n";
-    }
-}elsif($dir =~ /mirdeep2/i){
-    chdir("..");
-    $dir=`pwd 2>&1`;
-    chomp $dir;
-}
-
 my $dfile='';
 
 ##only attach to config file if not yet existing
-my $in=`grep  "$dir/mirdeep2:*" ~/.bashrc`;
+my $in=`grep  "$dir/mirdeep:*" ~/.bashrc`;
 if(not $in){
-    `echo 'export PATH=\$PATH:$dir/mirdeep2' >> ~/.bashrc`;
+    `echo 'export PATH=\$PATH:$dir' >> ~/.bashrc`;
 }
 
-$in=`grep  "$dir/mirdeep2:*" ~/.bash_profile`;
+$in=`grep "$dir/:*" ~/.bash_profile`;
 if(not $in){
-    `echo 'export PATH=\$PATH:$dir/mirdeep2' >> ~/.bash_profile`;
+    `echo 'export PATH=\$PATH:$dir' >> ~/.bash_profile`;
 }
 
-my $in2=`grep  "$dir/mirdeep2:*" ~/.cshrc`;
-if(not $in2){
-    #`echo 'setenv PATH \$PATH:$dir/mirdeep2' >> ~/.cshrc`;
+my $in2;
+if(-f "~/.cshrc"){
+	$in2=`grep  "$dir:*" ~/.cshrc`;
+	if(not $in2){
+		#`echo 'setenv PATH \$PATH:$dir/mirdeep2' >> ~/.cshrc`;
+	}
 }
 
-
-chdir("mirdeep2");
 if(not -d "essentials"){
     `mkdir essentials`;
 }
@@ -102,7 +92,7 @@ my $a=`uname -a`;
 
 my $bowtie;
 
-my $bowtie_version="0.12.7";
+my $bowtie_version="1.1.1";
 
 my $binst=`bowtie --version 2>&1`;
 
@@ -113,35 +103,34 @@ if($binst =~ /version\s*(\S*)/i){
 
         print STDERR "Downloading bowtie $bowtie_version binaries\n\n";
         if($a =~ /Darwin/i){ ## download mac version
-            $bowtie = "bowtie-$bowtie_version-macos-10.5-x86_64.zip";
+            $bowtie = "bowtie-$bowtie_version-macos-x86_64.zip";
         }elsif($a =~ /x86_64/i){
             $bowtie = "bowtie-$bowtie_version-linux-x86_64.zip";
         }else{
-            $bowtie = "bowtie-$bowtie_version-linux-i386.zip";
+            $bowtie = "bowtie-$bowtie_version-src.zip";
         }
         
         if(not -f $bowtie){
-			 
-			if(check("http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie")){
-				$err=system("$dtool http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie $dopt");
+			if(check("http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie")){
+				$err=system("$dtool http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie $dopt");
+
 				if($err){
 					die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
 				}
-            }elsif(check("http://ovh.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie")){
-				$err=system("$dtool http://garr.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie $dopt");
+            }elsif(check("http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie")){
+				$err=system("$dtool http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie $dopt");
 				if($err){
 					die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
 				}
 			}else{
-				die "\nError:\n\t$bowtie not found on server http://garr.dl.sourceforge.net/project/bowtie-bio/bowtie/ \n\n\n";
+				die "\nError:\n\t$bowtie not found on server http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/ \n\n\n";
 			}
         }
         
         if(not -f "$bowtie"){
-            die "$bowtie download failed \n";
+            die "$bowtie download failed \nPlease try to download bowtie manually from here http://bowtie-bio.sourceforge.net/index.shtml";
         }
-        
-        
+                
         print STDERR "Installing bowtie binaries\n\n";
         $err=system("unzip $bowtie");
         
@@ -150,21 +139,21 @@ if($binst =~ /version\s*(\S*)/i){
         }
     }
 
-    $in = `grep  "$dir/mirdeep2/essentials/bowtie-$bowtie_version:*" ~/.bashrc`;
+    $in = `grep  "$dir/essentials/bowtie-$bowtie_version:*" ~/.bashrc`;
     if(not $in){
-        `echo 'export PATH=\$PATH:$dir/mirdeep2/essentials/bowtie-$bowtie_version' >> ~/.bashrc`;
+        `echo 'export PATH=\$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.bashrc`;
     }
 
-    $in = `grep  "$dir/mirdeep2/essentials/bowtie-$bowtie_version:*" ~/.bash_profile`;
+    $in = `grep  "$dir/essentials/bowtie-$bowtie_version:*" ~/.bash_profile`;
     if(not $in){
-        `echo 'export PATH=\$PATH:$dir/mirdeep2/essentials/bowtie-$bowtie_version' >> ~/.bash_profile`;
+        `echo 'export PATH=\$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.bash_profile`;
     }
 
 
-    $in2 = `grep  "$dir/mirdeep2/essentials/bowtie-$bowtie_version:*" ~/.cshrc`;
+    $in2 = `grep  "$dir/essentials/bowtie-$bowtie_version:*" ~/.cshrc`;
 
     if(not $in2){
-        #`echo 'setenv PATH \$PATH:$dir/mirdeep2/essentials/bowtie-$bowtie_version' >> ~/.cshrc`;
+        #`echo 'setenv PATH \$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.cshrc`;
     }
 
 }
@@ -180,13 +169,15 @@ if($ret == 0){
         $dfile="ViennaRNA-1.8.4.tar.gz";
         if(not -f $dfile){
             print STDERR "Downloading Vienna package now\n\n";
-			if(check("http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz")){
-				$err=system("$dtool http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz $dopt");
+			if(check("http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz")){
+				$err=system("$dtool http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz $dopt");
 				if($err){
 					die "Download of Vienna package not successful\n\n";
 				}
 			}else{
-				die "Vienna package not found at  http://www.tbi.univie.ac.at/~ivo/RNA/ViennaRNA-1.8.4.tar.gz\n";
+				die "Vienna package not found at  http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz
+                Please try to download the Vienna package from here http://www.tbi.univie.ac.at/RNA/RNAfold.html 
+\n";
 			}
     }
         
@@ -198,7 +189,7 @@ if($ret == 0){
         print STDERR "Installing Vienna package now \n\n";
         `tar xvvzf ViennaRNA-1.8.4.tar.gz`;
         chdir("ViennaRNA-1.8.4");
-        `./configure --prefix=$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir`;
+        `./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
         `make`;
         `make install`;
         
@@ -206,23 +197,23 @@ if($ret == 0){
         chdir("..");
     }
 }
-$in = `grep "$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bashrc`;
+$in = `grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bashrc`;
 if(not $in){
     print STDERR "Vienna package path has been added to \$PATH variable\n"; 
-    `echo 'export PATH=\$PATH:$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bashrc`;
+    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bashrc`;
 }
 
-$in = `grep "$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bash_profile`;
+$in = `grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bash_profile`;
 if(not $in){
     print STDERR "Vienna package path has been added to \$PATH variable\n"; 
-    `echo 'export PATH=\$PATH:$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bash_profile`;
+    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bash_profile`;
 }
 
 
 
-$in2 = `grep  "$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.cshrc`;
+$in2 = `grep  "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.cshrc`;
 if(not $in2){
-    #`echo 'setenv PATH \$PATH:$dir/mirdeep2/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.cshrc`;
+    #`echo 'setenv PATH \$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.cshrc`;
 }
 
 $ret = checkBIN("randfold","let7");
@@ -241,7 +232,7 @@ if($ret == 0){
     }
 
     if(not -f "squid-1.9g.tar.gz"){
-        die "squid could not be downloaded\n";
+        die "squid could not be downloaded\n Please try to download the library from here http://selab.janelia.org/software.html";
     }
 
     if(not -d "squid-1.9g"){
@@ -261,7 +252,7 @@ if($ret == 0){
 
 
     if(not -f "randfold-2.0.tar.gz"){
-        die "randfold could not be downloaded\n\n";
+        die "randfold could not be downloaded\nPlease try to download randfold from here http://bioinformatics.psb.ugent.be/software/details/Randfold\n";
     }
 
     if(not -d "randfold-2.0"){
@@ -276,7 +267,7 @@ if($ret == 0){
 
         while(<IN>){
             if(/INCLUDE=-I\.\s*/i){
-                print OUT "INCLUDE=-I. -I$dir/mirdeep2/essentials/squid-1.9g -L$dir/mirdeep2/essentials/squid-1.9g/\n";
+                print OUT "INCLUDE=-I. -I$dir/essentials/squid-1.9g -L$dir/essentials/squid-1.9g/\n";
             }else{
                 print OUT;
             }
@@ -292,22 +283,22 @@ if($ret == 0){
         chdir("..");
     }
 
-    $in = `grep  "$dir/mirdeep2/essentials/randfold-2.0:*" ~/.bashrc`;
+    $in = `grep  "$dir/essentials/randfold-2.0:*" ~/.bashrc`;
     if(not $in){ 
         print STDERR "Randfold path has been added to \$PATH variable\n"; 
-        `echo 'export PATH=\$PATH:$dir/mirdeep2/essentials/randfold-2.0' >> ~/.bashrc`;
+        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/.bashrc`;
     }
     
-    $in = `grep  "$dir/mirdeep2/essentials/randfold-2.0:*" ~/.bashrc_profile`;
+    $in = `grep  "$dir/essentials/randfold-2.0:*" ~/.bashrc_profile`;
     if(not $in){ 
         print STDERR "Randfold path has been added to \$PATH variable\n"; 
-        `echo 'export PATH=\$PATH:$dir/mirdeep2/essentials/randfold-2.0' >> ~/.bash_profile`;
+        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/.bash_profile`;
 }
 
 
-    $in2 = `grep  "$dir/mirdeep2/essentials/randfold-2.0:*" ~/.cshrc`;
+    $in2 = `grep  "$dir/essentials/randfold-2.0:*" ~/.cshrc`;
     if($in2){
-        #`echo 'setenv PATH \$PATH:$dir/mirdeep2/essentials/randfold-2.0' >> ~/.cshrc`;
+        #`echo 'setenv PATH \$PATH:$dir/essentials/randfold-2.0' >> ~/.cshrc`;
     }
 
 }
@@ -334,25 +325,36 @@ if($ret == 0){
 }else{
 
 
-	$dfile="PDF-API2-0.73.tar.gz";
+	$dfile="PDF-API2-2.019.tar.gz";
     if(not -f $dfile){
         print STDERR "Downloading PDF-API2 now\n\n";
-        `$dtool http://search.cpan.org/CPAN/authors/id/A/AR/AREIBENS/PDF-API2-0.73.tar.gz $dopt`;
+        `$dtool http://ftp-stud.hs-esslingen.de/pub/Mirrors/CPAN/authors/id/S/SS/SSIMMS/$dfile $dopt`;
     }
 
-    if(not -f "PDF-API2-0.73.tar.gz"){
+    if(not -f $dfile){
         die "Download of PDF-API2 failed\n\n";
     }
 
-    #if(not -d "PDF-API2-0.73"){
         print STDERR "Installing PDF-API2 now\n\n";
-        `tar xvvzf PDF-API2-0.73.tar.gz`; 
-        chdir("PDF-API2-0.73");
+        `tar xvvzf $dfile`; 
+        chdir("PDF-API2-2.019");
         
-        `perl Makefile.PL PREFIX=$dir/mirdeep2/lib LIB=$dir/mirdeep2/lib`;
-        
-        `make`;
-        `make install`;
+	`perl Makefile.PL`;
+	`make`;
+	`mv Makefile Makefile.orig`;
+	
+	open IN,"Makefile.orig" or die "No Makefile found\n";
+	open OUT,">Makefile" or die "No Makefile found\n";
+	while(my $cl= <IN>){
+		if($cl =~ /^INSTALL_BASE\s=/){
+			print OUT "INSTALL_BASE = $dir\n";
+		}else{
+			print OUT $cl;
+		}
+	}
+	close IN;
+
+	`make install`;
     #}
     chdir("..");
 }
@@ -363,26 +365,26 @@ if($ret == 0){
 #$perl =~ s/\.+/\./g;
 #$perl =~ s/\,+//g;
 
-#$in = `grep "$dir/mirdeep2/lib/perl5/site_perl/$perl:*" ~/.bashrc`;
+#$in = `grep "$dir/lib/perl5/site_perl/$perl:*" ~/.bashrc`;
 
 #if(not $in){ 
    print STDERR "PDF::API2 package path has been added to \$PERL5LIB variable\n"; 
-    `echo 'export PERL5LIB=\$PERL5LIB:$dir/mirdeep2/lib/' >> ~/.bashrc`;
+   `echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/.bashrc`;
 #}
 
-#$in = `grep "$dir/mirdeep2/lib/perl5/site_perl/$perl:*" ~/.bash_profile`;
+#$in = `grep "$dir/lib/perl5/site_perl/$perl:*" ~/.bash_profile`;
 
 #if(not $in){
     print STDERR "PDF::API2 package path has been added to \$PERL5LIB variable\n"; 
-    `echo 'export PERL5LIB=\$PERL5LIB:$dir/mirdeep2/lib/' >> ~/.bash_profile`;
+    `echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/.bash_profile`;
 #}
 
 
 
-#$in2 = `grep  "$dir/mirdeep2/lib/perl5/site_perl/$perl:*" ~/.cshrc`;
+#$in2 = `grep  "$dir/lib/perl5/site_perl/$perl:*" ~/.cshrc`;
 
 #if(not $in2){
-    #`echo 'setenv PERL5LIB \$PERL5LIB:$dir/mirdeep2/lib/' >> ~/.cshrc`;
+    #`echo 'setenv PERL5LIB \$PERL5LIB:$dir/lib/' >> ~/.cshrc`;
 #}
 
 print STDERR "\n\nInstallation successful\n\n\nPlease start a new shell\n\n\n\n";
@@ -401,10 +403,10 @@ sub rem_mirdeep{
         my $tmp;
         while(<IN>){
             $tmp="";
-            if(/mirdeep2/){
+            if(/mirdeep/){
                 @line = split(/:/);
                 foreach(@line){
-                    if(/mirdeep2/){}else{
+                    if(/mirdeep/){}else{
                         $tmp.="$_";
                     }
                 }

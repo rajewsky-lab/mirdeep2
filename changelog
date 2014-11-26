@@ -1,3 +1,12 @@
+Version 2.0.0.6
+corrected bed file coordinates, off by one error fixed
+the zebrafish switch works now in the species specification
+novel detected miRNA sequences by the miRDeep2 module are now stored in separate files
+in the mapper module all tmp files are deleted now when the specific option is given
+install.pl script has been updated in regards of program download links
+additional file checks were included for the mapper module when using options a,b,c or e
+novel detected miRNA sequences and bed coordinates are output automatically now
+
 Version 2.0.0.5
 The quantifier.pl has a new switch '-U' that causes the usage of only uniquely mapping reads to reference precursors.
 The mapper.pl reports now the number and percentage of mapped and unmapped reads from the collapsed reads file to a reference genome.
@@ -11,7 +20,7 @@ The html file in the end does not abort anymore when the Rfam index is missing.
 
 Version 2.0.0.4
 The quantifier.pl now calculates correctly the remaining read counts.
-Reads that map to more than one precursor are now added in a weighted way
+Reads that map to more than one precursor are now added in a weighed way
 to each precursor. The normalization of read counts in the quantifier.pl
 has changed a bit. Each miRNA read count is now divided by the total number of sequenced miRNA read counts and then multiplied by 10E9.
 The --strata option is added to mapping of reads to the miRBase precursors in the quantifier module.

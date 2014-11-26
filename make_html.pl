@@ -812,7 +812,7 @@ if(not $novelc){
 					if($pres_coords{$id}{'strand'} eq '-'){
 						print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}";
 					}else{
-						print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
+						print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset-1,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'})-1,":$pres_coords{$id}{'strand'}";
 					}
 				}
 
@@ -884,7 +884,7 @@ if($options{'p'}){
 	if($pres_coords{$id}{'strand'} eq '-'){
 		print HTML "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}</td>\n";
 	}else{
-		print HTML "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}</td>\n";
+		print HTML "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset-1,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'})-1,":$pres_coords{$id}{'strand'}</td>\n";
 	}
 }
 
@@ -1119,7 +1119,7 @@ if($options{'p'}){
 	if($pres_coords{$id}{'strand'} eq '-'){
 		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}";
 	}else{
-		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
+		print CSV "\t$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset-1,"..",$pres_coords{$id}{'s'}+$offset-1+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}";
 	}
 }
 
@@ -1190,7 +1190,7 @@ if($options{'p'}){
 	if($pres_coords{$id}{'strand'} eq '-'){
 		print HTML "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'e'}-$offset-length($hash{$id}{'ucsc_seq'}),"..",$pres_coords{$id}{'e'}-$offset,":$pres_coords{$id}{'strand'}</td>\n";
 	}else{
-		print HTML "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset,"..",$pres_coords{$id}{'s'}+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}</td>\n";
+		print HTML "<td>$pres_coords{$id}{'chr'}:",$pres_coords{$id}{'s'}+$offset-1,"..",$pres_coords{$id}{'s'}-1+$offset+length($hash{$id}{'ucsc_seq'}),":$pres_coords{$id}{'strand'}</td>\n";
 	}
 }else{
 	print HTML "<td>na</td>";

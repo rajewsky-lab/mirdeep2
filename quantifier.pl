@@ -4,7 +4,7 @@
 
 ## Author: SM
 ## Date: 25/06/2012
-## added weighted read counts
+## added weighed read counts
 ## remaining read counts is now correct
 ## read noramlization is now 1000000 * mature-reads/all_mature_reads
 ## missing/empty file with star sequences led to abortion of the script when option -s was used
@@ -45,7 +45,6 @@ while(<DATA>){
         $rorganisms{$v}=$u;
     }
 }
-
 
 
 ## options
@@ -177,6 +176,7 @@ my ( $name1, $path1, $extension1 );
 my ( $name1, $path1, $extension1 ) = fileparse ( $options{'m'}, '\..*' );# if(not defined $options{'w'});
 my ( $name2, $path2, $extension2 ) = fileparse ( $options{'r'}, '\..*' );
 my ( $name3, $path3, $extension3 );
+
 
 if($options{'s'}){
     if(-s "$options{'s'}"){
@@ -375,18 +375,68 @@ sub Mapping{
 #    print STDERR "\nbowtie -f -v 0 -a --best --strata --norc miRNA_precursor $name1.converted ${name1}_mapped.bwt\n\n";
 	## do not map mature if options are
 	if(!$options{'w'}){
-		$err = `bowtie -p $threads -f -v 0 -a --best --strata --norc miRNA_precursor mature.converted ${name1}_mapped.bwt`;
+		$err = `bowtie -p $threads -f -v 0 -a --best --strata --norc miRNA_precursor mature.converted ${name1}_mapped.bwt 2>bowtie_mature.out`;
     }
 
 ## map reads against precursors
     print STDERR "mapping read sequences against index\n";
-    $err=`bowtie -p $threads -f -v $mismatches -a --best --strata --norc miRNA_precursor $name2.converted ${name2}_mapped.bwt`;
+    $err=`bowtie -p $threads -f -v $mismatches -a --best --strata --norc miRNA_precursor $name2.converted ${name2}_mapped.bwt 2>bowtie_reads.out`;
+	read_stats("$name2.converted","${name2}_mapped.bwt");
+	
+
 
     if($options{'s'}){
         print STDERR "mapping star sequences against index\n";
-        $err = `bowtie -p $threads -f -v 0 -a --best --strata --norc miRNA_precursor star.converted ${name3}_mapped.bwt`;
+        $err = `bowtie -p $threads -f -v 0 -a --best --strata --norc miRNA_precursor star.converted ${name3}_mapped.bwt 2>bowtie_star.out`;
     }
 }
+
+
+sub read_stats{
+	my ($f1,$f2)=@_;
+	my %hash;
+	my $count;
+	my %k2;
+	my $total;
+	
+	open IN,"$f1" or die "No reads file in fasta format given\n";
+	while(<IN>){
+		if(/^>*((\S\S\S)\S+_x(\d+))/){
+			next if($hash{$1});
+			$hash{$1} = 1;
+			$count+=$3;
+			$k2{$2}+=$3;
+		}
+	}
+	close IN;
+	my %hash2;
+	my $count2;
+	my %k22;
+	
+	print STDERR "Mapping statistics\n";
+	open IN, "$f2" or die "No mapping file given\n";
+	while(<IN>){
+		if(/^>*((\S\S\S)\S+_x(\d+))/){
+			next if($hash2{$1});
+			$hash2{$1} = 1;
+			$count2+=$3;
+			$k22{$2}+=$3;
+		}
+	}
+	
+	print STDERR "\n#desc\ttotal\tmapped\tunmapped\t%mapped\t%unmapped\n";
+	print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
+	printf STDERR "%.3f\t%.3f\n",$count2/$count,1-($count2/$count);
+	foreach(sort keys %k2){
+		print STDERR "$_: ",$k2{$_},"\t",$k22{$_},"\t",$k2{$_}-$k22{$_},"\t";
+		printf STDERR "%.3f\t%.3f\n",$k22{$_}/$k2{$_},1-($k22{$_}/$k2{$_});
+	}
+}
+
+
+
+
+
 
 
 sub ConvertFastaFile{

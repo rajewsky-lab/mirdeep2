@@ -13,7 +13,7 @@ use Term::ANSIColor;
 
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.0.5";
+my $version="2.0.0.6";
 
 print "
 
@@ -21,7 +21,7 @@ print "
 #                                   #
 # miRDeep$version                    #
 #                                   #
-# last change: 25/06/2012           #
+# last change: 25/11/2014           #
 #                                   #
 #####################################
 
@@ -31,7 +31,7 @@ my $usage="
 
 miRDeep2.pl reads genome mappings miRNAs_ref/none miRNAs_other/none precursors/none 2>report.log
 
-This script enacts the miRDeep pipeline. The input files are:
+This script enacts the miRDeep2 pipeline. The input files are:
 
 reads         deep sequences in fasta format. The identifier should contain a prefix, a running
               number and a '_x' to indicate the number of reads that have this sequence.
@@ -131,6 +131,15 @@ $scripts =~ s/\s+//g;
 
 ############################################# INPUT FILES #########################################################
 
+# foreach my $e(@ARGV){
+# 	if($e =~ /(~)/ or $e =~ /(\s)/){
+# 		die "*******\nYour call to miRDeep2.pl has an argument $e with allowed characters or whitespace in its name $1 . Please make sure not to have '~' or any whitespace in your arguments\n******\n\n";
+# 	}
+		
+# }
+
+# exit;
+
 print "#Starting miRDeep2\n";
 print STDERR "#Starting miRDeep2
 $0 @ARGV\n\n";
@@ -154,18 +163,33 @@ if($file_reads_vs_genome =~ /\/*([a-zA-Z_0-9\.]+)$/){
 	die "could not match arf file\n";
 }
 
+my $warning="\n**********\nThe first three arguments to miRDeep2.pl must be files while arguments 4-6 can be files or must be designated as 'none'. Examples:\n
+miRDeep2.pl reads.fa genome.fa reads_vs_genome.arf mautre_ref_miRNAs.fa mature_other_miRNAs.fa  hairpin_ref_miRNAs 
+
+or 
+
+miRDeep2.pl reads.fa genome.fa reads_vs_genome.arf none none none
+
+
+Please check if the supplied files exist and the command call to miRDeep2.pl is correct
+*******************\n";
+
 my $file_mature_ref_this_species=shift or die "$usage\n\nError: no file containing miRNAs of investigating species specified\n
-Either specify a valid fasta file or say none\n\n";
+Either specify a valid fasta file or say none\n\n$warning";
 
 my $file_mature_ref_other_species=shift or die "$usage\n\nError: no file containing miRNAs of other species specified\n
-Either specify a valid fasta file or say none\n\n";
+Either specify a valid fasta file or say none\n\n$$warning";
 
 my $file_precursors=shift or die "$usage\n\nError: no file containing miRNA precursors of this species specified\n
-Either specify a valid fasta file or say none\n\n";
+Either specify a valid fasta file or say none\n\n$warning";
+if(-f $file_mature_ref_this_species or $file_mature_ref_this_species eq 'none'){}else{die "$usage\n\nError: no file containing miRNAs of investigating species specified\n
+Either specify a valid fasta file or say none\n\n$warning";}
 
+if(-f $file_mature_ref_other_species or $file_mature_ref_other_species eq 'none'){}else{die "$usage\n\nError: no file containing miRNAs of other species specified\n
+Either specify a valid fasta file or say none\n\n$warning";}
 
-
-
+if(-f $file_precursors or $file_precursors eq 'none'){}else{die "$usage\n\nError: no file containing miRNAs precursors of investigating species specified\n
+Either specify a valid fasta file or say none\n\n$warning";}
 
 
 ############################################# GLOBAL VARIABLES ####################################################
@@ -223,6 +247,8 @@ make_survey();
 output_results();
 
 make_bed();
+
+extract_sequences_from_results();
 
 remove_dir_tmp();
 
@@ -1006,6 +1032,22 @@ sub make_bed{
 	}
 }
 
+sub extract_sequences_from_results{
+	my $od="mirna_results_${time}";
+	
+    my $res=`get_mirdeep2_precursors.pl -r result_${time}.csv -p -d -o $od`;
+	my $res1=`get_mirdeep2_precursors.pl -r result_${time}.csv -m -p -d -o $od`;
+	my $res2=`get_mirdeep2_precursors.pl -r result_${time}.csv -k -p -d -o $od`;
+	if(!$res and !$res1 and !$res2){
+		print STDERR "fasta and bed files have been created in subfolder $od\n";
+		return 0;
+	}else{
+		print STDERR $res,"\n";
+		print STDERR $res1,"\n";
+		print STDERR $res1,"\n";
+		return 1;
+	}
+}
 
 sub checkBIN{
     my ($a,$b) = @_;

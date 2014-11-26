@@ -24,7 +24,7 @@ Read input file:
 -c              input file is fasta format
 -e              input file is fastq format
 -d              input file is a config file (see miRDeep2 documentation).
-                options -a, -b or -c must be given with option -d.
+                options -a, -b, -c or -e must be given with option -d.
 
 Preprocessing/mapping:
 -g              three-letter prefix for reads (by default 'seq')
@@ -130,7 +130,7 @@ if($cores !~ /^\d+$/){
 
 if($threads > $cores){ print STDERR "More threads specified than cores on the system. Reducing the number of threads to $cores\n"; $threads=$cores;}
 
-my $orig_file_reads;
+my $orig_file_reads='';
 
 my $mismatches_seed=0;
 
@@ -146,15 +146,10 @@ if($options{g}){$prefix_global=$options{g};}
 my $dir;#=make_dir_tmp();
 
 if($options{d}){
-
     handle_config_file($file_reads);
-
 }else{
-
     handle_one_file($file_reads,$prefix_global);
 }
-
-remove_dir_tmp();
 
 print MAP "#"x60,"\n\n";
 
@@ -172,16 +167,15 @@ if($options{'s'} and $options{'t'}){
 
 
 
-
 sub handle_config_file{
 
     my $file=shift;
 
     open (FILE, "$file") or die "can not open $file\n";
     while (<FILE>){
-
+		
 	if(/(^\S+)\s+(\S+)\s*.*$/){
-
+		
 	    my $file=$1;
 	    my $prefix=$2;
 
@@ -193,9 +187,15 @@ sub handle_config_file{
 	    test_prefix($prefix);
 
 		print MAP "\nhandling file \'$file\' with prefix \'$prefix\'\n";
+		
+		## check if files in config file are in accordance with option specified
+		if($options{'a'}){check_file_format_and_option($file,'a') };
+		if($options{'b'}){check_file_format_and_option($file,'b') };
+		if($options{'c'}){check_file_format_and_option($file,'c') };
+		if($options{'e'}){check_file_format_and_option($file,'e') };
+
 
 	    if($options{v}){print STDERR "\nhandling file \'$file\' with prefix \'$prefix\'\n";}
-
 	    handle_one_file($file,$prefix);
 	}
     }
@@ -225,7 +225,6 @@ sub make_dir_tmp{
 
 
 sub handle_one_file{
-
     my($file_reads,$prefix)=@_;
  
     my $file_reads_latest=process_reads($file_reads,$prefix);
@@ -233,6 +232,8 @@ sub handle_one_file{
     if($options{p}){
         my $file_mapping_latest=map_reads($file_reads_latest);
     }
+	
+	remove_dir_tmp();
     return;
 }
 
@@ -242,6 +243,9 @@ sub process_reads{
    
     my($file_reads_latest,$prefix)=@_;
     $orig_file_reads=$file_reads_latest;
+	if($file_reads_latest =~ /([_\-.a-zA-Z0-9]+)$/){$orig_file_reads=$1;}
+	#	die $orig_file_reads,"\n";
+
     $dir=make_dir_tmp("_${prefix}_$orig_file_reads"); 
     #parse Solexa to fasta
     if($options{h}){
@@ -361,7 +365,6 @@ sub process_reads{
 }
 
 sub map_reads{
-
     my $file_reads_latest=shift;
 
     #map reads to genome
@@ -377,10 +380,10 @@ sub map_reads{
 		$mapping_loc=$options{'r'};
 	}
 
-	print MAP "bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt\n\n";
+	print MAP "bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log\n\n";
 #bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt\n\n";
 
-    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt`;
+    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log`;
     
     my $file_mapping_latest="$dir/mappings.bwt";
     
@@ -411,21 +414,92 @@ sub map_reads{
     return($file_mapping_latest);
 }
 
-
 sub remove_dir_tmp{
-
     #remove temporary directory
-    
     unless($options{u}){
-
 		print MAP "remove tmp dir\nrmtree($dir)\n\n";
-		
 		rmtree($dir);
     }
     return;
 }
 
 
+sub check_file_format_and_option{
+	## added on 18_07_14
+	my ($file,$format) =@_;
+	print STDERR "\n";
+	my $warning="\n\n***** Please check if the option you used (options $format) designates the correct format of the supplied reads file $file *****\n\n
+[options]
+-a              input file is seq.txt format
+-b              input file is qseq.txt format
+-c              input file is fasta format
+-e              input file is fastq format
+-d              input file is a config file (see miRDeep2 documentation).
+                options -a, -b, -c or -e must be given with option -d.
+
+"; 
+	my @line;
+
+	if($format eq 'a'){
+		my $i=0;
+		open IN,$file or die "Cannot open file $file supplied by option -a\n";
+		while(<IN>){
+			chomp;
+			$i++;
+			@line=split();
+			if($#line != 4){
+				die "The seq.txt file does not contain 5 columns. Please make sure to follow the _seq.txt file format conventions\n$warning";
+			}
+			last if($i == 4);
+		}
+	}elsif($format eq 'b'){
+		open IN,$file or die "Cannot open qseq.txt file $file supplied by option -b\n";
+		my $i=0;
+		my $mes="Please make sure your file is in accordance with the qses.txt format specifications\n";
+		while(<IN>){
+			chomp;
+			$i++;
+			@line=split();
+
+			if($#line != 10){
+				die "The qseq.txt file does not contain 11 columns but $#line. Please make sure to follow the qseq.txt file format conventions\n$warning";
+			}
+			if($line[9] =~ /^\S+/){}else{die "The sequence field in the qseq.txt file is invalid. Please make sure to follow the qseq.txt file format conventions\n$warning";}
+			last if($i == 4);			
+		}
+		close IN;
+	}elsif($format eq 'c'){
+		open IN,$file or die "Cannot open FASTA file supplied by option -c\n";
+		my $i=0;
+		my $mes="Please make sure your file is in accordance with the fasta format specifications and does not contain whitespace in IDs or sequences";
+		while(<IN>){
+			chomp;
+			$i++;
+			if($i == 1){if(/^>\S+$/){}else{die "First line of FASTA reads file is not in accordance with the fasta format specifications\n$mes\n$warning";}}
+			if($i == 2){if(/^\S+$/){}else{die "Second line of FASTA reads file contains whitespace in sequence\n$mes\n";}}
+			if($i == 3){if(/^>\S+$/){}else{die "Second ID line of FASTA reads file is not in accordance with the fasta format specifications\n$mes\n$warning";}}
+			if($i == 4){if(/^\S+$/){}else{die "Secdond sequence line of FASTA reads file contains whitespace in sequence\n$mes\n$warning";}}
+			last if($i == 4);			
+		}
+		close IN;
+	}elsif($format eq 'e'){
+		open IN,$file or die "Cannot open FASTQ file supplied by option -e\n";
+		my $i=0;
+		my $mes="Please make sure your file is in accordance with the FASTQ format specifications";
+		while(<IN>){
+            chomp;
+            $i++;
+
+			if($i == 1){if(/^@\S+/){}else{die "First line of FASTQ reads file is not in accordance with the fastq format specifications\n$mes\n$warning";}}                 
+			if($i == 2){if(/^\S+$/){}else{die "Second line of FASTQ reads file contains whitespace in sequence\n$mes\n$warning";}}
+			if($i == 3){if(/^\+/){}else{die "Third line of FASTQ reads file does not start with a '+' character.\n$mes\n$warning";}}
+			if($i == 4){if(/^\S+$/){}else{die "Fourth line of FASTQ reads file contains whitespace\n$mes\n$warning";}}
+			last if($i == 4);			
+		}
+		close IN;	
+	}else{
+	}
+}
 
 
 sub check_options{
@@ -433,16 +507,17 @@ sub check_options{
  
     my $formats=0;
     
-    if($options{a}){$formats++;}
+    if($options{a}){$formats++; check_file_format_and_option($file_reads,'a') if(not $options{'d'});}
     
-    if($options{b}){$formats++;}
+    if($options{b}){$formats++; check_file_format_and_option($file_reads,'b') if(not $options{'d'});}
     
-    if($options{c}){$formats++;}
-    
-    if($options{e}){$formats++;}
+    if($options{c}){$formats++; check_file_format_and_option($file_reads,'c') if(not $options{'d'});}
+
+    if($options{e}){$formats++; check_file_format_and_option($file_reads,'e') if(not $options{'d'});}
     
     unless($formats==1){die "exactly one input format (-a, -b , -e or -c) must be designated\n";}
     
+	## check if file supplied matches option, otherwise quit
     
     my $processing_steps=0;
     
@@ -527,7 +602,6 @@ sub check_options{
             die "Bowtie mapping tool not installed.\n 
 Please download from http://downloads.sourceforge.net/project/bowtie-bio/bowtie/ the latest version and install it.\n\n"}
     }
-
     if($options{s} and $options{s}=~/^-/){die "please make sure that the output file designated with the -s option is correct\n";}
 
     if($options{t} and $options{t}=~/^-/){die "please make sure that the output file designated with the -t option is correct\n";}

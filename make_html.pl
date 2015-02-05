@@ -2918,6 +2918,28 @@ sub PrintKnownnotfound{
     
 	my %error=();
 
+	
+    my ( $mature, $path0, $extension0 ) = fileparse ( $options{'k'}, '\..*' );
+        ##filename
+ 
+    $mature .= "${extension0}_mapped.arf"; ## change .fa suffix to _mapped.arf
+    
+    my %exprs;
+	open IN,"<expression_analyses/expression_analyses_${time}/miRNA_expressed.csv" or die "Error: File expression_analyses/expression_analyses_${time}/miRNA_expressed.csv not found\n";
+	while(<IN>){
+        chomp;
+        next if(/precursor/);
+		my @line = split(/\t/);
+		
+        ## here comes up the trouble when two mature map to same precursor
+        $mature2hairpin{$line[0]}=$line[2]; 
+		$hairpin2mature{$line[2]}=$line[0];
+        $exprs{$line[0]} = $line[1];
+	}
+	close IN;
+
+
+
 	## read in error messages of mirdeep2 run
 	if($options{'E'}){
 		my $infile=$options{'s'};
@@ -2947,15 +2969,14 @@ sub PrintKnownnotfound{
 	}
 
 
-
 	## only performed when option z is NOT given, so when the standard make_html.pl call is done
     if(not $options{'z'}){
-
         ## this are all reads of known miRBase miRNAs seen in output.mrd
         
         ## put all not seen in output.mrd miRNAs in new hash %not_seen
         for(keys %knownones){ ## all miRNAs in mature_ref_this_species listed things
             if(not $seen{$_}){
+				#print STDERR "$_\n"; ## precursor printed out
                 $not_seen{$_} = 1;
             }
         }
@@ -2969,7 +2990,8 @@ sub PrintKnownnotfound{
             while(<IN>){
                 next if(/ID\s+read count/);
                 @mmu = split(/\t/);
-                if($knownones{$mmu[0]}){
+				
+                if($knownones{$mmu[0]} or $knownones{$mature2hairpin{$mmu[0]}}){
                     $signature{$mmu[0]} = 1;
                 }
             }
@@ -2984,37 +3006,8 @@ sub PrintKnownnotfound{
     ## now read in the mature_ref_this_species mapped against precursors from the quantifier module 
 	## store ids in hashes
 	
-    my ( $mature, $path0, $extension0 ) = fileparse ( $options{'k'}, '\..*' );
-        ##filename
+   
     
-
-    
-    $mature .= '_mapped.arf'; ## change .fa suffix to _mapped.arf
-    
-    my %exprs;
-	open IN,"<expression_analyses/expression_analyses_${time}/miRNA_expressed.csv" or die "Error: File expression_analyses/expression_analyses_${time}/miRNA_expressed.csv not found\n";
-	while(<IN>){
-        chomp;
-        next if(/precursor/);
-		my @line = split(/\t/);
-		
-        ## here comes up the trouble when two mature map to same precursor
-        $mature2hairpin{$line[0]}=$line[2]; 
-		$hairpin2mature{$line[2]}=$line[0];
-        $exprs{$line[0]} = $line[1];
-	}
-	close IN;
-    
-    open IN,"<expression_analyses/expression_analyses_${time}/mature2hairpin" or die "Error: File expression_analyses/expression_analyses_${time}/mature2hairpin not found\n";
-    my %hairpin2mature2;
-	while(<IN>){
-        chomp;
-		my @line = split(/\t/);
-        $hairpin2mature2{$line[0]}=$line[1];
-	}
-	close IN;
-    
-	
     ## open miRBase.mrd from quantifier module ## precursor ids as hash
     open IN,"<$options{'q'}" or die "Error: cannot open $options{'q'}\n";
     while(<IN>){
@@ -3234,11 +3227,13 @@ sub PrintKnownnotfound{
 		
 		for my $oid(sort {$exprs{$b} <=> $exprs{$a}} keys %exprs){
 			## if miRNA is in hash not_seen and signature or quantifier module then trigger output creation
+			
 			next if($skip{$mature2hairpin{$oid}});
 			$skip{$mature2hairpin{$oid}}=1;
-			if(($not_seen{$oid} and $signature{$oid}) or $options{'z'}){ 
+#			print STDERR "$oid\t$not_seen{$mature2hairpin{$oid}}\t$signature{$oid}\n";
+			if(( ($not_seen{$oid} or $not_seen{$mature2hairpin{$oid}}) and $signature{$oid}) or $options{'z'}){ 
+##				die "rehe";
 				$exhtml{$mature2hairpin{$oid}}=~ s/<td>\s*<\/td>/<td>-<\/td>/g;
-				
 				#die $exhtml{$mature2hairpin{$oid}};
 				@csvout=split("\n",$exhtml{$mature2hairpin{$oid}});
 				

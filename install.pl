@@ -94,10 +94,9 @@ my $bowtie;
 
 my $bowtie_version="1.1.1";
 
-my $binst=`bowtie --version 2>&1`;
-
-if($binst =~ /version\s*(\S*)/i){
-    print STDERR "Bowtie version: $1                                      already installed, nothing to do ...\n";
+my $ret=checkBIN("bowtie","Usage");
+if($ret == 0){
+    print STDERR "bowtie                                           already installed, nothing to do ...\n";
 }else{
     if(not -d "bowtie-$bowtie_version"){
 
@@ -324,6 +323,8 @@ if($ret == 0){
     print STDERR "PDF::API2                                           already installed, nothing to do ...\n";
 }else{
 
+	
+
 
 	$dfile="PDF-API2-2.019.tar.gz";
     if(not -f $dfile){
@@ -379,7 +380,11 @@ if($ret == 0){
     `echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/.bash_profile`;
 #}
 
-
+   print STDERR "\n\nif the PDF::API2 install failed it may be necessary to add the following to your .bashrc\n
+   PERL_MB_OPT=\"--install_base \"$ENV{'HOME'}/perl5\"; export PERL_MB_OPT;
+   PERL_MM_OPT=\"INSTALL_BASE=$ENV{'HOME'}/perl5\"; export PERL_MM_OPT;
+   then start a new shell and rerun the installer
+   ";
 
 #$in2 = `grep  "$dir/lib/perl5/site_perl/$perl:*" ~/.cshrc`;
 

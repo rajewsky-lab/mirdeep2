@@ -6,7 +6,7 @@
 ## Date: 25/06/2012
 ## added weighed read counts
 ## remaining read counts is now correct
-## read noramlization is now 1000000 * mature-reads/all_mature_reads
+## read noramlization is now 10e6 * mature-reads/all_mature_reads
 ## missing/empty file with star sequences led to abortion of the script when option -s was used
 
 ######################
@@ -106,7 +106,7 @@ my $usage="usage:
   \t-f [int]     number of nucleotides downstream of the mature sequence to consider, default 5
   \t-j           do not create an output.mrd file and pdfs if specified\n
   \t-w           considers the whole precursor as the 'mature sequence'
-  \t-W           read counts are weighted by their number of mappings. e.g. A read maps twice so each position gets 0.5 added to its read profile
+  \t-W           read counts are weighed by their number of mappings. e.g. A read maps twice so each position gets 0.5 added to its read profile
 	\t-U           use only unique read mappings; Caveat: Some miRNAs have multiple precursors. These will be underestimated in their expression since the multimappers are excluded
 \n";
 
@@ -177,10 +177,15 @@ my ( $name1, $path1, $extension1 ) = fileparse ( $options{'m'}, '\..*' );# if(no
 my ( $name2, $path2, $extension2 ) = fileparse ( $options{'r'}, '\..*' );
 my ( $name3, $path3, $extension3 );
 
+$name0.=$extension0;
+$name1.=$extension1;
+$name2.=$extension2;
+
 
 if($options{'s'}){
     if(-s "$options{'s'}"){
 	( $name3, $path3, $extension3 ) = fileparse ( $options{'s'}, '\..*' );
+    $name3.=$extension3;
     }else{
         print STDERR "The file $options{'s'} is empty or not found. It will be ignored for this analysis";
         $options{'s'}=0;
@@ -326,7 +331,7 @@ my $starf='';
 if($options{'s'}){$starf ="-j $outdir/${name3}_mapped.arf";}
 
 if($organisms{$species} ){
-   $command = "make_html2.pl -q $outdir/miRBase.mrd -k $name1$extension1 -t $organisms{$species} -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
+   $command = "make_html2.pl -q $outdir/miRBase.mrd -k $name1 -t $organisms{$species} -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
 
 
 
@@ -337,7 +342,7 @@ if($organisms{$species} ){
 }elsif($rorganisms{$species}){
 
 
-     $command="make_html2.pl -q $outdir/miRBase.mrd -k $name1$extension1 -t $species -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
+     $command="make_html2.pl -q $outdir/miRBase.mrd -k $name1 -t $species -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
 
 
     print STDERR "$command\n";
@@ -347,7 +352,7 @@ if($organisms{$species} ){
 
 
 }else{
-    $command = "make_html2.pl -q $outdir/miRBase.mrd -k $name1$extension1 -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
+    $command = "make_html2.pl -q $outdir/miRBase.mrd -k $name1 -y $time $opt_d $opt_o -i $outdir/${name1}_mapped.arf $starf $opt_l $opt_m -M miRNAs_expressed_all_samples_$time.csv $opt_P $opt_W";
 
 
  print STDERR "$command\n";
@@ -628,8 +633,7 @@ sub ReadinMatureMappingFile{
             $hash_sample{$sample}{$line[2]}{$matches}{'score'} = $hash{$line[2]}{$matches}{'score'};
             $hash_sample{$sample}{$line[2]}{$matches}{'mature'} = $hash{$line[2]}{$matches}{'mature'};
         }
-
-
+		print OUT "$line[2]\t$line[0]\n";
 	}
 
 	print "\n$cx mature mappings to precursors\n\n";
@@ -710,7 +714,7 @@ sub ReadinReadsMappingFile{
 
 	my %ids=();
 
-	## get number of times a read was mapped, used for weighting
+	## get number of times a read was mapped, used for weighing
 	open IN,"${name2}_mapped.bwt" or die "Reads mapping File ${name2}_mapped.bwt not found \n";
 	while(<IN>){
 		if(/^(\S+)/){
@@ -755,7 +759,7 @@ sub ReadinReadsMappingFile{
 
 				$sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
 				$len_sc = $scores[$#scores];
-				if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here
+				if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighing reads here
 
 
 
@@ -776,7 +780,7 @@ sub ReadinReadsMappingFile{
 
 					$sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
 					$len_sc = $scores[$#scores];
-					if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
+					if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighing reads here}
 					$hash{$line[2]}{$i}{'score'}+= $len_sc; ## hash of pre -> mature -> score
 					$hash_sample{$sample}{$line[2]}{$i}{'score'}+= $len_sc;
 					$total{$sample}+=$len_sc;
@@ -798,7 +802,7 @@ sub ReadinReadsMappingFile{
 			   @scores = split(/x/,$line[0]);
 			   $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
 			   $len_sc = $scores[$#scores];
-			   if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
+			   if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighing reads here}
 
 
 			   $hash_star{$line[2]}{$i}{'score'}+= $len_sc;
@@ -815,7 +819,7 @@ sub ReadinReadsMappingFile{
 				   @scores = split(/x/,$line[0]);
 				   $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
 				   $len_sc = $scores[$#scores];
-				   if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
+				   if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighing reads here}
 				   $hash_star{$line[2]}{$i}{'score'}+= $len_sc;
 				   $hash_star_sample{$sample}{$line[2]}{$i}{'score'}+= $len_sc;
 				   $total{$sample}+=$len_sc;
@@ -833,7 +837,7 @@ sub ReadinReadsMappingFile{
             @scores = split(/x/,$line[0]);
             $sample = $1 if($scores[0] =~ /^(\S\S\S)_/); ## get sample id here
 			$len_sc=$scores[$#scores];
-			if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighting reads here}
+			if($options{'W'}){$len_sc /= $mapcounts{$line[0]};} ## weighing reads here}
             $hash{$line[2]}{'r'} += $len_sc;
 			$hash_sample{$sample}{$line[2]}{'r'}+= $len_sc;
         }
@@ -1413,7 +1417,7 @@ gga                 Chicken
 na                  Zebra finch
 na                  Lizard
 xtr                 X.tropicalis
-tni                 Zebrafish
+dre                 Zebrafish
 tni                 Tetraodon
 fru                 Fugu
 na                  Stickleback

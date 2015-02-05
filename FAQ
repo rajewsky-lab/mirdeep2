@@ -1,5 +1,5 @@
 Q1: What are mature miRBase miRNAs not detected by miRDeep2 in the result files?
-A:  Those miRNAs have not been detected by miRDeep2 due to unusual precursor structures or too short/long mature sequence lengths. 
+A:  Those miRNAs have not been detected by miRDeep2 due to unusual precursor structures. 
     The miRDeep2 module does de novo miRNA prediction and miRNA precursors or mature sequences that do not fit the assumed biogenesis 
     model were not reported as such. The assignment of being a known miRNA happens in the very end by simple sequence comparison 
 	with all predicted miRNA precursors. 
@@ -14,5 +14,5 @@ A:  Expression values are normalized by library size and multiplied by a factor 
 Q3: Does miRDeep2 differential miRNA expression profiling?
 A:  No, but the output from the quantification module can be used
     directly as input for specialized differential expression
-	profiling tools. 
+	tools. 
  

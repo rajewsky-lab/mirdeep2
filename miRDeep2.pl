@@ -13,7 +13,7 @@ use Term::ANSIColor;
 
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.0.6";
+my $version="2.0.0.7";
 
 print "
 
@@ -21,7 +21,7 @@ print "
 #                                   #
 # miRDeep$version                    #
 #                                   #
-# last change: 25/11/2014           #
+# last change: 10/12/2014           #
 #                                   #
 #####################################
 
@@ -533,9 +533,9 @@ If you have precursors with less than $minpreslen please use option -p <int> to 
 			}
 
             print "#Quantitation of known miRNAs in data\n";
-	    my $dopt="";
+	        my $dopt="";
 			my $Popt="";
-	    if($options{'d'}){$dopt="-d";}
+	        if($options{'d'}){$dopt="-d";}
 			if($options{'P'}){$Popt="-P";}
 
             my $quant = "quantifier.pl -p $file_precursors -m $file_mature_ref_this_species  -r $file_reads $file_star $species -y $time -k $dopt $Popt";
@@ -588,31 +588,31 @@ sub rna2dna{
         start();
         ## copy file
         my ( $file_mature_ref_this_species_tmp, $path0, $extension0 ) = fileparse (  $file_mature_ref_this_species, '\..*' );
-        print STDERR "rna2dna.pl $file_mature_ref_this_species > $dir_tmp/$file_mature_ref_this_species_tmp\n\n";
-        my $ret_parse_mature_ref_this_species=`rna2dna.pl $file_mature_ref_this_species > $dir_tmp/$file_mature_ref_this_species_tmp`;
+        print STDERR "rna2dna.pl $file_mature_ref_this_species > $dir_tmp/$file_mature_ref_this_species_tmp$extension0\n\n";
+        my $ret_parse_mature_ref_this_species=`rna2dna.pl $file_mature_ref_this_species > $dir_tmp/$file_mature_ref_this_species_tmp$extension0`;
         ##rename orig file
-        $file_mature_ref_this_species = $file_mature_ref_this_species_tmp;
+        $file_mature_ref_this_species = $file_mature_ref_this_species_tmp.$extension0;
     }
 
     if($file_mature_ref_other_species !~ /none/i){
         ##copy file
         my ( $file_mature_ref_other_species_tmp, $path0, $extension0 ) = fileparse (  $file_mature_ref_other_species, '\..*' );
-        print STDERR "rna2dna.pl $file_mature_ref_other_species > $dir_tmp/$file_mature_ref_other_species_tmp\n\n";
+        print STDERR "rna2dna.pl $file_mature_ref_other_species > $dir_tmp/$file_mature_ref_other_species_tmp$extension0\n\n";
         ##here give file name
-        my $ret_parse_mature_ref_other_species=`rna2dna.pl $file_mature_ref_other_species > $dir_tmp/$file_mature_ref_other_species_tmp`;
+        my $ret_parse_mature_ref_other_species=`rna2dna.pl $file_mature_ref_other_species > $dir_tmp/$file_mature_ref_other_species_tmp$extension0`;
         ##rename orig file
-        $file_mature_ref_other_species =  $file_mature_ref_other_species_tmp;
+        $file_mature_ref_other_species =  $file_mature_ref_other_species_tmp.$extension0;
         end();
     }
 
 	if($file_precursors !~ /none/i){
         ##copy file
         my ( $file_precursors_tmp, $path0, $extension0 ) = fileparse (  $file_precursors, '\..*' );
-        print STDERR "rna2dna.pl $file_precursors > $dir_tmp/$file_precursors_tmp\n\n";
+        print STDERR "rna2dna.pl $file_precursors > $dir_tmp/$file_precursors_tmp$extension0\n\n";
         ##here give file name
-        my $ret_parse_precursors=`rna2dna.pl $file_precursors > $dir_tmp/$file_precursors_tmp`;
+        my $ret_parse_precursors=`rna2dna.pl $file_precursors > $dir_tmp/$file_precursors_tmp$extension0`;
         ##rename orig file
-        $file_precursors =  $file_precursors_tmp;
+        $file_precursors =  $file_precursors_tmp.$extension0;
         end();
     }
 
@@ -899,8 +899,14 @@ sub output_results{
 
     if($options{t}){$line.=" -t $options{t}";}
 
-    print STDERR "$line -V $version\n\n";
-    my $ret_make_html=`$line -V $version`;
+	my $dopt="";
+	if($options{'d'}){$dopt="-d";}
+	
+
+
+
+    print STDERR "$line -V $version $dopt\n\n";
+    my $ret_make_html=`$line -V $version $dopt`;
 
     end();
     return;

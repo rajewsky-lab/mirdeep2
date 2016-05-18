@@ -10,10 +10,12 @@ use File::Path;
 use File::Basename;
 use Term::ANSIColor;
 
-
+##
+check_install();
+##
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.0.7";
+my $version="2.0.0.8";
 
 print "
 
@@ -21,7 +23,7 @@ print "
 #                                   #
 # miRDeep$version                    #
 #                                   #
-# last change: 10/12/2014           #
+# last change: 21/04/2016           #
 #                                   #
 #####################################
 
@@ -709,14 +711,18 @@ sub fold_precursors{
 
     print "#folding precursors\n";
     print STDERR "#folding precursors\n";
-    print STDERR "RNAfold < $dir_tmp/precursors.fa -noPS > $dir_tmp/precursors.str\n\n";
+
     start();
 	my $ret_fold_precursors=system("RNAfold < $dir_tmp/precursors.fa -noPS > $dir_tmp/precursors.str 2>>error_${time}.log");
 	if($ret_fold_precursors){
 		$ret_fold_precursors=system("RNAfold < $dir_tmp/precursors.fa --noPS > $dir_tmp/precursors.str");
 		if($ret_fold_precursors){
 			die "Some RNAfold error occurred. Error $ret_fold_precursors\n";
+		}else{
+		    print STDERR "RNAfold < $dir_tmp/precursors.fa --noPS > $dir_tmp/precursors.str\n\n";
 		}
+	}else{
+	    print STDERR "RNAfold < $dir_tmp/precursors.fa -noPS > $dir_tmp/precursors.str\n\n";
 	}
 
     end();
@@ -885,15 +891,15 @@ sub output_results{
     if($file_mature_ref_this_species !~ /none/i){
 
         if($options{'q'}){
-            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'} -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample $OE";
+            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'} -x $xopt -r ${scripts}/../Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample $OE";
         }else{
-            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time  $sort_by_sample $OE";
+            $line="make_html.pl -f $dir/output.mrd -k $dir_tmp/$file_mature_ref_this_species -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -r ${scripts}/../Rfam_for_miRDeep.fa -v $sc -y $time  $sort_by_sample $OE";
         }
     }else{
         if($options{'q'}){
-            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'}  -x $xopt -r ${scripts}Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample $OE";
+            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -s $dir/survey.csv -c -e -q $options{'q'}  -x $xopt -r ${scripts}/../Rfam_for_miRDeep.fa -v $sc -y $time $sort_by_sample $OE";
         }else{
-            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -v $sc -s $dir/survey.csv -c -e -r ${scripts}Rfam_for_miRDeep.fa -y $time $sort_by_sample $OE";
+            $line="make_html.pl -f $dir/output.mrd -p $dir_tmp/precursors.coords -v $sc -s $dir/survey.csv -c -e -r ${scripts}/../Rfam_for_miRDeep.fa -y $time $sort_by_sample $OE";
         }
     }
 
@@ -1021,8 +1027,8 @@ If this did not help please restart youer workstation.\n\n";
 	$ret = checkBIN("perl -e \'use PDF::API2; print \"installed\";\'","installed");
 	die "Error: \tPerl PDF::API2 package not found\nCheck if the perl PDF::API2 package is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
 
-	if(not -f "$scripts/Rfam_for_miRDeep.fa"){
-		die "Error:\t Rfam_for_miRDeep.fa not found in your miRDeep2 scripts directory\nPlease copy this file from the miRDeep2 archive to your miRDeep2 scripts directory\n\n";
+	if(not -f "$scripts/../Rfam_for_miRDeep.fa"){
+		die "Error:\t Rfam_for_miRDeep.fa not found in your miRDeep2 scripts directory\nPlease copy this file from the miRDeep2 archive to your miRDeep2 directory\n\n";
 	}
 
 	return 0;
@@ -1090,4 +1096,20 @@ sub get_longest_id{
 	}
 	close IN;
 	return $l;
+}
+
+
+sub check_install{
+	my $a=`which miRDeep2.pl`;
+	my $bn=`dirname $a`;
+	chomp $bn;
+	if(not -f "$bn/../install_successful"){
+		die "Please run the install.pl script first before using the miRDeep2 package
+		The install script is located in ",substr($bn,0,length($bn)-3)," so just do
+
+		cd ",substr($bn,0,length($bn)-3),
+		"\nperl install.pl
+
+		";
+	}
 }

@@ -1,3 +1,14 @@
+Version 2.0.0.8
+The install.pl script has been updated to download automatically the latest PDF::API2 version and the latest bowtie1 version.
+Source code has been cleaned up and pathes have been adapted. So when using this version please do a new installation of miRDeep2 
+and do not just copy scripts over old version. Otherwise your installation will likely be broken.
+RNAfold and randfold now compile again on MacOSX 10.10.5 due to adaptation of the fold.c source file in these packages.
+minor issues removed
+code is cleaned up and installation directories are also organzied more reasonable
+Sean Eddys squid libray is included in the package already since the download server is sometimes not to be working 
+
+
+
 Version 2.0.0.6
 corrected bed file coordinates, off by one error fixed
 the zebrafish switch works now in the species specification

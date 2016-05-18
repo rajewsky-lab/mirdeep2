@@ -3,10 +3,10 @@
 ######################
 
 ## Author: SM
-## Date: 25/06/2012
+## Date: 21/04/2016
 ## added weighed read counts
 ## remaining read counts is now correct
-## read noramlization is now 10e6 * mature-reads/all_mature_reads
+## read noramlization is now 10e6 * mature-reads/all_mature_reads (So reads per million mapped miRNA reads)
 ## missing/empty file with star sequences led to abortion of the script when option -s was used
 
 ######################
@@ -15,6 +15,8 @@ use File::Path;
 use strict;
 use File::Basename;
 use Getopt::Std;
+
+check_install();
 
 my %hash;
 my %hash_star;
@@ -303,9 +305,15 @@ chdir("../../");
 PrintExpressionValues();
 PrintExpressionValuesSamples();
 
+if($options{'j'}){
+	print STDERR  "exiting here and not creating mirdeep.mrd file\nif you want this created do not specify option -j\n";
+	exit;
+}
 print STDERR "\nCreating miRBase.mrd file\n\n";
-die "exiting here and not creating mirdeep.mrd file\nif you want this created do not specify option -j\n" if($options{'j'});
 CreateOutputMRD();
+		
+	
+
 #CreateOutputMRD_orig();
 
 my $opt_l ='-l';
@@ -1396,7 +1404,20 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 	chdir("../../");
 }## close sub
 
+sub check_install{
+	my $a=`which miRDeep2.pl`;
+	my $bn=`dirname $a`;
+	chomp $bn;
+	if(not -f "$bn/../install_successful"){
+		die "Please run the install.pl script first before using the miRDeep2 package
+		The install script is located in ",substr($bn,0,length($bn)-3)," so just do
 
+		cd ",substr($bn,0,length($bn)-3),
+		"\nperl install.pl
+
+		";
+	}
+}
 
 __DATA__
 hsa                 Human

@@ -1,46 +1,89 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
+
+
 
 use strict;
 use warnings;
 use LWP::Simple;
 
-
-
-
 print STDERR "\n
 ###############################################################################################
-#
+# Last update: May 18, 2016
 # This is the miRDeep2 installer. 
-# It will work under a bash,csh and ksh shell.
+# It is tested under a bash and zsh shell
 # It will try to download all necessary files and install them. 
-# Please restart your shell to make changes take effect
 #
 ###############################################################################################
 
-
 ";
+my $dir=`pwd 2>&1`;
+chomp $dir;
 
 my $time =time;
-my $new = $ARGV[0];
+my $new='no';
+
+$new = $ARGV[0] if($ARGV[0]);
+
+my $shell=$ENV{'SHELL'};
+my $shellconf='.bash_profile';
+if($shell =~ /zsh/){
+	if(-f "$ENV{'HOME'}/.zshenv"){
+		$shellconf='.zshenv';
+	}elsif(-f "$ENV{'HOME'}/.zshrc"){
+		$shellconf='.zshrc';
+	}else{
+		die "Could not determine file for setting environment variables\n";
+	}
+}
+			
+
 
 if($new !~ /no/){
-    print STDERR "making backup of .bashrc,.bash_profile and .cshrc and removing all entries of mirdeep in those files\n";
+    print STDERR "making backup of .bashrc,$shellconf and .cshrc and removing all entries of mirdeep in those files\n";
     rem_mirdeep(".bashrc");
-    rem_mirdeep(".bash_profile");
+    rem_mirdeep("$shellconf");
     rem_mirdeep(".cshrc");
 }
 
+my $grep;
+$grep=`which grep`;
+if(not $grep){
+    $grep=`which ggrep`;
+}
+if(not $grep){
+    die "No grep found on system\n";
+}
+chomp $grep;
+
+
 my $gcc=`gcc --version 2>&1`;
-if($gcc !~ /(GCC)/i){
-    die "\nError:\n\tno gcc compiler installed. Please install a gcc compiler\n";
+if($gcc !~ /(GCC)/i and $gcc !~ /clang/i){
+    print STDERR "\nError:\n\tno gcc compiler installed. Please install a gcc compiler\n";
+    my $r=`uname -s`;
+    chomp $r;
+    if($r !~ /Linux/i){
+	print STDERR "==>     If you are using MacOS then you probably need to install Xcode with commandline-tools from the appstore!\n\n";
+    }
+    exit;
 }else{
     if($gcc =~ /^gcc\s*\S*\s*(\d+\S+)\s*/){
         print STDERR "gcc version: $1                                      already installed, nothing to do ...\n";
     }
+    if($gcc =~ /clang/){
+	print STDERR "clang installed                                      already installed, nothing to do ...\n";
+    }
 } 
 
-my $wget=`wget`;
-my $curl=`curl 2>&1`;
+my %progs;
+$progs{bowtie}=0;
+$progs{RNAfold}=0;
+$progs{randfold}=0;
+$progs{zlib}=0;
+$progs{pdf}=0;
+$progs{ttf}=0;
+
+my $wget=`which wget`;
+my $curl=`which curl`;
 
 my $dtool='';
 my $dopt='';
@@ -55,35 +98,123 @@ if($wget =~ /URL/i){
 	die "No commandline download tool found on your system. Please install wget or curl on your machine\n";
 }
 
-my $dir=`pwd 2>&1`;
+if(not -d 'bin'){
+    #creating bin directory which will also contain other executables in the end\n";
+    my $ret=system("cp -r src bin");
+    if(not $ret){ 
+	print STDERR "bin directory created successful\n";
+    }else{
+	die "Could not create binary directory\n";
+    }
+}
 
-chomp $dir;
 
 my $err;
-
 my $dfile='';
 
 ##only attach to config file if not yet existing
-my $in=`grep  "$dir/mirdeep:*" ~/.bashrc`;
-if(not $in){
-    `echo 'export PATH=\$PATH:$dir' >> ~/.bashrc`;
+my $in=`$grep "$dir/bin" ~/.bashrc`;
+
+
+
+## set install dir
+my $install_bin_dir="$dir/bin";
+foreach my $e(@ARGV){
+    if($e =~ /install-dir=(.+)/){
+	$install_bin_dir=$1;
+    }
 }
 
-$in=`grep "$dir/:*" ~/.bash_profile`;
+if($install_bin_dir ne "$dir/bin"){
+    ## check if it is writable and existet
+    if(not -d $install_bin_dir){
+	print STDERR "The given installation directory by argument install-dir is not existent\nexecutable files will be put into $dir/bin instead\n";
+	$install_bin_dir="$dir/bin";
+    }else{	
+	chdir $install_bin_dir;
+	my $ret=system("touch mirdeep_test_file");
+	if(not $ret){
+	    system("rm mirdeep_test_file");
+	}else{
+	    print STDERR "The given installation directory by argument install-dir is either not existent or not writeable\nexectable files will be put into $dir/bin instead\n";
+	    $install_bin_dir="$dir/bin";
+	}
+	chdir "$dir";
+    }
+}
+
+## check if we have the install path in our files 
+$in=`$grep "$install_bin_dir" ~/$shellconf`;
 if(not $in){
-    `echo 'export PATH=\$PATH:$dir' >> ~/.bash_profile`;
+    my $ret=`$grep $install_bin_dir ~/$shellconf |$grep PATH`;
+    if(not $ret){
+	`echo 'export PATH=\$PATH:$install_bin_dir' >> ~/$shellconf`;
+    }
+}
+
+## add this temporarily to make perl installation possible on some systems
+print STDERR "Checking environment variables ...\n";
+my $g=`$grep PERL_MB_OPT ~/$shellconf \|$grep install_base `;
+if($g){
+}else{
+    print STDERR "adding variables PERL_MB_OPT,PERL_MM_OPT,PERL5LIB to $shellconf\n";
+    `echo >> ~/$shellconf`;
+    `echo 'PERL_MB_OPT=\"--install_base $ENV{'HOME'}/perl5\";export PERL_MB_OPT' >> ~/$shellconf`;
+    `echo 'PERL_MM_OPT=\"INSTALL_BASE=$ENV{'HOME'}/perl5\";export PERL_MM_OPT' >> ~/$shellconf`;
+	$g=`grep $dir/lib/perl5 ~/$shellconf`;
+	if(not $g){
+		$g=`grep PERL5LIB ~/$shellconf`;
+		if(not $g){
+		 `echo 'export PERL5LIB=$dir/lib/perl5' >> ~/$shellconf`;
+		 }else{
+			 `echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/$shellconf`;
+		}	
+	 }
+	
+	`echo >> ~/$shellconf`;
+    print STDERR "please run the install.pl script again in a new terminal window or just type
+	
+	source ~/$shellconf
+	perl install.pl
+
+	so that the new environment variables are visible to the install.pl script\n";
+
+    exit;
+}
+
+$g=`$grep $dir/lib/perl5 ~/$shellconf`;
+if(not $g){
+	$g=`grep PERL5LIB ~/$shellconf`;
+	if(not $g){
+		`echo 'export PERL5LIB=$dir/lib/perl5' >> ~/$shellconf`;
+	}else{
+		`echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/$shellconf`;
+	}	
+
+`echo >> ~/$shellconf`;
+print STDERR "please run the install.pl script again in a new terminal window or just type
+
+source ~/$shellconf
+perl install.pl
+
+so that the new environment variables are visible to the install.pl script\n";
+exit;
 }
 
 my $in2;
 if(-f "~/.cshrc"){
-	$in2=`grep  "$dir:*" ~/.cshrc`;
+	$in2=`$grep "$install_bin_dir" ~/.cshrc`;
 	if(not $in2){
-		#`echo 'setenv PATH \$PATH:$dir/mirdeep2' >> ~/.cshrc`;
+		`echo 'setenv PATH \$PATH:$install_bin_dir' >> ~/.cshrc`;
 	}
 }
 
+my $binnew=1;
+
 if(not -d "essentials"){
     `mkdir essentials`;
+}else{
+	$binnew=0;
 }
 
 chdir("essentials");
@@ -93,10 +224,25 @@ my $a=`uname -a`;
 my $bowtie;
 
 my $bowtie_version="1.1.1";
+if($dtool =~ /curl/){
+    
+	`$dtool https://sourceforge.net/projects/bowtie-bio/files/bowtie/ > to_del`;
+}else{
+    `$dtool https://sourceforge.net/projects/bowtie-bio/files/bowtie/ -O to_del`;
+}
+open IN,"to_del" or die "No bowtie_file_info file found\n";
+while(<IN>){
+    if(/projects\/bowtie-bio\/files\/bowtie\/(\d\.\d+\.*\d*)\//){
+	$bowtie_version=$1;
+	last;
+    }
+}
+close IN;
 
 my $ret=checkBIN("bowtie","Usage");
 if($ret == 0){
     print STDERR "bowtie                                           already installed, nothing to do ...\n";
+	$progs{bowtie} = 1;
 }else{
     if(not -d "bowtie-$bowtie_version"){
 
@@ -110,20 +256,20 @@ if($ret == 0){
         }
         
         if(not -f $bowtie){
-			if(check("http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie")){
-				$err=system("$dtool http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie $dopt");
-
-				if($err){
-					die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
-				}
+	    if(check("http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie")){
+		$err=system("$dtool http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/$bowtie_version/$bowtie $dopt");
+		
+		if($err){
+		    die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
+		}
             }elsif(check("http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie")){
-				$err=system("$dtool http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie $dopt");
-				if($err){
-					die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
-				}
-			}else{
-				die "\nError:\n\t$bowtie not found on server http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/ \n\n\n";
-			}
+		$err=system("$dtool http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/old/$bowtie_version/$bowtie $dopt");
+		if($err){
+		    die "\nError:\n\t$bowtie could not be downloaded\n\n\n";
+		}
+	    }else{
+		die "\nError:\n\t$bowtie not found on server http://netcologne.dl.sourceforge.net/project/bowtie-bio/bowtie/ \n\n\n";
+	    }
         }
         
         if(not -f "$bowtie"){
@@ -131,38 +277,47 @@ if($ret == 0){
         }
                 
         print STDERR "Installing bowtie binaries\n\n";
-        $err=system("unzip $bowtie");
+        $err=system("unzip -u $bowtie 1>> install.log 2>>install_error.log");
         
         if($err){
             die "unzip $bowtie was not successful\n";
         }
     }
+			
+    #$in = `$grep "$dir/essentials/bowtie-$bowtie_version:*" ~/.bashrc` if(-f "~/.bashrc");
+    #if(not $in){
+    #    `echo 'export PATH=\$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.bashrc`;
+    #}
 
-    $in = `grep  "$dir/essentials/bowtie-$bowtie_version:*" ~/.bashrc`;
-    if(not $in){
-        `echo 'export PATH=\$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.bashrc`;
-    }
-
-    $in = `grep  "$dir/essentials/bowtie-$bowtie_version:*" ~/.bash_profile`;
-    if(not $in){
-        `echo 'export PATH=\$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.bash_profile`;
-    }
+    #$in = `$grep "$dir/essentials/bowtie-$bowtie_version:*" ~/$shellconf`;
+    #if(not $in){
+    #    `echo 'export PATH=\$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/$shellconf`;
+    #}
 
 
-    $in2 = `grep  "$dir/essentials/bowtie-$bowtie_version:*" ~/.cshrc`;
-
-    if(not $in2){
-        #`echo 'setenv PATH \$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.cshrc`;
-    }
+    #$in2 = `$grep "$dir/essentials/bowtie-$bowtie_version:*" ~/.cshrc` if(-f "~/.cshrc");
+    #
+    #if(not $in2){
+    #    `echo 'setenv PATH \$PATH:$dir/essentials/bowtie-$bowtie_version' >> ~/.cshrc`;
+    #}
+    chdir "$install_bin_dir";
+	
+	buildgood("$dir/essentials/bowtie-$bowtie_version/bowtie");
+	
+	if(not -f "bowtie"){
+    system("ln -s $dir/essentials/bowtie-$bowtie_version/bowtie* .");
+}
+    chdir "$dir/essentials/";
 
 }
 
-my $ret = checkBIN("RNAfold -h 2","usage");
+$ret = checkBIN("RNAfold -h 2","usage");
 #my $rna_inst=`RNAfold 2>&1`;
 
 #if($rna_inst !~ /no\s*RNAfold/i){
 if($ret == 0){
-   print STDERR "RNAfold                                                   already installed, nothing to do ...\n";
+   print STDERR "RNAfold                                          already installed, nothing to do ...\n";
+   $progs{RNAfold}=1;
 }else{
     if(not -d "ViennaRNA-1.8.4"){
         $dfile="ViennaRNA-1.8.4.tar.gz";
@@ -178,42 +333,73 @@ if($ret == 0){
                 Please try to download the Vienna package from here http://www.tbi.univie.ac.at/RNA/RNAfold.html 
 \n";
 			}
-    }
+	}
         
         
         if(not -f "ViennaRNA-1.8.4.tar.gz"){
             die "Vienna package download failed\n";
         }
-        
-        print STDERR "Installing Vienna package now \n\n";
-        `tar xvvzf ViennaRNA-1.8.4.tar.gz`;
-        chdir("ViennaRNA-1.8.4");
-        `./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
-        `make`;
-        `make install`;
-        
-        
-        chdir("..");
+    }
+
+    if(not -f "ViennaRNA-1.8.4/Progs/RNAfold"){
+	print STDERR "Installing Vienna package now \n\n";
+	`tar xzf ViennaRNA-1.8.4.tar.gz`;
+	chdir("ViennaRNA-1.8.4/");
+	chdir("lib");
+	
+	open IN,"<fold.c" or die "File fold.c not found\n";
+	open OUT,">fold.c.new" or die "Cannot generate file fold.c.new\n";
+	while(<IN>){
+	    if(/inline\s+(int\s+LoopEnergy.+$)/i){
+		print OUT "$1";
+	    }elsif(/^inline\s+(int\s+HairpinE.+$)/i){
+		print OUT "$1";
+	    }else{
+		print OUT;
+	    }
+	}
+	close OUT;
+    
+	`mv fold.c fold.c.orig`;
+	`mv fold.c.new fold.c`;
+	chdir("..");
+    
+	`./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
+	`make 1>> ../install.log 2>> ../install_error.log`;
+	`make install 1>> ../install.log 2>> ../install_error.log`;
+
+	buildgood("$dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold");
+
+	chdir("..");
+	chdir "$install_bin_dir";
+	if(not -f "RNAfold"){
+		system("ln -s $dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold .");
+	}
+	chdir "$dir/essentials/"	
     }
 }
-$in = `grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bashrc`;
-if(not $in){
-    print STDERR "Vienna package path has been added to \$PATH variable\n"; 
-    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bashrc`;
-}
 
-$in = `grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bash_profile`;
-if(not $in){
-    print STDERR "Vienna package path has been added to \$PATH variable\n"; 
-    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bash_profile`;
-}
+#$in = `$grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bashrc`;
+#if(not $in){
+#    print STDERR "Vienna package path has been added to \$PATH variable\n"; 
+#    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bashrc`;
+#}
+
+#$in = `$grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/$shellconf`;
+#if(not $in){
+#    print STDERR "Vienna package path has been added to \$PATH variable\n"; 
+#    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/$shellconf`;
+#}
 
 
 
-$in2 = `grep  "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.cshrc`;
-if(not $in2){
+#$in2 = `$grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.cshrc`;
+#if(not $in2){
     #`echo 'setenv PATH \$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.cshrc`;
-}
+#}
+
+
+
 
 $ret = checkBIN("randfold","let7");
 
@@ -221,25 +407,39 @@ $ret = checkBIN("randfold","let7");
 
 #if($randf =~ /no\s*randfold/i){ ## this should work
 if($ret == 0){
-    print STDERR "randfold\t\t\t\talready installed, nothing to do ...\n";
+    print STDERR "randfold\t\t\t\t\t already installed, nothing to do ...\n";
+	$progs{randfold}=1;
 }else{
 
-	$dfile="squid-1.9g.tar.gz";
+    $dfile="squid-1.9g.tar.gz";
     if(not -f $dfile){
         print STDERR "Downloading SQUID library now\n\n";
-        `$dtool ftp://selab.janelia.org/pub/software/squid/squid-1.9g.tar.gz $dopt`;
+        `$dtool http://eddylab.org/software/squid/squid.tar.gz $dopt`;
+		`mv squid.tar.gz $dfile`;
     }
-
+    if(not -f $dfile){
+		system("cp ../squid-1.9g.tar.gz squid-1.9g.tar.gz");
+    }
+	
     if(not -f "squid-1.9g.tar.gz"){
         die "squid could not be downloaded\n Please try to download the library from here http://selab.janelia.org/software.html";
     }
 
-    if(not -d "squid-1.9g"){
+    if(not -d "squid-1.9g" and -f "squid-1.9g.tar.gz"){
         print STDERR "Extracting squid and configuring it now\n\n"; 
-        `tar xxvzf squid-1.9g.tar.gz`;
-        chdir("squid-1.9g");
-        `./configure`;
-        `make`;
+        `mkdir squid-1.9g`;
+		`tar xzf squid-1.9g.tar.gz -C squid-1.9g`;
+		my $a=`ls squid-1.9g`;
+		chomp $a;
+		`mv squid-1.9g/$a/* squid-1.9g/`;
+		`rm -rf squid-1.9g/$a`;
+				
+		chdir("squid-1.9g");
+        `./configure 1>>../install.log 2>>../install_error.log`;
+        `make 1>>../install.log 2>>install_error.log`;
+
+		buildgood("$dir/essentials/squid-1.9g/libsquid.a");
+
         chdir("..");
     }
 
@@ -249,19 +449,17 @@ if($ret == 0){
         `$dtool http://bioinformatics.psb.ugent.be/supplementary_data/erbon/nov2003/downloads/randfold-2.0.tar.gz $dopt`;
     }
 
-
     if(not -f "randfold-2.0.tar.gz"){
         die "randfold could not be downloaded\nPlease try to download randfold from here http://bioinformatics.psb.ugent.be/software/details/Randfold\n";
     }
 
-    if(not -d "randfold-2.0"){
+    if(not -d "randfold-2.0" and -f "randfold-2.0.tar.gz"){
         print STDERR "Installing randfold now\n\n";
-        `tar xvvzf randfold-2.0.tar.gz`;
+        `tar xzf randfold-2.0.tar.gz`;
         
         chdir("randfold-2.0");
 
         open IN,"<Makefile" or die "File Makefile not found\n\n";
-        
         open OUT,">Makefile_new" or die "Makefile_new could not be created\n\n";
 
         while(<IN>){
@@ -273,33 +471,56 @@ if($ret == 0){
         }
         close IN;
         close OUT;
-        
+
+	## added so we can make it run on MacOSX as well.
+	
+	open IN,"<fold.c" or die "File fold.c not found\n";
+	open OUT,">fold.c.new" or die "Cannot generate file fold.c.new\n";
+	while(<IN>){
+	    if(/^inline\s+(int\s+LoopEnergy.+$)/i){
+		print OUT "$1";
+	    }elsif(/^inline\s+(int\s+HairpinE.+$)/i){
+		print OUT "$1";
+	    }else{
+		print OUT;
+	    }
+	}
+	close OUT;
+	
+
+        `mv fold.c fold.c.orig`;
+        `mv fold.c.new fold.c`;
+	
         `mv Makefile Makefile.orig`;
         `mv Makefile_new Makefile`;
 
-        `make`;
-
-        chdir("..");
+        `make 1>>../install.log 2>>../install_error.log`;
+         buildgood("$dir/essentials/randfold-2.0/randfold");
+         chdir("..");
     }
 
-    $in = `grep  "$dir/essentials/randfold-2.0:*" ~/.bashrc`;
-    if(not $in){ 
-        print STDERR "Randfold path has been added to \$PATH variable\n"; 
-        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/.bashrc`;
-    }
+#    $in = `$grep "$dir/essentials/randfold-2.0:*" ~/.bashrc`;
+#    if(not $in){ 
+#        print STDERR "Randfold path has been added to \$PATH variable\n"; 
+#        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/.bashrc`;
+#    }
     
-    $in = `grep  "$dir/essentials/randfold-2.0:*" ~/.bashrc_profile`;
-    if(not $in){ 
-        print STDERR "Randfold path has been added to \$PATH variable\n"; 
-        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/.bash_profile`;
-}
+#    $in = `$grep "$dir/essentials/randfold-2.0:*" ~/$shellconf`;
+#    if(not $in){ 
+#        print STDERR "Randfold path has been added to \$PATH variable\n"; 
+#        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/$shellconf`;
+#}
 
 
-    $in2 = `grep  "$dir/essentials/randfold-2.0:*" ~/.cshrc`;
-    if($in2){
+#    $in2 = `$grep "$dir/essentials/randfold-2.0:*" ~/.cshrc`;
+#    if($in2){
         #`echo 'setenv PATH \$PATH:$dir/essentials/randfold-2.0' >> ~/.cshrc`;
-    }
-
+    #    }
+    chdir "$install_bin_dir";
+	if(not -f "randfold"){
+         system("ln -s $dir/essentials/randfold-2.0/randfold .");
+	}
+	chdir "$dir/essentials/"
 }
 
 
@@ -307,7 +528,8 @@ if($ret == 0){
 my $zlib=`perl -e 'use Compress::Zlib;' 2>&1`;
 
 if(not $zlib){
-    print STDERR "Compress::Zlib\t\t\t\talready installed, nothing to do ...\n";
+    print STDERR "Compress::Zlib\t\t\t\t\t already installed, nothing to do ...\n";
+	$progs{zlib}=1;
 }else{
     die "please install Compress::Zlib by using CPAN before you proceed\n";
 
@@ -315,33 +537,40 @@ if(not $zlib){
 
 #my $pdfapi=`perl -e 'use PDF::API2;' 2>&1`;
 
-$ret = checkBIN("perl -e \'use PDF::API2; print \"installed\";\'","installed");
 
+$ret = checkBIN("perl -e \'use Font::TTF; print \"installed\";\'","installed");
 
-#if(not $pdfapi){
 if($ret == 0){
-    print STDERR "PDF::API2                                           already installed, nothing to do ...\n";
+    print STDERR "Font::TTf                                        already installed, nothing to do ...\n";
+	$progs{ttf}=1;
 }else{
-
-	
-
-
-	$dfile="PDF-API2-2.019.tar.gz";
+    my $version='';
+    `$dtool http://www.cpan.org/authors/id/M/MH/MHOSKEN/CHECKSUMS $dopt`;
+    open IN,"CHECKSUMS" or die "File checksums not found\n";
+    while(<IN>){
+	if(/((Font-TTF-\d.+).tar.gz)/){
+	    $dfile=$1;
+	    $version=$2;
+	}
+    }
+    close IN;
+    
     if(not -f $dfile){
-        print STDERR "Downloading PDF-API2 now\n\n";
-        `$dtool http://ftp-stud.hs-esslingen.de/pub/Mirrors/CPAN/authors/id/S/SS/SSIMMS/$dfile $dopt`;
+        print STDERR "Downloading Font::TTF now\n\n";
+        `$dtool http://www.cpan.org/authors/id/M/MH/MHOSKEN/$dfile $dopt`;
     }
 
     if(not -f $dfile){
-        die "Download of PDF-API2 failed\n\n";
+        die "Download of Font::TTF failed\n\n";
     }
 
-        print STDERR "Installing PDF-API2 now\n\n";
-        `tar xvvzf $dfile`; 
-        chdir("PDF-API2-2.019");
+        print STDERR "Installing Font-TTF now\n\n";
+        `tar xzf $dfile`; 
+        chdir("$version");
         
-	`perl Makefile.PL`;
-	`make`;
+	`perl Makefile.PL INSTALL_BASE=$ENV{'HOME'}/perl5 LIB=$dir/lib/perl5`;
+	`make 1>>../install.log 2>>../install_error.log`;
+
 	`mv Makefile Makefile.orig`;
 	
 	open IN,"Makefile.orig" or die "No Makefile found\n";
@@ -355,45 +584,103 @@ if($ret == 0){
 	}
 	close IN;
 
-	`make install`;
-    #}
-    chdir("..");
+	`make install 1>>../install.log 2>>..install_error.log`;
+	
+	$ret = checkBIN("perl -e \'use Font::TTF; print \"installed\";\'","installed");
+
+	if($ret == 0){
+    print STDERR "Font::TTF                                        installation successful \n";
+	$progs{ttf}=1;
+}	
+	
+	chdir("..");
 }
 
-#my $perl = "$], $/";
-#chomp $perl;
-#$perl =~ s/0/\./g;
-#$perl =~ s/\.+/\./g;
-#$perl =~ s/\,+//g;
 
-#$in = `grep "$dir/lib/perl5/site_perl/$perl:*" ~/.bashrc`;
 
-#if(not $in){ 
-   print STDERR "PDF::API2 package path has been added to \$PERL5LIB variable\n"; 
-   `echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/.bashrc`;
-#}
+$ret = checkBIN("perl -e \'use PDF::API2; print \"installed\";\'","installed");
 
-#$in = `grep "$dir/lib/perl5/site_perl/$perl:*" ~/.bash_profile`;
+if($ret == 0){
+    print STDERR "PDF::API2                                        already installed, nothing to do ...\n";
+	$progs{pdf}=1;
+}else{
+    my $version='';
+    `$dtool http://www.cpan.org/authors/id/S/SS/SSIMMS/CHECKSUMS $dopt`;
+    open IN,"CHECKSUMS" or die "File checksums not found\n";
+    while(<IN>){
+	if(/((PDF-API2.+).tar.gz)/){
+	    $dfile=$1;
+	    $version=$2;
+	}
+    }
+    close IN;
+    
+    if(not -f $dfile){
+        print STDERR "Downloading PDF-API2 now\n\n";
+        `$dtool http://ftp-stud.hs-esslingen.de/pub/Mirrors/CPAN/authors/id/S/SS/SSIMMS/$dfile $dopt`;
+    }
 
-#if(not $in){
-    print STDERR "PDF::API2 package path has been added to \$PERL5LIB variable\n"; 
-    `echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/.bash_profile`;
-#}
+    if(not -f $dfile){
+        die "Download of PDF-API2 failed\n\n";
+    }
 
-   print STDERR "\n\nif the PDF::API2 install failed it may be necessary to add the following to your .bashrc\n
-   PERL_MB_OPT=\"--install_base \"$ENV{'HOME'}/perl5\"; export PERL_MB_OPT;
-   PERL_MM_OPT=\"INSTALL_BASE=$ENV{'HOME'}/perl5\"; export PERL_MM_OPT;
-   then start a new shell and rerun the installer
-   ";
+        print STDERR "Installing PDF-API2 now\n\n";
+        `tar xzf $dfile`; 
+        chdir("$version");
+        
+	`perl Makefile.PL INSTALL_BASE=$ENV{'HOME'}/perl5 LIB=$dir/lib/perl5`;
+	`make 1>>../install.log 2>>..install_error.log`;
+	`mv Makefile Makefile.orig`;
+	
+	open IN,"Makefile.orig" or die "No Makefile found\n";
+	open OUT,">Makefile" or die "No Makefile found\n";
+	while(my $cl= <IN>){
+		if($cl =~ /^INSTALL_BASE\s=/){
+			print OUT "INSTALL_BASE = $dir\n";
+		}else{
+			print OUT $cl;
+		}
+	}
+	close IN;
 
-#$in2 = `grep  "$dir/lib/perl5/site_perl/$perl:*" ~/.cshrc`;
+	`make install 1>>../install.log 2>>..install_error.log`;
+		
+	$ret = checkBIN("perl -e \'use PDF::API2; print \"installed\";\'","installed");
 
-#if(not $in2){
-    #`echo 'setenv PERL5LIB \$PERL5LIB:$dir/lib/' >> ~/.cshrc`;
-#}
+	if($ret == 0){
+		print STDERR "PDF::API2                                        installation successful\n";
+	    $progs{pdf}=1;
+	}
 
-print STDERR "\n\nInstallation successful\n\n\nPlease start a new shell\n\n\n\n";
+	chdir("..");
+}
 
+my $sum=0;
+for my $k (keys %progs){
+	$sum+=$progs{$k};
+	print STDERR "\n\n$k was/is not installed properly\n\n" if(not $progs{$k} and $binnew==0);
+}
+
+if($sum == 6){
+  print STDERR "\n\nInstallation successful\n\n\n\n\n\n";
+  print STDERR "To check if everything works fine you can now change to the 
+tutorial_dir and type 'bash run_tut.sh' to make a test run\n\n";
+  
+  chdir $dir;
+  open EF,">install_successful" or die "Could not create file install_successful\n
+  In case that all tools are running properly then please create this empty file manually 
+  in your mirdeep2 installation folder. Otherwise the other tools will not run.
+  ";
+  close EF;
+}else{
+	print STDERR "\n\nPlease run the install.pl script again to check if 
+everything is properly installed.
+
+";
+}
+
+
+exit;
 
 
 sub rem_mirdeep{
@@ -471,3 +758,15 @@ sub check{
 		return 0;
 	}
 }
+
+sub buildgood{
+	if(-f $_[0]){
+		print STDERR "Building of $_[0] successful\n";
+	}else{
+		die "Building of $_[0] not successful\nPlease have a look at the install.log and install_error.log in 
+		the essentials directory
+		";
+	}
+}
+
+

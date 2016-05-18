@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+## last update 21/04/2016
+
 use warnings;
 use strict;
 use Getopt::Std;
@@ -62,6 +64,9 @@ Example of use:
 $0 reads_seq.txt -a -h -i -j -k TCGTATGCCGTCTTCTGCTTGT  -l 18 -m -p h_sapiens_37_asm -s reads.fa -t reads_vs_genome.arf -v
 ";
 
+########
+check_install();
+#######
 
 ###################################### INPUT #######################################################
 
@@ -70,13 +75,17 @@ $0 reads_seq.txt -a -h -i -j -k TCGTATGCCGTCTTCTGCTTGT  -l 18 -m -p h_sapiens_37
 ##
 ##
 
-if(-f "mapper.log"){
-	`mv mapper.log mapper.log_bak`;
-}else{
-	`touch mapper.log_bak`;
+my $pid=$$;
+
+my $tid=time;
+
+my $lid=$pid.'_'.$tid;
+
+if(not -d "mapper_logs"){
+	mkdir "mapper_logs";
 }
 
-open MAP,">mapper.log_tmp" or die "could not create mapper.log_tmp\n";
+open MAP,">mapper_logs/mapper.log_$lid" or die "could not create mapper_logs/mapper.log_$lid\n";
 
 my $cdir = `pwd`;
 
@@ -109,12 +118,9 @@ if(not $options{'l'}){$options{'l'} = 18; }
 check_options();
 
 
-
-
 #################################### GLOBAL VARIABLES ################################################
 my $threads=1;
 $threads=$options{'o'} if(exists $options{'o'});
-
 
 ## check number of cores on the system and threads to be used
 my $cores=`grep -ic ^processor /proc/cpuinfo`;
@@ -155,9 +161,7 @@ print MAP "#"x60,"\n\n";
 
 close MAP;
 
-`cat mapper.log_tmp mapper.log_bak > mapper.log`;
-`rm mapper.log_tmp mapper.log_bak`;
-
+print STDERR "Log file for this run is in mapper_logs and called mapper.log_$pid\n";
 
 ## get some statistics about mapped reads if options{'s'} and options{'t'} are supplied
 if($options{'s'} and $options{'t'}){
@@ -708,3 +712,21 @@ sub read_stats{
 		printf STDERR "%.3f\t%.3f\n",$k22{$_}/$k2{$_},1-($k22{$_}/$k2{$_});
 	}
 }
+
+sub check_install{
+	my $a=`which miRDeep2.pl`;
+	my $bn=`dirname $a`;
+	chomp $bn;
+	if(not -f "$bn/../install_successful"){
+		die "Please run the install.pl script first before using the miRDeep2 package
+The install script is located in ",substr($bn,0,length($bn)-3)," so just do 
+
+cd ",substr($bn,0,length($bn)-3),
+"\nperl install.pl
+
+";
+	}
+}
+
+
+

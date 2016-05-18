@@ -5,15 +5,29 @@ This is miRDeep2 developed by Marc Friedlaender and Sebastian Mackowiak.
 miRDeep2 discovers active known or novel miRNAs from deep sequencing data (Solexa/Illumina, 454, ...).
 
 
-
-
 Requirements:
 ------------
 Linux system, 2GB Ram, enough disk space dependent on your deep sequencing data
 
+# Testing version
+MacOSX with Xcode and gcc compiler installed. (This can be obtained from the appstore,
+if there are any issues with installing it please look for help online).
 
+To compile the Vienna package it maybe necessary to have GNU-grep installed since
+the MacOSX grep is BSD based and sometimes not accepted by the installer.
+To get a GNU grep you could for example install homebrew by typing
+##
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+##
+(the link could be out of date, in that case look up online what to do)
 
-
+After that typing
+##
+brew tap homebrew/dupes; brew install grep
+##
+will install gnu grep as 'ggrep' in /usr/local/bin/
+##
+ 
 
 
 Installation:
@@ -39,7 +53,7 @@ d     Perl package PDF::API2 (http://search.cpan.org/search?query=PDF%3A%3AAPI2&
 Sample installation tutorial when packages are downloaded
 
 2           attach the miRDeep2 executable path to your PATH
-            (echo 'export PATH=$PATH:your_path_to_mirdeep2' >> ~/.bashrc)
+            (echo 'export PATH=$PATH:your_path_to_mirdeep2/src' >> ~/.bashrc)
 
 
 
@@ -88,7 +102,6 @@ Sample installation tutorial when packages are downloaded
 
 2.f)      start a new shell session to apply changes to environment variables
 
-
 to test if everything is installed properly type in 
 1) bowtie
 2) RNAfold -h
@@ -100,19 +113,15 @@ you should not get any error messages otherwise something is not correctly insta
 
 
 
-
 Install Paths:
 -------------
 Everything that is download by the installer will be in a directory called your_path_to_mirdeep2/essentials
-
-
 
 
 Script Reference:
 ----------------
 
 miRDeep2 analyses can be performed using the three scripts miRDeep2.pl, mapper.pl and quantifier.pl.
-
 
 
 name:

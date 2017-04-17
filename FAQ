@@ -7,7 +7,7 @@ A:  Those miRNAs have not been detected by miRDeep2 due to unusual precursor str
     and thus they will still appear in the miRDeep2 output files in this special category.
 
 Q2: How are miRNA expression values reported by the qunatification module normalized?
-A:  Expression values are normalized by library size and multiplied by a factor of 10E6 which corresponds
+A:  Expression values are normalized by library size and multiplied by a factor of 1E6 which corresponds
 	technically to counts per million mapped miRNA reads.
     The library size is the total number of reads mapping to miRNA precursors.
 
@@ -16,6 +16,7 @@ A:  No, but the output from the quantification module can be used
     directly as input for specialized differential expression
 	tools. 
  
-
-
-
+Q4: Why are read counts reported by the qunatifier module different from the counts of the miRDeep2 module ?
+A: The quantifier module allows some variability of a reads mapping start and end position when mapping 
+   to the annotated mature sequences. Further, the predicted mature sequence by miRDeep2 maybe not exactly the 
+   the same as the annotated one depending on your data. 

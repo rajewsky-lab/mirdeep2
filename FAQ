@@ -17,6 +17,6 @@ A:  No, but the output from the quantification module can be used
 	tools. 
  
 Q4: Why are read counts reported by the qunatifier module different from the counts of the miRDeep2 module ?
-A: The quantifier module allows some variability of a reads mapping start and end position when mapping 
-   to the annotated mature sequences. Further, the predicted mature sequence by miRDeep2 maybe not exactly the 
-   the same as the annotated one depending on your data. 
+A: The predicted mature sequence by miRDeep2 maybe not exactly the same as the annotated one depending on your data. 
+   Furthermore, the quantifier allows reads to have up to 1 mismatch in a full end to end alignment while the miRDeep2 
+   read mapping allows 0 mismatches in the first 18 nucleotides and after that up to 2 mismatches.

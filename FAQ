@@ -8,7 +8,7 @@ A:  Those miRNAs have not been detected by miRDeep2 due to unusual precursor str
 
 Q2: How are miRNA expression values reported by the qunatification module normalized?
 A:  Expression values are normalized by library size and multiplied by a factor of 1E6 which corresponds
-	technically to counts per million mapped miRNA reads.
+    technically to counts per million mapped miRNA reads (RPM).
     The library size is the total number of reads mapping to miRNA precursors.
 
 Q3: Does miRDeep2 differential miRNA expression profiling?
@@ -18,5 +18,9 @@ A:  No, but the output from the quantification module can be used
  
 Q4: Why are read counts reported by the qunatifier module different from the counts of the miRDeep2 module ?
 A: The predicted mature sequence by miRDeep2 maybe not exactly the same as the annotated one depending on your data. 
-   Furthermore, the quantifier allows reads to have up to 1 mismatch in a full end to end alignment while the miRDeep2 
-   read mapping allows 0 mismatches in the first 18 nucleotides and after that up to 2 mismatches.
+   The miRDeep2 module maps to the whole genome and takes the mappings from bowties best-stratum which means that
+   reads mapping with 1 mismatch to a precursor in miRBase will not be counted if they map somewhere in the genome
+   with 0 mismatches. 
+
+Q5: How are the initial read mappings done by the mapper module to define precursors
+   The mapper module of miRDeep2 allows 0 mismatches in the first 18 nucleotides and after that up to 2 mismatches.

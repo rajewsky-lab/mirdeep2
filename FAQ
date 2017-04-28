@@ -20,7 +20,8 @@ Q4: Why are read counts reported by the qunatifier module different from the cou
 A: The predicted mature sequence by miRDeep2 maybe not exactly the same as the annotated one depending on your data. 
    The miRDeep2 module maps to the whole genome and takes the mappings from bowties best-stratum which means that
    reads mapping with 1 mismatch to a precursor in miRBase will not be counted if they map somewhere in the genome
-   with 0 mismatches. 
+   with 0 mismatches. The quantifier maps only to miRBase and thus will count the read which is not counted by miRDeep2.
+   
 
 Q5: How are the initial read mappings done by the mapper module to define precursors
    The mapper module of miRDeep2 allows 0 mismatches in the first 18 nucleotides and after that up to 2 mismatches.

@@ -135,6 +135,7 @@ if($cores !~ /^\d+$/){
 }
 
 if($threads > $cores){ print STDERR "More threads specified than cores on the system. Reducing the number of threads to $cores\n"; $threads=$cores;}
+chomp $threads;
 
 my $orig_file_reads='';
 

@@ -23,7 +23,7 @@ print "
 #                                   #
 # miRDeep$version                    #
 #                                   #
-# last change: 21/04/2016           #
+# last change: 20/06/2017           #
 #                                   #
 #####################################
 
@@ -31,7 +31,7 @@ print "
 
 my $usage="
 
-miRDeep2.pl reads genome mappings miRNAs_ref/none miRNAs_other/none precursors/none 2>report.log
+miRDeep2.pl reads genome mappings miRNAs_ref/none miRNAs_other/none precursors/none [options] 2>report.log
 
 This script enacts the miRDeep2 pipeline. The input files are:
 
@@ -49,6 +49,8 @@ miRNAs_other  miRBase miRNA sequences in fasta format. These should be the poole
 
 precursors    miRBase miRNA precursor sequences in fasta format. These should be the known precursor
               sequences for the species being analyzed.
+
+Please note that [Options] can only be given AFTER the input files have been supplied.
 
 The output files produced are:
 
@@ -83,8 +85,6 @@ Options:
 -o            do not sort aligned reads in pdf files by sample, only used if multiple samples were used as input (see Readme for mor information)
 
 -s file       File with known miRBase star sequences
-
--r string     Prefix for output file names
 
 -z tag        Additional tag appended to current time stamp
 

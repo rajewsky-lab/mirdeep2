@@ -92,7 +92,7 @@ my $usage="usage:
   \t-r reads.fa      your read sequences
 
 [optional parameters]
-  \t-c [file]    config.txt file with different sample ids... or just the one sample id
+  \t-c [file]    config.txt file with different sample ids... or just the one sample id  -- deprecated
   \t-s [star.fa] optional star sequences from miRBase
   \t-t [species] e.g. Mouse or mmu
   \t             if not searching in a specific species all species in your files will be analyzed

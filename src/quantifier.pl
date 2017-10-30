@@ -8,6 +8,7 @@
 ## remaining read counts is now correct
 ## read noramlization is now 10e6 * mature-reads/all_mature_reads (So reads per million mapped miRNA reads)
 ## missing/empty file with star sequences led to abortion of the script when option -s was used
+## the -c config option is not implemented 
 
 ######################
 
@@ -78,7 +79,7 @@ if($options{'u'}){
 }
 
 my $usage="usage:
-  \tperl quantifier.pl [options] -p precursor.fa -m mature.fa -r reads.fa -s star.fa -t species -y [timestamp] -d [pdfs] -o [sort] -k [stringent] -c config.txt -g [number of mismatches in reads vs precursor mappings]
+  \tperl quantifier.pl [options] -p precursor.fa -m mature.fa -r reads.fa -s star.fa -t species -y [timestamp] -d [pdfs] -o [sort] -k [stringent] -g [number of mismatches in reads vs precursor mappings]
 
 [options]
 

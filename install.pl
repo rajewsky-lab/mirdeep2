@@ -317,8 +317,10 @@ if($ret == 0){
 		$dfile="ViennaRNA-1.8.4.tar.gz";
 		if(not -f $dfile){
 			print STDERR "Downloading Vienna package now\n\n";
-			if(check("http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz")){
-				$err=system("$dtool http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz $dopt");
+			my $ptc="https://www.tbi.univie.ac.at/RNA/download/sourcecode/1_8_x/ViennaRNA-1.8.4.tar.gz";
+			# if(check("http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz")){ # address changed 
+			if(check($ptc)){
+				$err=system("$dtool $ptc $dopt");
 				if($err){
 					die "Download of Vienna package not successful\n\n";
 				}

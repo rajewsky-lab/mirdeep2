@@ -5,7 +5,7 @@ use warnings;
 
 print STDERR "\n
 ###############################################################################################
-# Last update: Apr 10, 2017
+# Last update: Dec 03, 2017
 # This is the miRDeep2 installer
 # It is tested under a bash and zsh shell
 # It will try to download all necessary third-party tools and install them. 
@@ -16,6 +16,11 @@ print STDERR "\n
 ";
 my $dir=`pwd 2>&1`;
 chomp $dir;
+
+if(not $ENV{PERL5LIB}){$ENV{PERL5LIB}="$dir/lib/perl5";}
+if($ENV{PERL5LIB} !~ /$dir\/lib\/perl5/){
+    $ENV{PERL5LIB}.=":$dir/lib/perl5";
+}
 
 my $time =time;
 my $new='no';
@@ -548,6 +553,7 @@ if($ret == 0){
 	$progs{ttf}=1;
 }else{
 	my $version='';
+	if( -f "CHECKSUMS"){ unlink "CHECKSUMS";}
 	`$dtool http://www.cpan.org/authors/id/M/MH/MHOSKEN/CHECKSUMS $dopt`;
 	open IN,"CHECKSUMS" or die "File checksums not found\n";
 	while(<IN>){
@@ -608,6 +614,7 @@ if($ret == 0){
 	$progs{pdf}=1;
 }else{
 	my $version='';
+	if( -f "CHECKSUMS"){ unlink "CHECKSUMS";}
 	`$dtool http://www.cpan.org/authors/id/S/SS/SSIMMS/CHECKSUMS $dopt`;
 	open IN,"CHECKSUMS" or die "File checksums not found\n";
 	while(<IN>){
@@ -788,7 +795,7 @@ sub check{
 sub buildgood{
 	if(-f $_[0]){
 		print STDERR "Building of $_[0] successful\n";
-		$progs{$_[1]}=1;
+		$progs{$_[1]}=1 if($_[1]);
 	}else{
 		die "Building of $_[0] not successful\nPlease have a look at the install.log and install_error.log in 
 		the essentials directory

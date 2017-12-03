@@ -45,7 +45,7 @@ First download all necessary packages listed here
 
 a     bowtie short read aligner (http://bowtie-bio.sourceforge.net/index.shtml)
 b     Vienna package with RNAfold (http://www.tbi.univie.ac.at/~ivo/RNA/)
-c.i   SQUID library (http://selab.janelia.org/software.html) goto Squid and download it
+c.i   SQUID library (http://eddylab.org/software.html) goto Squid and download it
 c.ii  randfold (http://bioinformatics.psb.ugent.be/software/details/Randfold)
 d     Perl package PDF::API2 (http://search.cpan.org/search?query=PDF%3A%3AAPI2&mode=all)
 

@@ -1406,18 +1406,25 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 }## close sub
 
 sub check_install{
-	my $a=`which miRDeep2.pl`;
-	my $bn=`dirname $a`;
-	chomp $bn;
-	if(not -f "$bn/../install_successful"){
-		die "Please run the install.pl script first before using the miRDeep2 package
+    my $a=`which miRDeep2.pl`;
+    chomp($a);
+
+    # Get true path of mirdeep if it's a symlink.
+    if ( -f "$a" && -l "$a") {
+	$a = Cwd::abs_path($a);
+    }
+
+    my $bn=`dirname $a`;
+    chomp $bn;
+    if(not -f "$bn/../install_successful"){
+	die "Please run the install.pl script first before using the miRDeep2 package
 		The install script is located in ",substr($bn,0,length($bn)-3)," so just do
 
 		cd ",substr($bn,0,length($bn)-3),
 		"\nperl install.pl
 
 		";
-	}
+    }
 }
 
 __DATA__

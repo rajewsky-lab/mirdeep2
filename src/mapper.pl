@@ -379,6 +379,10 @@ sub map_reads{
     if($options{v}){print STDERR "mapping reads to genome index\n";}
     
     my $file_genome_latest=$options{p};
+    ## check if index file exists
+    if(not -f "${file_genome_latest}.1.ebwt"){
+        die "bowtie index file not found ${file_genome_latest}.1.ebwt\nPlease make sure your index is present and was created with bowtie version 1\n";
+    }
     
 	my $mapping_loc=5;
 	if(defined $options{'r'}){

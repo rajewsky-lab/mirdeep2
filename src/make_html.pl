@@ -2677,21 +2677,21 @@ sub ReadInParameters(){
 			}elsif(/^file_mature_ref_other_species\s+(\S+)/){
 				print HTML "<tr><td>Other mature miRNAs</td><td>$1</td></tr>\n";
 				next;
-			}elsif(/option{t}\s*=\s*(\S+)/){
+			}elsif(/option\{t\}\s*=\s*(\S+)/){
 				print HTML "<tr><td>Species</td><td>$1</td></tr>\n";
 				next;
-			}elsif(/option{q}\s*=\s*(\S+)/){
+			}elsif(/option\{q\}\s*=\s*(\S+)/){
 				print HTML "<tr><td>Expression analysis raw file</td><td>$1</td></tr>\n";
 				next;
-			}elsif(/option{a}\s*=\s*(\S+)/){
+			}elsif(/option\{a\}\s*=\s*(\S+)/){
 				print HTML "<tr><td>minimum read stack height</td><td>$1</td></tr>\n";
 				next;
-			}elsif(/option{b}\s*=\s*(\S+)/){
+			}elsif(/option\{b\}\s*=\s*(\S+)/){
 				print HTML "<tr><td>minimum score for novel precursors shown in table</td><td>$1</td></tr>\n";
 				next;
-			}elsif(/option{c}\s*=\s*(\S+)/){
+			}elsif(/option\{c\}\s*=\s*(\S+)/){
 				print HTML "<tr><td>randfold analysis disabled</td><td>yes</td></tr>\n";
-			}elsif(/option{v}\s*=\s*(\S+)/){
+			}elsif(/option\{v\}\s*=\s*(\S+)/){
 				print HTML "<tr><td>remove temporary files</td><td>yes</td></tr>\n";
 				next;				
 			}elsif(/started:\s*(\S+)/){

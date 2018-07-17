@@ -379,10 +379,6 @@ sub map_reads{
     if($options{v}){print STDERR "mapping reads to genome index\n";}
     
     my $file_genome_latest=$options{p};
-    ## check if index file exists
-    if(not -f "${file_genome_latest}.1.ebwt"){
-        die "bowtie index file not found ${file_genome_latest}.1.ebwt\nPlease make sure your index is present and was created with bowtie version 1\n";
-    }
     
 	my $mapping_loc=5;
 	if(defined $options{'r'}){
@@ -393,6 +389,11 @@ sub map_reads{
 #bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt\n\n";
 
     my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log`;
+    my $err=`grep "Could not locate a Bowtie index" bowtie.log`;
+    if($err){
+        die "${err}Please make sure you used bowtie version 1 to build the index.\nUsual index files have suffix .ebwt\n\n";
+    }
+
     
     my $file_mapping_latest="$dir/mappings.bwt";
     

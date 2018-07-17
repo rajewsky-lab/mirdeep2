@@ -765,9 +765,9 @@ sub miRDeep_core_algorithm{
     my $line;
 
 	my $longest_id=40;
-	if($file_mature_ref_this_species !~ /none/i){
-		$longest_id= get_longest_id("$dir_tmp/$file_mature_ref_this_species");
-	}
+	
+	$longest_id= get_longest_id("$dir_tmp/signature.arf");
+	
 
 
     start();
@@ -1090,11 +1090,12 @@ sub get_longest_id{
 	my $l = 0;
 	open IN,$f or die "No file given for checking\n";
 	while(<IN>){
-		if(/>(\S+)/){
+		if(/^(\S+)/){
 			$l = length($1) if(length($1) > $l);
 		}
 	}
 	close IN;
+	$l++;
 	return $l;
 }
 

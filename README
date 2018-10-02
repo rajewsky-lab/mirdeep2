@@ -100,7 +100,10 @@ Sample installation tutorial when packages are downloaded
            (To figure out your perl version type in 'perl -v' and then change 5.x to your perl version)   
 
 
-2.f)      start a new shell session to apply changes to environment variables
+2.f)      cd to your mirdeep2 directory (the one containing install.pl)
+          touch install_successful
+
+2.g)      start a new shell session to apply changes to environment variables
 
 to test if everything is installed properly type in 
 1) bowtie

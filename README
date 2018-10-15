@@ -1,1075 +1,1240 @@
-Authors : Marc Friedlaender and Sebastian Mackowiak.
-Date:     12/08/2009
+# miRDeep2 `README`
+
+## About
+
+Authors: Marc Friedländer and Sebastian Mackowiak.
+(minor edits to README & convertion to Markdown by Marcel Schilling)
 
 This is miRDeep2 developed by Marc Friedlaender and Sebastian Mackowiak.
-miRDeep2 discovers active known or novel miRNAs from deep sequencing data (Solexa/Illumina, 454, ...).
+miRDeep2 discovers active known or novel miRNAs from deep sequencing data
+(Solexa/Illumina, 454, ...).
 
 
-Requirements:
-------------
+## Requirements
+
 Linux system, 2GB Ram, enough disk space dependent on your deep sequencing data
 
-# Testing version
-MacOSX with Xcode and gcc compiler installed. (This can be obtained from the appstore,
-if there are any issues with installing it please look for help online).
 
-To compile the Vienna package it maybe necessary to have GNU-grep installed since
-the MacOSX grep is BSD based and sometimes not accepted by the installer.
+## Testing version
+
+MacOSX with Xcode and gcc compiler installed. (This can be obtained from the
+appstore, if there are any issues with installing it please look for help
+online).
+
+To compile the Vienna package it may be necessary to have GNU grep installed
+since the MacOSX grep is BSD based and sometimes not accepted by the installer.
 To get a GNU grep you could for example install homebrew by typing
-##
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-##
+
+```sh
+ruby -e "$(curl -fsSL \
+  https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
 (the link could be out of date, in that case look up online what to do)
 
 After that typing
-##
+
+```sh
 brew tap homebrew/dupes; brew install grep
-##
-will install gnu grep as 'ggrep' in /usr/local/bin/
-##
- 
+```
+
+will install GNU grep as `ggrep` in `/usr/local/bin/`
 
 
-Installation:
-------------
-1. with the provided install.pl script type:
+## Installation
 
-                perl install.pl
+### Option 1: with the provided `install.pl` script
 
+Type
 
-2. without the install mirdeep script follow the instructions given in Sample Installation
+```sh
+perl install.pl
+```
 
+### Option 2. without the install mirdeep script
 
-2.1 Sample Installation
+Follow the instructions given below
+
+#### Dependencies
+
 First download all necessary packages listed here
 
-a     bowtie short read aligner (http://bowtie-bio.sourceforge.net/index.shtml)
-b     Vienna package with RNAfold (http://www.tbi.univie.ac.at/~ivo/RNA/)
-c.i   SQUID library (http://eddylab.org/software.html) goto Squid and download it
-c.ii  randfold (http://bioinformatics.psb.ugent.be/software/details/Randfold)
-d     Perl package PDF::API2 (http://search.cpan.org/search?query=PDF%3A%3AAPI2&mode=all)
+1. [bowtie short read aligner][bowtie-source]
+2. [Vienna package with RNAfold][vienna-source]
+3. [SQUID library][squid-source] goto Squid and download it
+4. [randfold][randfold-source]
+5. [Perl package PDF::API2][pdf-api2-source]
 
+[bowtie-source]: http://bowtie-bio.sourceforge.net/index.shtml
+[vienna-source]: http://www.tbi.univie.ac.at/~ivo/RNA/
+[squid-source]: http://eddylab.org/software.html
+[randfold-source]: http://bioinformatics.psb.ugent.be/software/details/Randfold
+[pdf-api2-source]: http://search.cpan.org/search?query=PDF%3A%3AAPI2&mode=all
 
-Sample installation tutorial when packages are downloaded
+#### Manual installation
 
-2           attach the miRDeep2 executable path to your PATH
-            (echo 'export PATH=$PATH:your_path_to_mirdeep2/src' >> ~/.bashrc)
+When packages are downloaded
 
+1. attach the miRDeep2 executable path to your PATH
 
+```sh
+echo 'export PATH=$PATH:your_path_to_mirdeep2/src' >> ~/.bashrc
+```
 
-2.a.1)      unzip bowtie-0.11.3-bin-linux-x86_64.zip
-2.a.2)      put the bowtie directory into your PATH variable e.g
-            echo 'export PATH=$PATH:your_path_tobowtie' >> ~/.bashrc 
+2. `unzip bowtie-0.11.3-bin-linux-x86_64.zip`
 
+3. put the bowtie directory into your `PATH` variable, *e.g.*
 
-2.b.1)      tar xvvzf ViennaRNA-1.8.4.tar.gz
-2.b.2)      cd to the Vienna dir
-2.b.3)      type   ./configure --prefix=your_path_to_Vienna/install_dir
-            make
-            make install
+```sh
+echo 'export PATH=$PATH:your_path_tobowtie' >> ~/.bashrc
+```
 
-2.b.4)      add Vienna binaries to your PATH variable e.g.
-           (echo 'export PATH=$PATH:your_path_to_Vienna/install_dir/bin' >> ~/.bashrc) 
+4. `tar xvvzf ViennaRNA-1.8.4.tar.gz`
 
+5. `cd` to the Vienna dir
 
-2.c.i.1)   tar xxvzf squid-1.9g.tar.gz
-2.c.ii.1)  tar xvvzf randfold-2.0.tar.gz
-2.c.ii.2)  cd randfold2.0
-2.c.ii.3)  edit Makefile e.g. emacs Makefile
-           change line with INCLUDE=-I. to           
-           INCLUDE=-I. -Iyour_path_to_squid-1.9g -Lyour_path_to_squid-1.9g
-      e.g. INCLUDE=-I. -I/home/Pattern/squid-1.9g/ -L/home/Pattern/squid-1.9g/   
+6. type
 
-2.c.ii.4)  make
-2.c.ii.5)  add randfold to your PATH variable e.g.
-           (echo 'export PATH=$PATH:your_path_to_randfold' >> ~/.bashrc) 
+```sh
+./configure --prefix=your_path_to_Vienna/install_dir
+make
+make install
+```
 
+7. add Vienna binaries to your `PATH` variable, *e.g.*
 
-     
-2.d.1)     tar xvvzf PDF-API2-0.73.tar.gz
-2.d.2)     cd to you PDF_API2 directory     
-2.d.3)     then type in 
-           perl Makefile.PL PREFIX=your_path_to_miRDeep2 LIB=your_path_to_miRDeep2/lib
-           make
-           make test
-           make install
+```sh
+echo 'export PATH=$PATH:your_path_to_Vienna/install_dir/bin' >> ~/.bashrc
+```
 
+8. `tar xxvzf squid-1.9g.tar.gz`
 
-2.e.4)     add your library to the PERL5LIB e.g.
-           (echo 'export PERL5LIB=PERL5LIB:your_path_to_miRDeep2/lib/perl5/site_perl/5.x/' >> ~/.bashrc)
-           (To figure out your perl version type in 'perl -v' and then change 5.x to your perl version)   
+9. `tar xvvzf randfold-2.0.tar.gz`
 
+10. `cd randfold2.0`
 
-2.f)      cd to your mirdeep2 directory (the one containing install.pl)
-          touch install_successful
+11. edit Makefile, *e.g.* `emacs Makefile`:
 
-2.g)      start a new shell session to apply changes to environment variables
+change line with `INCLUDE=-I.` to
+`INCLUDE=-I. -I<your_path_to_squid-1.9g> -L<your_path_to_squid-1.9g>`,
+*e.g.* `INCLUDE=-I. -I/home/Pattern/squid-1.9g/ -L/home/Pattern/squid-1.9g/`
 
-to test if everything is installed properly type in 
-1) bowtie
-2) RNAfold -h
-3) randfold
-4) make_html.pl
+12. `make`
 
-you should not get any error messages otherwise something is not correctly installed
+13. add randfold to your `PATH` variable, *e.g.*
 
+```sh
+echo 'export PATH=$PATH:your_path_to_randfold' >> ~/.bashrc
+```
 
+14. `tar xvvzf PDF-API2-0.73.tar.gz`
 
+15. `cd` to your PDF_API2 directory
 
-Install Paths:
--------------
-Everything that is download by the installer will be in a directory called your_path_to_mirdeep2/essentials
+16. then type in
 
+```sh
+perl Makefile.PL PREFIX=your_path_to_miRDeep2 LIB=your_path_to_miRDeep2/lib
+make
+make test
+make install
+```
 
-Script Reference:
-----------------
+17. add your library to the `PERL5LIB`, *e.g.*
 
-miRDeep2 analyses can be performed using the three scripts miRDeep2.pl, mapper.pl and quantifier.pl.
+```sh
+echo \
+  'export PERL5LIB=PERL5LIB:your_path_to_miRDeep2/lib/perl5/site_perl/5.x/' \
+  >> ~/.bashrc
+```
 
+(To figure out your perl version type in `perl -v` and then change `5.x` to
+your perl version.)
 
-name:
-miRDeep2.pl
 
-description:
-Wrapper function for the miRDeep2.pl program package. The script runs all necessary scripts of the miRDeep2 package
-to perform a microRNA detection deep sequencing data anlysis.
+18. `cd` to your mirdeep2 directory (the one containing `install.pl`)
 
-input:
-A fasta file with deep sequencing reads, a fasta file of the corresponding genome, a file of mapped reads to the genome in miRDeep2 
-arf format, an optional fasta file with known miRNAs of the analysing species and an option fasta file of known miRNAs of related 
-species
+19. `touch install_successful`
 
-output:
-A spreadsheet and an html file with an overview of all detected miRNAs in the deep sequencing input data.
+20. start a new shell session to apply the changes to environment variables
 
+#### Test installation
 
-options:
--a int        minimum read stack height that triggers analysis. Using this option disables
-              automatic estimation of the optimal value.
--b int        minimum score cut-off for predicted novel miRNAs to be displayed in the overview
-              table. This score cut-off is by default 0.
+To test if everything is installed properly type in
 
--c            disable randfold analysis
+1. `bowtie`
+2. `RNAfold -h`
+3. `randfold`
+4. `make_html.pl`
 
--t species    species being analyzed - this is used to link to the appropriate UCSC browser
+You should not get any error messages. Otherwise something is not correctly
+installed.
 
--u            output list of UCSC browser species that are supported and exit
 
--v            remove directory with temporary files
+### Install Paths
 
--q file       miRBase.mrd file from quantifier module to show miRBase miRNAs in data that were not scored by miRDeep2
+Everything that is download by the installer will be in a directory called
+`<your_path_to_mirdeep2>/essentials`
 
 
-Examples:
+## Script Reference
 
-The miRDeep2 module identifies known and novel miRNAs in deep sequencing data. The output of the
-mapper module can be directly plugged into the miRDeep2 module.
+miRDeep2 analyses can be performed using the three scripts `miRDeep2.pl`,
+`mapper.pl` and `quantifier.pl`.
 
 
-Example use 1:
+### `miRDeep2.pl`
 
-The user wishes to identify miRNAs in mouse deep sequencing data, using default options. The 
-miRBase_mmu_v14.fa file contains all miRBase mature mouse miRNAs, while the miRBase_rno_v14.fa
-file contains all the miRBase mature rat miRNAs. The '2>' will pipe all progress output to the
-report.log file.
+#### Description
 
-miRDeep2.pl reads_collapsed.fa genome.fa reads_collapsed_vs_genome.arf miRBase_mmu_v14.fa miRBase_rno_v14.fa precursors_ref_this_species.fa -t Mouse 2>report.log
+Wrapper function for the `miRDeep2.pl` program package. The script runs all
+necessary scripts of the miRDeep2 package to perform a microRNA detection deep
+sequencing data anlysis.
 
-This command will generate a directory with pdfs showing the structures, read signatures and
-score breakdowns of novel and known miRNAs in the data, an html webpage that links to all
-results generated (result.html), a copy of the novel and known miRNAs contained in the webpage
-but in text format which allows easy parsing (result.csv), a copy of the performance survey
-contained in the webpage but in text format (survey.csv) and a copy of the miRNA read signatures
-contained in the pdfs but in text format (output.mrd).
+#### Input
 
+* A FASTA file with deep sequencing reads,
+* a FASTA file of the corresponding genome,
+* a file of mapped reads to the genome in miRDeep2 ARF format,
+* an optional FASTA file with known miRNAs of the analysed species, and
+* an optional FASTA file of known miRNAs of related species.
 
+#### Output
 
-Example use 2:
+* A spreadsheet and
+* an HTML file
 
-The user wishes to identify miRNAs in deep sequencing data from an animal with no related species
-in miRBase: 
+with an overview of all detected miRNAs in the deep sequencing input data.
 
-miRDeep2.pl reads_collapsed.fa genome.fa reads_collapsed_vs_genome.arf none none none 2>report.log
+#### Options
 
-This command will generate the same type of files as example use 1 above. Note that there it will
-in practice always improve miRDeep2 performance if miRNAs from some related species is input, even
-if it is not closely related.
+| option         | description                                                |
+|----------------|------------------------------------------------------------|
+| `‑a <int>`     | minimum read stack height that triggers analysis. Using this option disables automatic estimation of the optimal value. |
+| `‑b <int>`     | minimum score cut-off for predicted novel miRNAs to be displayed in the overview table. This score cut-off is by default 0. |
+| `‑c`           | disable randfold analysis                                  |
+| `‑t <species>` | species being analyzed - this is used to link to the appropriate UCSC browser |
+| `‑u`           | output list of UCSC browser species that are supported and exit |
+| `‑v`           | remove directory with temporary files                      |
+| `‑q <file>`    | `miRBase.mrd` file from quantifier module to show miRBase miRNAs in data that were not scored by miRDeep2 |
 
+#### Examples:
 
-###############################################################################################################################
+The miRDeep2 module identifies known and novel miRNAs in deep sequencing data.
+The output of the mapper module can be directly plugged into the miRDeep2
+module.
 
+##### Example use 1
 
-name:
-mapper.pl
+The user wishes to identify miRNAs in mouse deep sequencing data, using default
+options.
+The `miRBase_mmu_v14.fa` file contains all miRBase mature mouse miRNAs, while
+the `miRBase_rno_v14.fa` file contains all the miRBase mature rat miRNAs.
+The `2>` will pipe all progress output to the `report.log` file.
 
-description:
-Processes reads and/or maps them to the reference genome. 
+```sh
+miRDeep2.pl reads_collapsed.fa genome.fa reads_collapsed_vs_genome.arf \
+  miRBase_mmu_v14.fa miRBase_rno_v14.fa precursors_ref_this_species.fa \
+  -t Mouse 2>report.log
+```
 
-input:
-Default input is a file in fasta, seq.txt or qseq.txt format. More input can be given depending
-on the options used.
+This command will generate
 
-output:
-The output depends on the options used (see below). Either a fasta file with processed reads or
-an arf file with with mapped reads, or both, are output.
+* a directory with PDFs showing the structures, read signatures and score
+  breakdowns of novel and known miRNAs in the data,
+* an HTML webpage that links to all results generated (`result.html`),
+* a copy of the novel and known miRNAs contained in the webpage but in text
+  format which allows easy parsing (`result.csv`),
+* a copy of the performance survey contained in the webpage but in text format
+  (`survey.csv`), and
+* a copy of the miRNA read signatures contained in the PDFs but in text format
+  (`output.mrd`).
 
-options:
-Read input file:
--a              input file is seq.txt format
--b              input file is qseq.txt format
--c              input file is fasta format
+##### Example use 2
 
-Preprocessing/mapping:
--h              parse to fasta format
--i              convert rna to dna alphabet (to map against genome)
--j              remove all entries that have a sequence that contains letters other than
-                a,c,g,t,u,n,A,C,G,T,U,N
--k seq          clip 3' adapter sequence
--l int          discard reads shorter than int nts
--m              collapse reads
--p genome       map to genome (must be indexed by bowtie-build). The 'genome' string must be the
-                prefix of the bowtie index. For instance, if the first indexed file is called
-                'h_sapiens_37_asm.1.ebwt' then the prefix is 'h_sapiens_37_asm'.
--q              map with one mismatch in the seed (mapping takes longer)
+The user wishes to identify miRNAs in deep sequencing data from an animal with
+no related species in miRBase:
 
-Output files:
--s file         print processed reads to this file
--t file         print read mappings to this file 
+```sh
+miRDeep2.pl reads_collapsed.fa genome.fa reads_collapsed_vs_genome.arf \
+  none none none 2>report.log
+```
 
-Other:
--u              do not remove directory with temporary files
--v              outputs progress report
+This command will generate the same type of files as example use 1 above.
+Note that there it will in practice always improve miRDeep2 performance if
+miRNAs from some related species is input, even if it is not closely related.
 
-Examples:
+---
 
-The mapper module is designed as a tool to process deep sequencing reads and/or map them to the
-reference genome. The module works in sequence space, and can process or map data that is in
-sequence fasta format. A number of the functions of the mapper module are implemented specifically
-with Solexa/Illumina data in mind. For example on how to post-process mappings in color space, see
-example use 5:
 
+### `mapper.pl`
 
+#### Description
 
-Example use 1:
+Processes reads and/or maps them to the reference genome.
 
-The user wishes to parse a file in qseq.txt format to fasta format, convert from RNA to DNA alphabet,
-remove entries with non-canonical letters (letters other than a,c,g,t,u,n,A,C,G,T,U,N), clip adapters,
-discard reads shorter than 18 nts and collapse the reads:
- 
-mapper.pl reads_qseq.txt -b -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -s reads_collapsed.fa
+#### Input
 
+Default input is
 
+* a file in FASTA, `seq.txt` or `qseq.txt` format.
 
-Example use 2:
+More input can be given depending on the options used.
 
-The user wishes to map a fasta file against the reference genome. The genome has already been
-indexed by bowtie-build. The first of the indexed files is named genome.1.ebwt:
+#### Output
 
+The output depends on the options used (see below).
+
+Either
+
+* a FASTA file with processed reads, or
+* an ARF file with with mapped reads, or
+* both
+
+are output.
+
+#### Options
+
+##### Read input file
+
+| option | description                     |
+|--------|---------------------------------|
+| `‑a`   | input file is `seq.txt` format  |
+| `‑b`   | input file is `qseq.txt` format |
+| `‑c`   | input file is FASTA format      |
+
+##### Preprocessing/mapping
+
+| option        | description                                                 |
+|---------------|-------------------------------------------------------------|
+| `‑h`          | parse to FASTA format                                       |
+| `‑i`          | convert RNA to DNA alphabet (to map against genome)         |
+| `‑j`          | remove all entries that have a sequence that contains letters other than `a`, `c`, `g`, `t`, u, `n`, `A`, `C`, `G`, `T`, `U`, or `N`. |
+| `‑k <seq>`    | clip 3' adapter sequence                                    |
+| `‑l <int>`    | discard reads shorter than `<int>` nts                      |
+| `‑m`          | collapse reads                                              |
+| `‑p <genome>` | map to genome (must be indexed by `bowtie-build`). The `genome` string must be the prefix of the bowtie index. For instance, if the first indexed file is called `h_sapiens_37_asm.1.ebwt` then the prefix is `h_sapiens_37_asm`. |
+| `‑q`          | map with one mismatch in the seed (mapping takes longer)    |
+
+##### Output files
+
+| option    | description                        |
+|-----------|------------------------------------|
+| `‑s file` | print processed reads to this file |
+| `‑t file` | print read mappings to this file   |
+
+##### Other
+
+| option | description                                  |
+|--------|----------------------------------------------|
+| `‑u`   | do not remove directory with temporary files |
+| `‑v`   | outputs progress report                      |
+
+#### Examples
+
+The mapper module is designed as a tool to process deep sequencing reads and/or
+map them to the reference genome. The module works in sequence space, and can
+process or map data that is in sequence FASTA format.
+A number of the functions of the mapper module are implemented specifically
+with Solexa/Illumina data in mind. For example on how to post-process mappings
+in color space, see example use 5:
+
+##### Example use 1
+
+The user wishes to parse a file in `qseq.txt` format to FASTA format, convert
+from RNA to DNA alphabet, remove entries with non-canonical letters (letters
+other than `a`, `c`, `g`, `t`, `u`, `n`, `A`, `C`, `G`, `T`, `U`, or `N`), clip
+adapters, discard reads shorter than 18 nts and collapse the reads:
+
+ ```sh
+mapper.pl reads_qseq.txt -b -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m \
+  -s reads_collapsed.fa
+```
+
+##### Example use 2
+
+The user wishes to map a FASTA file against the reference genome.
+The genome has already been indexed by `bowtie-build`.
+The first of the indexed files is named `genome.1.ebwt`:
+
+```sh
 mapper.pl reads_collapsed.fa -c -p genome -t reads_collapsed_vs_genome.arf
+```
 
+##### Example use 3
 
+The user wishes to process the reads as in example use 1 and map the reads as
+in example use 2 in a single step, while observing the progress:
 
-Example use 3:
+```sh
+mapper.pl reads_qseq.txt -b -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m \
+  -p genome -s reads_collapsed.fa -t reads_collapsed_vs_genome.arf -v
+```
 
-The user wishes to process the reads as in example use 1 and map the reads as in example use 2
-in a single step, while observing the progress:
+##### Example use 4
 
-mapper.pl reads_qseq.txt -b -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -p genome -s reads_collapsed.fa -t reads_collapsed_vs_genome.arf -v
+The user wishes to parse a GEO file to FASTA format and process it as in
+example use 1.
+The GEO file is in tabular format, with the first column showing the sequence
+and the second column showing the read counts:
 
-
-
-Example use 4:
-
-The user wishes to parse a GEO file to fasta format and process it as in example use 1. The GEO file
-is in tabular format, with the first column showing the sequence and the second column showing the
-read counts:
-
+```sh
 geo2fasta.pl GSM.txt > reads.fa
 
-mapper.pl reads.fa -c -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m -s reads_collapsed.fa 
+mapper.pl reads.fa -c -h -i -j -k TCGTATGCCGTCTTCTGCTTGT -l 18 -m \
+  -s reads_collapsed.fa
+```
 
+##### Example use 5
 
+The user has already removed 3' adapters in color space and has mapped the
+reads against the genome using the BWA tool. The BWA output file is named
+`reads_vs_genome.sam`. Notice that the BWA output contains extra fields that
+are not required for SAM format. Our converter requires these fields and thus
+may not work with all types of SAM files. The user wishes to generate
+`reads_collapsed.fa` and `reads_vs_genome.arf` to input to miRDeep2:
 
-Example use 5:
-
-The user has already removed 3' adapters in color space and has mapped the reads against the genome
-using the BWA tool. The BWA output file is named reads_vs_genome.sam. Notice that the BWA output
-contains extra fields that are not required for SAM format. Our converter requires these fields and
-thus may not work with all types of SAM files. The user wishes to generate 'reads_collapsed.fa'
-and 'reads_vs_genome.arf' to input to miRDeep2:
-
+```sh
 bwa_sam_converter.pl reads_vs_genome.sam reads.fa reads_vs_genome.arf
 
 mapper.pl reads.fa -c -i -j -l 18 -m -s reads_collapsed.fa
+```
 
-############################################################################################################################### 
-
-
-
-name:
-quantifier.pl
-
-description:
-The module maps the deep sequencing reads to predefined miRNA precursors and determines by that the expression of the corresponding miRNAs.
-First, the predefined mature miRNA sequences are mapped to the predefined precursors. Optionally, predefined star sequences can be mapped 
-to the precursors too. By that the mature and star sequence in the precursors are determined.
-Second, the deep sequencing reads are mapped to the precursors. The number of reads falling into an interval 2nt upstream and 5nt downstream 
-of the mature/star sequence is determined.
-
-input:
-A fasta file with precursor sequences, a fasta file with mature miRNA sequences, a fasta file with deep sequencing reads and optionally a fasta
-file with star sequences and the 3 letter code of the species of interest 
-
-output:
-A 2 column table file called miRNA_expressed.csv with miRNA identifiers and its read count, a file called miRNA_not_expressed.csv with all
-miRNAs having 0 read counts, a signature file called miRBase.mrd, a file called expression.html that gives an overview of all miRNAs the input data
-and a directory called pdfs that contains for each miRNA a pdf file showing its signature and structure. 
-
-options:
--t  list all values allowed for the species parameter that have an entry at UCSC 
-
-example usage:
-quantifier.pl precursors.fa mature.fa reads.fa star.fa/none species/none timestamp/none pdf
+---
 
 
+### `quantifier.pl`
 
-#####################################################################################################################################
+#### Description
 
+The module maps the deep sequencing reads to predefined miRNA precursors and
+determines by that the expression of the corresponding miRNAs.
+First, the predefined mature miRNA sequences are mapped to the predefined
+precursors. Optionally, predefined star sequences can be mapped to the
+precursors too. By that the mature and star sequence in the precursors are
+determined.
+Second, the deep sequencing reads are mapped to the precursors. The number of
+reads falling into an interval 2 nt upstream and 5 nt downstream of the
+mature/star sequence is determined.
 
+#### Input
 
-name:
-make_html.pl
+* A FASTA file with precursor sequences,
+* a FASTA file with mature miRNA sequences,
+* a FASTA file with deep sequencing reads, and
+* optionally a FASTA file with star sequences and the 3 letter code of the
+  species of interest.
 
-description:
-It creates a file called result.html that gives an overview of miRDeep2 detected miRNAs (known and novel ones).
-The html file lists up each detected miRNA and provides among others information on its miRDeep2 score, reads mapped to its mature, 
-loop and star sequence, the mature, star and consensus precursor sequences themselfes and provides links to BLAST, BLAT, 
-mirbase for miRBase miRNAs and to a pdf file that shows the signature and structure. 
+#### Output
 
+* A 2 column table file called `miRNA_expressed.csv` with miRNA identifiers and
+  its read count,
+* a file called `miRNA_not_expressed.csv` with all miRNAs having 0 read counts,
+* a signature file called `miRBase.mrd`,
+* a file called `expression.html` that gives an overview of all miRNAs the
+  input data, and
+* a directory called `pdfs` that contains for each miRNA a PDF file showing its
+  signature and structure.
 
-input: 
-A miRDeep2 output.mrd file, a miRDeep2 survey.csv file
+#### Options
 
+| option | description                                                        |
+|--------|--------------------------------------------------------------------|
+| `‑t`   | list all values allowed for the species parameter that have an entry at UCSC |
 
-output:
-A result.html file with an entry for each provisional miRNA that contains information about its assigned Id, miRDeep2 score, 
-estimated probability that the miRNA candidate is a true positive, rfam alert, total read count, mature read count, loop read count, 
-star read count, significant randfold p-value, miRBase miRNA, example miRBase miRNA with the same seed, BLAT, BLAST, 
-consensus mature sequence, consensus star sequence and consensus precursor sequence. Furthermore, the miRBase miRNAs existent in the input data 
-but not scored by miRDeep2 are listed.
-A directory called pdfs that contains for each provisional miRNA ID a pdf with its signature and structure.
-A file called result.csv (when option -c is used) that contains the same entrys as the html file. 
+#### Example usage
 
+```sh
+quantifier.pl precursors.fa mature.fa reads.fa star.fa/none species/none \
+  timestamp/none pdf
+```
 
-options:
--v int    only output hairpins with score above int
--c        also create overview in excel format.
--k file   supply file with known miRNAs
--s file   supply survey file if score cutoff is used to get information about how big is the confidence of resulting reads
--f file   miRDeep2 output mrd file
-
--e        report complete survey file
--g        report survey for current score cutoff
--w        project_folder        automatically used when running webinterface, otherwise don't use it
--r file   Rfam file to check for already reported small RNA sequences
-
--q file   miRBase.mrd file produced by quantifier module
--x file   signature.arf file with mapped reads to precursors
--t org    specify the organism from which your sequencing data was obtained
--u        print all available UCSC input organisms
--d        do not generate pdfs
--y        timestamp
--z        switch is automatically used when script is called by quantifier.pl
--o        print reads in pdf signature sorted by their 3 letter code in front of their identifier
-
-example usage:
-perl make_html.pl -f miRDeep_outfile -s survey.csv -c -e -y 123456789
-
-notes:
--
+---
 
 
+### `make_html.pl`
 
-#####################################################################################################################################
+#### Description
+
+It creates a file called `result.html` that gives an overview of miRDeep2
+detected miRNAs (known and novel ones). The HTML file lists up each detected
+miRNA and provides among others information on its miRDeep2 score, reads mapped
+to its mature, loop and star sequence, the mature, star and consensus precursor
+sequences themselves and provides links to BLAST, BLAT, mirBase for miRBase
+miRNAs and to a PDF file that shows the signature and structure.
+
+#### Input
+
+* A miRDeep2 output.mrd file and
+* a miRDeep2 survey.csv file
+
+#### Output
+
+* A `result.html` file with an entry for each provisional miRNA that contains
+  information about its assigned Id, miRDeep2 score, estimated probability that
+  the miRNA candidate is a true positive, rfam alert, total read count, mature
+  read count, loop read count, star read count, significant randfold p-value,
+  miRBase miRNA, example miRBase miRNA with the same seed, BLAT, BLAST,
+  consensus mature sequence, consensus star sequence and consensus precursor
+  sequence. Furthermore, the miRBase miRNAs existent in the input data but not
+  scored by miRDeep2 are listed.
+* A directory called `pdfs` that contains for each provisional miRNA ID a PDF
+  with its signature and structure.
+* A file called `result.csv` (when option `-c` is used) that contains the same
+  entries as the HTML file.
+
+#### Options
+
+| option                | description                                         |
+|-----------------------|-----------------------------------------------------|
+| `‑v <int>`            | only output hairpins with score above `<int>`       |
+| `‑c`                  | also create overview in excel format                |
+| `‑k <file>`           | supply file with known miRNAs                       |
+| `‑s <file>`           | supply survey file if score cutoff is used to get information about how big is the confidence of resulting reads |
+| `‑f <file>`           | miRDeep2 output MRD file                            |
+| `‑e`                  | report complete survey file                         |
+| `‑g`                  | report survey for current score cutoff              |
+| `‑w <project_folder>` | automatically used when running webinterface, otherwise don't use it |
+| `‑r <file>`           | Rfam file to check for already reported small RNA sequences |
+| `‑q <file>`           | `miRBase.mrd` file produced by quantifier module    |
+| `‑x <file>`           | `signature.arf` file with mapped reads to precursors |
+| `‑t <org>`            | specify the organism from which your sequencing data was obtained |
+| `‑u`                  | print all available UCSC input organisms            |
+| `‑d`                  | do not generate PDFs                                |
+| `‑y`                  | timestamp                                           |
+| `‑z`                  | switch is automatically used when script is called by `quantifier.pl` |
+| `‑o`                  | print reads in PDF signature sorted by their 3 letter code in front of their identifier |
+
+#### Example usage
+
+```sh
+make_html.pl -f miRDeep_outfile -s survey.csv -c -e -y 123456789
+```
+
+---
 
 
+### `clip_adapters.pl`
 
-name:
-clip_adapters.pl
+#### Description
 
-description:
-Removes 3' end adaptors from deep sequenced small RNAs. The script searches for occurrences of the
-six first nucleotides of the adapter in the read sequence, starting after position 18 in the read
-sequence (so the shortest clipped read will be 18 nts). If no matches to the first six nts of the
-adapter are identified in a read, the 3' end of the read is searched for shorter matches to the 5
-to 1 first nts of the adapter.
+Removes 3' end adaptors from deep sequenced small RNAs. The script searches for
+occurrences of the six first nucleotides of the adapter in the read sequence,
+starting after position 18 in the read sequence (so the shortest clipped read
+will be 18 nts). If no matches to the first six nts of the adapter are
+identified in a read, the 3' end of the read is searched for shorter matches to
+the 5 to 1 first nts of the adapter.
 
-input:
-A fasta file with the deep sequencing reads and the adapter sequence (both in RNA or DNA alphabet).
+#### Input
 
-output:
-A fasta file with the clipped reads. Fasta ids are retained. If no matches to the adapter prefixes
-are identified in a given read, the unclipped read is output.
+* A FASTA file with the deep sequencing reads and the adapter sequence (both in
+  RNA or DNA alphabet).
 
-options:
--
+#### Output
 
-example usage:
+* A FASTA file with the clipped reads.
+
+FASTA IDs are retained. If no matches to the adapter prefixes are identified in
+a given read, the unclipped read is output.
+
+#### Example usage
+
+```sh
 clip_adapters.pl reads.fa TCGTATGCCGTCTTCTGCTTGT > reads_clipped.fa
+```
 
-notes:
-It is possible to clip adapters using more sophisticated methods. Users are encouraged to test other
-methods with the miRDeep2 modules.
+#### Notes
+
+It is possible to clip adapters using more sophisticated methods.
+Users are encouraged to test other methods with the miRDeep2 modules.
+
+---
 
 
+### `collapse_reads.pl`
 
-#####################################################################################################################################
+#### Description
 
+Collapses reads in the FASTA file to ensure that each sequence only occurs
+once.
+To indicate how many times reads the sequence represents, a suffix is added to
+each FASTA identifier. *E.g.* a sequence that represents ten reads in the data
+will have the `_x10` suffix added to the identifier.
 
+#### Input
 
-name:
-collapse_reads.pl
+* A FASTA file, either in standard format or in the collapsed suffix format.
 
-description:
-Collapses reads in the fasta file to ensure that each sequence only occurs once. To indicate how
-many times reads the sequence represents, a suffix is added to each fasta identifier. E.g. a
-sequence that represents ten reads in the data will have the '_x10' suffix added to the identifier.
+#### Output
 
-input:
-A fasta file, either in standard format or in the collapsed suffix format.
+* A FASTA file in the collapsed suffix format.
 
-output:
-A fasta file in the collapsed suffix format.
+#### Options
 
-options:
--a    outputs progress
+| option | description      |
+|--------|------------------|
+| `‑a`   | outputs progress |
 
-example usage:
+#### Example usage
+
+```sh
 collapse_reads.pl reads.fa > reads_collapsed
+```
 
-notes:
-Since the script reads all fasta entries into a hash using the sequence as key, it can potentially
-use more than 3 GB memory when collapsing very big datasets, >50 million reads. In this case, the
-user can partition the reads (for instance based on the 5' nucleotide), collapse separately and
-concatenate.
+#### Notes
 
+Since the script reads all FASTA entries into a hash using the sequence as key,
+it can potentially use more than 3 GB memory when collapsing very big datasets,
+\>50 million reads. In this case, the user can partition the reads
+(for instance based on the 5' nucleotide), collapse separately and concatenate.
 
-
-#####################################################################################################################################
-
-
-
-name:
-excise_precursors_iterative.pl
-
-description:
-This script is a wrapper for excise_precursors.pl, which it calls one or more times, incrementing
-the height of the read stack required for initiating excision until the number of excised precursors
-falls below a given threshold.
-
-input:
-The reference genome in fasta format, the mapped reads in .arf format, a filename that the excised
-precursors will be written to and the maximal number of precursors that should be reported.
-
-output:
-The excised precursors in fasta format.
-
-options:
--a           Output progress to screen
-
-example usage:
-excise_precursors_iterative.pl genome.fa reads_vs_genome.arf potential_precursors.fa 50000 -a
+---
 
 
+### `excise_precursors_iterative.pl`
 
-#####################################################################################################################################
+#### Description
+
+This script is a wrapper for `excise_precursors.pl`, which it calls one or more
+times, incrementing the height of the read stack required for initiating
+excision until the number of excised precursors falls below a given threshold.
+
+#### Input
+
+* The reference genome in FASTA format,
+* the mapped reads in `.arf` format,
+* a filename that the excised precursors will be written to, and
+* the maximal number of precursors that should be reported.
+
+#### Output
+
+## The excised precursors in FASTA format.
+
+#### Options
+
+| option | description                |
+|--------|----------------------------|
+| `‑a`   | Output progress to screen. |
+
+#### Example usage
+
+```sh
+excise_precursors_iterative.pl genome.fa reads_vs_genome.arf \
+  potential_precursors.fa 50000 -a
+```
+
+---
 
 
+### `excise_precursors.pl`
 
-name:
-excise_precursors.pl
+#### Description
 
-description:
 Excises precursors from the genome using the mapped reads as guidelines.
 
-input:
-The reference genome in fasta format and the mapped reads in .arf format.
+#### Input
 
-output:
-The excised precursors in fasta format.
+* The reference genome in FASTA format and
+* the mapped reads in `.arf` format.
 
-options:
--a integer   Only excise if the highest local read stack is 'integer' reads high (default 2).
--b           Output progress to screen
+#### Output
 
-example usage:
+* The excised precursors in FASTA format.
+
+## Options
+
+| option         | description                                                |
+|----------------|------------------------------------------------------------|
+| `‑a <integer>` | Only excise if the highest local read stack is `<integer>` reads high (default 2). |
+| `‑b`           | Output progress to screen.                                 |
+
+## Example usage
+
+```sh
 excise_precursors.pl genome.arf reads_vs_genome.arf -b
+```
+
+---
 
 
+### `fastaparse.pl`
 
-#####################################################################################################################################
+#### Description
 
+Performs simple filtering of entries in a FASTA file.
 
+#### Input
 
-name:
-fastaparse.pl
+* A FASTA file.
 
-description:
-Performs simple filtering of entries in a fasta file.
+#### Ouput
 
-input:
-A fasta file
+* A filtered FASTA file.
 
-ouput:
-A filtered fasta file
+#### Options
 
-options:
--a int    only output entries where the sequence is minimum int nts long
--b        remove all entries that have a sequence that contains letters other than
-          a,c,g,t,u,n,A,C,G,T,U,N.
--s        output progress
+| option     | description                                                    |
+|------------|----------------------------------------------------------------|
+| `‑a <int>` | only output entries where the sequence is minimum int nts long |
+| `‑b`       | remove all entries that have a sequence that contains letters other than `a`, `c`, `g`, `t`, `u`, `n`, `A`, `C`, `G`, `T`, `U`, or `N`. |
+| `‑s`       | output progress                                                |
 
-example usage:
+#### Example usage
+
+```sh
 fastaparse.pl reads.fa -a 18 -s > reads_no_short.fa
+```
+
+---
 
 
+### `fastaselect.pl`
 
-#####################################################################################################################################
+#### Description
 
+This script only prints out the FASTA entries that match an ID in the ID file.
 
+#### Input
 
-name:
-fastaselect.pl
+* A FASTA file and a file with IDs, one ID per line.
 
-description:
-This script only prints out the fasta entries that match an id in the id file.
+#### Output
 
-input:
-A fastafile and a file with ids, one id per line.
+* A FASTA file containing the FASTA entries that match an ID.
 
-output:
-A fastafile containing the fasta entries that match an id.
+#### Options
 
-options:
--a       only prints out entries that has an id that is not present in the id file.
+| option | description                                                        |
+|--------|--------------------------------------------------------------------|
+| `‑a`   | only prints out entries that has an id that is not present in the ID file. |
 
-example usage:
+#### Example usage
+
+```sh
 fastaselect.pl reads.fa reads_select.ids > reads_select.fa
+```
+
+---
 
 
+### `find_read_count.pl`
 
-#####################################################################################################################################
+#### Description
+
+Scans a file searching for the suffixes that are generated by
+`collapse_reads.pl` (e.g. `_x10`).
+It sums up the integer values in the suffixes and outputs the sum. If a given
+id occurs multiple times in the file, it will multi-count the integer value of
+the ID. It will also only count the first integer occurrence in a given line.
+
+#### Input
+
+* Any file containing the suffixes that are generated by `collapse_reads.pl`.
+
+This will typically be a FASTA file or a list of IDs.
+
+#### Output
+
+* The sum of integer values (the total read count).
 
 
+#### Example usage
 
-name:
-find_read_count.pl
-
-description:
-Scans a file searching for the suffixes that are generated by collapse_reads.pl (e.g. '_x10').
-It sums up the integer values in the suffixes and outputs the sum. If a given id occurs
-multiple times in the file, it will multi-count the integer value of the id. It will also only
-count the first integer occurrence in a given line.
-
-input:
-Any file containing the suffixes that are generated by collapse_reads.pl. This will typically
-be a fasta file or a list of ids.
-
-output:
-The sum of integer values (the total read count).
-
-options:
--
-
-example usage:
+```sh
 find_read_count.pl reads_collapsed.fa
+```
+
+---
 
 
+### `geo2fasta.pl`
 
-#####################################################################################################################################
+#### Description
+
+Parses GSM format files into FASTA format.
+
+#### Input
+
+* GSM files in tabular format.
+
+The first column should be sequences and the second column the number of times
+the sequence occurs in the data.
+
+#### Output
+
+* A FASTA file, one sequence per line (the sequences are expanded).
 
 
+#### Example usage
 
-name:
-geo2fasta.pl
-
-description:
-Parses GSM format files into fasta format.
-
-input:
-GSM files in tabular format. The first column should be sequences and the second column the
-number of times the sequence occurs in the data.
-
-output:
-A fasta file, one sequence per line (the sequences are expanded).
-
-options:
--
-
-example usage:
+```sh
 geo2fasta.pl GSM.txt > reads.fa
+```
+
+---
 
 
+### `illumina_to_fasta.pl`
 
-#####################################################################################################################################
+#### Description
 
+Parses `seq.txt` or `qseq.txt` output from the Solexa/Illumina platform to
+FASTA format.
 
+#### Input
 
-name:
-illumina_to_fasta.pl
+* A `seq.txt` or
+* `qseq.txt` file.
 
-description:
-Parses seq.txt or qseq.txt output from the Solexa/Illumina platform to fasta format.
+By default `seq.txt`.
 
-input:
-A seq.txt or qseq.txt file. By default seq.txt.
+#### Output
 
-output:
-A fasta file, one entry for each line of seq.txt. The entries are named 'seq' plus a running
-number that is incremented by one for each entry. Any '.'characters in the seq.txt file is
-substituted with a 'N'.
+* A FASTA file, one entry for each line of `seq.txt`.
 
-options:
--a    format is qseq.txt
+The entries are named `seq` plus a running number that is incremented by one
+for each entry. Any `.` characters in the `seq.txt` file is substituted with an
+`N`.
 
-example usage:
+#### Options
+
+| option | description          |
+|--------|----------------------|
+| `‑a`   | format is `qseq.txt` |
+
+#### Example usage
+
+```sh
 illumina_to_fasta.pl s_1.qseq.txt -a > reads.fa
+```
 
+---
 
 
-#####################################################################################################################################
+### `miRDeep2_core_algorithm.pl`
 
+#### Description
 
+For each potential miRNA precursor input, the miRDeep2 core algorithm either
+discards it or assigns it a log-odds score that reflects the probability that
+the precursor is a genuine miRNA.
 
-name:
-miRDeep2_core_algorithm.pl
+#### Input
 
-description:
-For each potential miRNA precursor input, the miRDeep2 core algorithm either discards it or 
-assigns it a log-odds score that reflects the probability that the precursor is a genuine miRNA.
+Default input is
 
-input:
-Default input is an arf file with the read signatures and an RNAfold output file with the structures
-of the potential miRNA precursors.
+* an ARF file with the read signatures and
+* an RNAfold output file with the structures of the potential miRNA precursors.
 
-output:
-A .mrd file with all potential miRNA precursors that are scored.
+#### Output
 
-options:
--h          print this usage
--s          fasta file with reference mature miRNAs from one or more related species
--t          print filtered
--u          limited output (only ids)
--v          cut-off (default 1)
--x          sensitive option for Sanger sequences
--y          file with randfold p-values
--z          consider Drosha processing
+* A .mrd file with all potential miRNA precursors that are scored.
 
-example usage:
-miRDeep2_core_algorithm.pl signature.arf potential_precursors.str -s miRBase_related_species.fa -y potential_precursors.rand > output.mrd
+#### Options
 
-notes:
-The -z option has not been thoroughly tested.
+| option | description                                                        |
+|--------|--------------------------------------------------------------------|
+| `‑h`   | print this usage                                                   |
+| `‑s`   | FASTA file with reference mature miRNAs from one or more related species |
+| `‑t`   | print filtered                                                     |
+| `‑u`   | limited output (only ids)                                          |
+| `‑v`   | cut-off (default 1)                                                |
+| `‑x`   | sensitive option for Sanger sequences                              |
+| `‑y`   | file with randfold p-values                                        |
+| `‑z`   | consider Drosha processing                                         |
 
+#### Example usage
 
+```sh
+miRDeep2_core_algorithm.pl signature.arf potential_precursors.str \
+  -s miRBase_related_species.fa -y potential_precursors.rand > output.mrd
+```
 
-#####################################################################################################################################
+#### Notes
 
+The `-z` option has not been thoroughly tested.
 
+---
 
-name:
-parse_mappings.pl
 
-description:
-Performs simple filtering of entries in an .arf file.
+### `parse_mappings.pl`
 
-input:
-Default input is an .arf file.
+#### Description
 
-output:
-A filtered .arf file.
+Performs simple filtering of entries in an `.arf` file.
 
-options:
--a int     Discard mappings of edit distance higher than this
--b int     Discard mappings of read queries shorter than this
--c int     Discard mappings of read queries longer than this
--d file    Discard read queries not in this file
--e file    Discard read queries in this file
--f file    Discard reference dbs not in this file
--g file    Discard reference dbs in this file
--h         Discard remaining suboptimal mappings
--i int     Discard remaining suboptimal mappings and discard any reads that have more remaining mappings
-           than this
--j         Remove any unmatched nts in the very 3' end
--k         Output progress to standard output
+#### Input
 
-example usage:
-parse_mappings.pl reads_vs_genome.arf -a 0 -b 18 -c 25 -i 5 > reads_vs_genome_parsed.arf
+Default input is
 
+* an `.arf` file.
 
+#### Output
 
-#####################################################################################################################################
+* A filtered `.arf` file.
 
+#### Options
 
+| option      | description                                                   |
+|-------------|---------------------------------------------------------------|
+| `‑a <int>`  | Discard mappings of edit distance higher than this            |
+| `‑b <int>`  | Discard mappings of read queries shorter than this            |
+| `‑c <int>`  | Discard mappings of read queries longer than this             |
+| `‑d <file>` | Discard read queries not in this file                         |
+| `‑e <file>` | Discard read queries in this file                             |
+| `‑f <file>` | Discard reference dbs not in this file                        |
+| `‑g <file>` | Discard reference dbs in this file                            |
+| `‑h`        | Discard remaining suboptimal mappings                         |
+| `‑i <int>`  | Discard remaining suboptimal mappings and discard any reads that have more remaining mappings than this |
+| `‑j`        | Remove any unmatched nts in the very 3' end                   |
+| `‑k`        | Output progress to standard output                            |
 
-name:
-perform_controls.pl
+#### Example usage
 
-description:
-Performs a designated number of rounds of permuted controls (for details, see Friedlaender et al., Nature
-Biotechnology, 2008).
+```sh
+parse_mappings.pl reads_vs_genome.arf -a 0 -b 18 -c 25 -i 5 \
+  > reads_vs_genome_parsed.arf
+```
 
-input:
-The permutation controls estimate the number of false positives produced by a miRDeep2_core_algorithm.pl run.
-The input to perform_controls.pl should be a file containing the exact command line used to initiate the 
-miRDeep2_core_algorithm.pl run, the structure file input to miRDeep2_core_algorithm.pl and the desired
-rounds of controls.
+---
 
-output:
-A file in .mrd format. The output of each control run is separated by a line 'permutation integer'. The mean
-number of entries output by the control runs gives an estimate of the false positives produced. The further
-contents (besides the number of entries) of the .mrd output by perform_controls.pl is not biologically
-meaningful.
 
-options:
--a   Output progress to screen
+### `perform_controls.pl`
 
-example usage:
-perform_controls.pl line potential_precursors.str 100 > output_controls.mrd
+#### Description
 
+Performs a designated number of rounds of permuted controls (for details, see
+Friedländer et al., Nature Biotechnology, 2008).
 
+#### Input
 
-#####################################################################################################################################
+The permutation controls estimate the number of false positives produced by a
+`miRDeep2_core_algorithm.pl` run.
+The input to `perform_controls.pl` should be
 
+* a file containing the exact command line used to initiate the
+  `miRDeep2_core_algorithm.pl` run,
+* the structure file input to `miRDeep2_core_algorithm.pl`, and
+* the desired rounds of controls.
 
+#### Output
 
-name:
-permute_structure.pl
+* A file in `.mrd` format.
 
-description:
-In a file output by RNAfold, each entry can be partitioned into an 'id' part and an 'other' part, consisting
-of the dot-bracket structure, sequence, mfe etc. This scripts reads all 'id' parts into a hash and pairs
-them with 'other' parts from random entries. This is used by the perform_controls.pl script.
+The output of each control run is separated by a line `permutation integer`.
+The mean number of entries output by the control runs gives an estimate of the
+false positives produced. The further contents (besides the number of entries)
+of the `.mrd` output by `perform_controls.pl` is not biologically meaningful.
 
-input:
-An RNAfold output file.
+#### Options
 
-output:
-An RNAfold output file with ids moved to random entries.
+| option | description               |
+|--------|---------------------------|
+| `‑a`   | Output progress to screen |
 
-options:
--
+#### Example usage
 
-example usage:
-permute_structure.pl potential_precursors.str > potential_precursors_permuted.str
+```sh
+perform_controls.pl line potential_precursors.str 100 \
+  > output_controls.mrd
+```
 
+---
 
 
-#####################################################################################################################################
+### `permute_structure.pl`
 
+#### Description
 
+In a file output by RNAfold, each entry can be partitioned into an 'id' part
+and an 'other' part, consisting of the dot-bracket structure, sequence, mfe
+etc. This scripts reads all 'id' parts into a hash and pairs them with 'other'
+parts from random entries. This is used by the `perform_controls.pl` script.
 
-name:
-prepare_signature.pl
+#### Input
 
-description:
-Prepares the signature file to be input to the miRDeep2_core_algorithm.pl script.
+* An RNAfold output file.
 
-input:
-A fasta file with deep sequencing reads and a fasta file with precursors.
+#### Output
 
-output:
-A signature file in .arf format.
+* An RNAfold output file with IDs moved to random entries.
 
-options:
--a file     Fasta file with the sequences of known mature miRNAs for the species. These sequences will not
-            influence the miRDeep scoring, but will subsequently make it easy to estimate sensitivity of the run.
--b          Output progress to screen
+#### Example usage
 
-example usage:
-prepare_signature.pl reads_collapsed.fa potential_precursors.fa -a  miRBase_this_species.fa > signature.arf
+```sh
+permute_structure.pl potential_precursors.str \
+  > potential_precursors_permuted.str
+```
 
+---
 
 
-#####################################################################################################################################
+### `prepare_signature.pl`
 
+#### Description
 
+Prepares the signature file to be input to the `miRDeep2_core_algorithm.pl`
+script.
 
-name:
-rna2dna.pl
+#### Input
 
-description:
-Substitutes 'u's and 'U's to 'T's. This is useful since bowtie does not match 'U's to 'T's.
+* A FASTA file with deep sequencing reads and
+* a FASTA file with precursors.
 
-input:
-A fasta file.
+#### Output
 
-output:
-A substituted fasta file.
+* A signature file in `.arf` format.
 
-options:
--
+#### Options
 
-example usage:
+| option      | description                                                   |
+|-------------|---------------------------------------------------------------|
+| `‑a <file>` | FASTA file with the sequences of known mature miRNAs for the species. These sequences will not influence the miRDeep scoring, but will subsequently make it easy to estimate sensitivity of the run. |
+| `‑b`        | Output progress to screen                                     |
+
+#### Example usage
+
+```sh
+prepare_signature.pl reads_collapsed.fa potential_precursors.fa \
+  -a miRBase_this_species.fa > signature.arf
+```
+
+---
+
+
+### `rna2dna.pl`
+
+#### Description
+
+Substitutes `u`s and `U`s to `T`s.
+This is useful since `bowtie` does not match `U`s to `T`s.
+
+#### Input
+
+* A FASTA file.
+
+#### Output
+
+* A substituted FASTA file.
+
+
+#### Example usage
+
+```sh
 rna2dna.pl reads_RNA_alphabet.fa > reads_DNA_alphabet.fa
+```
+
+---
 
 
+### `select_for_randfold.pl`
 
-#####################################################################################################################################
+#### Description
 
+This script identifies potential precursors whose structure is basically
+consistent with Dicer recognition.
+Since running randfold is time-consuming, it is practical only to estimate
+p-values for those potential precursors that actually fold into hairpin
+structures.
 
+#### Input
 
-name:
-select_for_randfold.pl
+* An ARF file with the read signatures and
+* an RNAfold output file with the structures of the potential miRNA precursors.
 
-description:
-This script identifies potential precursors whose structure is basically consistent with Dicer recognition.
-Since running randfold is time-consuming, it is practical only to estimate p-values for those potential
-precursors that actually fold into hairpin structures.
+#### Output
 
-input:
-An arf file with the read signatures and an RNAfold output file with the structures of the potential miRNA
-precursors.
+* A list of ids, separated by newlines.
 
-output:
-A list of ids, separated by newlines.
+#### Example usage
 
-options:
--
+```sh
+select_for_randfold.pl signature.arf potential_precursors.str \
+  > potential_precursors_for_randfold.ids
+```
 
-example usage:
-select_for_randfold.pl signature.arf potential_precursors.str > potential_precursors_for_randfold.ids
-
-
-
-#####################################################################################################################################
+---
 
 
+### `survey.pl`
 
-name:
-survey.pl
+#### Description
 
-description:
 Surveys miRDeep2 performance at score cut-offs from -10 to 10.
 
-input:
-Default input is a .mrd file output by the miRDeep2_core_algorithm.pl script.
+#### Input
 
-output:
-A .csv file with performace statistics.
+Default input is
 
-options:
--a file       file outputted by controls
--b file       mature miRNA fasta reference file for the species
--c file       signature file
--d int        read stack height necessary for triggering excision
+* a `.mrd` file output by the `miRDeep2_core_algorithm.pl` script.
 
-example usage:
-survey.pl output.mrd -a output_controls.mrd -b miRBase_this_species.fa -c signature.arf -d 2 > survey.csv
+#### Output
 
+* A .csv file with performace statistics.
 
+#### Options
 
-#####################################################################################################################################
+| option      | description                                         |
+|-------------|-----------------------------------------------------|
+| `‑a <file>` | file outputted by controls                          |
+| `‑b <file>` | mature miRNA FASTA reference file for the species   |
+| `‑c <file>` | signature file                                      |
+| `‑d <int>`  | read stack height necessary for triggering excision |
 
+#### Example usage
 
+```sh
+survey.pl output.mrd -a output_controls.mrd -b miRBase_this_species.fa \
+  -c signature.arf -d 2 > survey.csv
+```
 
-name:
-convert_bowtie_output.pl 
-
-description:
-It converts a bowtie 'bwt' mapping file to a mirdeep 'arf' file.
-
-input:
-A file in 'bwt' format.
-
-output:
-A file in mirdeep 'arf' format.
-
-options:
--
-
-notes:
--
+---
 
 
+### `convert_bowtie_output.pl`
 
-#####################################################################################################################################
+#### Description
 
+It converts a `bowtie` `bwt` mapping file to a `mirdeep` `arf` file.
 
- 
-name:
-bwa_sam_converter.pl 
+#### Input
 
-description:
-It converts a bwa 'sam' mapping file to a mirdeep 'arf' file.
+* A file in `bwt` format.
 
-input:
-A bwa created file in 'sam' format.
+#### Output
 
-output:
-A file in mirdeep 'arf' format.
+* A file in `mirdeep` `arf` format.
 
-options:
--
-
-notes:
--
+---
 
 
+### `bwa_sam_converter.pl`
 
-#####################################################################################################################################
+#### Description
 
+It converts a `bwa` `sam` mapping file to a `mirdeep` `arf` file.
 
+#### Input
 
-name:
-samFLAGinfo.pl 
+* A `bwa` created file in `sam` format.
 
-description:
-It gives information about the bwa FLAG in a bwa created mapping file in 'sam' format. 
+#### Output
 
-input:
-A FLAG number created by bwa.
+* A file in `mirdeep` `arf` format.
 
-output:
-Information about the alignment created by bwa.
-
-options:
--
-
-notes:
--
+---
 
 
+### `samFLAGinfo.pl`
 
-#####################################################################################################################################
+#### Description
+
+It gives information about the `bwa` FLAG in a `bwa` created mapping file in
+`sam` format.
+
+#### Input
+
+* A FLAG number created by `bwa`.
+
+#### Output
+
+* Information about the alignment created by `bwa`.
+
+---
 
 
+### `clip_adapters.pl`
 
-name:
-clip_adapters.pl
+#### Description
 
-description:
-Removes 3' end adaptors from deep sequenced small RNAs. The script searches for occurrences of the
-six first nucleotides of the adapter in the read sequence, starting after position 18 in the read
-sequence (so the shortest clipped read will be 18 nts). If no matches to the first six nts of the
-adapter are identified in a read, the 3' end of the read is searched for shorter matches to the 5
-to 1 first nts of the adapter.
+Removes 3' end adaptors from deep sequenced small RNAs.
+The script searches for occurrences of the six first nucleotides of the adapter
+in the read sequence, starting after position 18 in the read sequence (so the
+shortest clipped read will be 18 nts). If no matches to the first six nts of
+the adapter are identified in a read, the 3' end of the read is searched for
+shorter matches to the 5 to 1 first nts of the adapter.
 
-input:
-A fasta file with the deep sequencing reads and the adapter sequence (both in RNA or DNA alphabet).
+#### Input
 
-output:
-A fasta file with the clipped reads. Fasta ids are retained. If no matches to the adapter prefixes
-are identified in a given read, the unclipped read is output.
+* A FASTA file with the deep sequencing reads and
+* the adapter sequence (both in RNA or DNA alphabet).
 
-options:
--
+#### Output
 
-example usage:
+* A FASTA file with the clipped reads.
+
+FASTA IDs are retained. If no matches to the adapter prefixes are identified in
+a given read, the unclipped read is output.
+
+#### Example usage
+
+```sh
 clip_adapters.pl reads.fa TCGTATGCCGTCTTCTGCTTGT > reads_clipped.fa
+```
 
-notes:
-It is possible to clip adapters using more sophisticated methods. Users are encouraged to test other
-methods with the miRDeep2 modules.
+#### Notes
 
+It is possible to clip adapters using more sophisticated methods. Users are
+encouraged to test other methods with the miRDeep2 modules.
 
-
-#####################################################################################################################################
-
-
-
-name:
-sanity_check_genome.pl 
-
-description:
-It checks the supplied genome fasta file for its correctness. Identifier lines are not allowed to contain whitespaces and must be unique.
-Sequence lines are not allowed to contain characters others than [A|C|G|T|N|a|c|g|t|n].
-
-input:
-A genome file in fasta format
-
-output:
--
-
-options:
--
-
-notes:
--
+---
 
 
+### `sanity_check_genome.pl`
 
-#####################################################################################################################################
+#### Description
 
+It checks the supplied genome FASTA file for its correctness.
+Identifier lines are not allowed to contain whitespaces and must be unique.
+Sequence lines are not allowed to contain characters others than
+`A`, `C`, `G`, `T`, `N`, `a`, `c`, `g`, `t`, or `n`.
 
+#### Input
 
-name:
-sanity_check_mapping_file.pl 
+* A genome file in FASTA format
 
-description:
-It checks the supplied mapping file for its correctness. Each line in the file must be in the arf format. 
-
-
-input:
-A mapping file in arf format
-
-output:
--
-
-options:
--
-
-notes:
--
+---
 
 
+### `sanity_check_mapping_file.pl`
 
-#####################################################################################################################################
+#### Description
 
+It checks the supplied mapping file for its correctness.
+Each line in the file must be in the ARF format.
 
+#### Input
 
-name:
-sanity_check_mature_ref.pl 
+* A mapping file in ARF format.
 
-description:
-It checks the supplied mature_miRNA fasta file for its correctness. Identifier lines are not allowed to contain whitespaces and must be unique.
-Sequence lines are not allowed to contain characters others than [A|C|G|T|N|a|c|g|t|n].
-
-input:
-A mature miRNA file in fasta format
-
-output:
--
-
-options:
--
-
-notes:
--
+---
 
 
+### `sanity_check_mature_ref.pl`
 
-#####################################################################################################################################
+#### Description
+
+It checks the supplied `mature_miRNA` FASTA file for its correctness.
+Identifier lines are not allowed to contain whitespaces and must be unique.
+Sequence lines are not allowed to contain characters others than `A`, `C`, `G`,
+`T`, `N`, `a`, `c`, `g`, `t`, or `n`.
+
+#### Input
+
+* A mature miRNA file in FASTA format.
+
+---
 
 
+### `sanity_check_reads_ready.pl`
 
-name:
-sanity_check_reads_ready.pl 
+#### Description
 
-description:
-It checks the supplied reads file for its correctness. Each identifier line must have the format of 
-'>name_uniqueNumber_xnumber' e.g. >xyz_1_x20. See also file format_descriptions.txt for more detailed informations.
+It checks the supplied reads file for its correctness.
+Each identifier line must have the format of '>name_uniqueNumber_xnumber` e.g.
+`>xyz_1_x20`. See also file `format_descriptions.txt` for more detailed
+informations.
 
+#### Input
 
-
-input:
-A mapping file in arf format
-
-output:
--
-
-options:
--
-
-notes:
--
+* A mapping file in ARF format.

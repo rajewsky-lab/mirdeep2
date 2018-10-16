@@ -3,8 +3,8 @@
 ## About
 
 Authors: Marc Friedländer and Sebastian Mackowiak.
-(minor edits to `README` & `TUTORIAL` & convertion to Markdown by Marcel
-Schilling)
+(minor edits to `README`, `TUTORIAL`, and `FAQ` & convertion to Markdown by
+Marcel Schilling)
 
 This is miRDeep2 developed by Marc Friedlaender and Sebastian Mackowiak.
 miRDeep2 discovers active known or novel miRNAs from deep sequencing data

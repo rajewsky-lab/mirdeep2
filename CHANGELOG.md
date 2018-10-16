@@ -1,5 +1,23 @@
 # miRDeep2 changelog
 
+## Version 2.0.1.0
+
+* fixed bug resulting in negative repeat count due to too small `-l` value
+
+* braces in regex were escaped [deprecated by upstream]
+
+* miRDeep2 was licensed under GPL v3
+
+* the documentation was improved and converted to Markdown
+
+* minor improvements and code cleanup
+
+* the tutorial is now run via Travis CI on Linux & Mac to test the build
+
+* Sean Eddys squid libray was removed from the repository
+
+---
+
 ## Version 2.0.0.8
 
 * The `install.pl` script has been updated to download automatically the latest

@@ -39,7 +39,7 @@ while(<>){
     $counter++;
     #    read-id   l       s       e      seq   gid     l        s       e      seq
     if(/^(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+([+-])\s+(\d+)\s*([mDIM]*)$/){
-     
+
     }else{
         die "\nWrong format in line ",Nicenumber($counter),": The row\n
 $_\n
@@ -55,10 +55,10 @@ Please make sure that all lines have the above described format.
 
 exit;
 
-## subroutine to insert each 3 digits a dot 
+## subroutine to insert each 3 digits a dot
 sub Nicenumber{
     my @numarr=split(/[.,]/,shift);
-    
+
     my $number = $numarr[0];
 
     my @n = split(//,reverse($number));

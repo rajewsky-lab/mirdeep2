@@ -60,8 +60,8 @@ if($lines/2 > 5000000){
             $counter++;
             $id=$1;
             if($id =~ /\s+/){
-                die "Error in line ",Nicenumber($counter),": The identifier\n 
-$_\n 
+                die "Error in line ",Nicenumber($counter),": The identifier\n
+$_\n
 contains white spaces\n
 
 Please make sure that none of the identifiers contain whitepaces.
@@ -94,7 +94,7 @@ Please make sure that your reads file only contains unique sequences.\n
 ";
                 }else{
                     $hash_seq{$tag}{$seq} = $counter;
-                    
+
                 }
             }
         }else{
@@ -113,14 +113,14 @@ containing letters [acgtunACGTUN]\n
 
     open IN,"<$ARGV[0]";
     while(<IN>){
-        
+
         if(/^\>(\S\S\S)_.+$/){
             $tag = $1;
             $counter++;
         }
         else{
             if($rhash{$counter}){
-                
+
             }elsif(/^([A|C|G|T|N|a|c|g|t|n]{17,})$/){
                 $seq = $1;
                 if($hash_seq{$tag}{$seq}){
@@ -144,10 +144,10 @@ Please make sure that your reads file only contains unique sequences within each
         if(/^\>(\S\S\S)(.+)$/){
             $id="$1$2";
             $tag =$1;
-            
+
             if($id =~ /\s+/){
-die "Error in line ",Nicenumber($counter),": The identifier\n 
-$_\n 
+die "Error in line ",Nicenumber($counter),": The identifier\n
+$_\n
 contains white spaces\n
 
 Please make sure that none of the identifiers contain whitepaces.
@@ -164,7 +164,7 @@ Please make sure that all identifiers are unique and have the format described a
             }elsif($id =~ /^(\S\S\S)_(\d+)_(x\d+)$/){
                 $hash_num{$2}++;
             }else{}#print "$id\n";}
-            
+
         }elsif(/^([A|C|G|T|U|N|a|c|g|t|u|n]{17,})$/){
             if($hash_seq{$tag}{$1}){
                 die "Error in line ",Nicenumber($counter),": The sequence\n
@@ -175,7 +175,7 @@ At first it occured at line ",Nicenumber($hash_seq{$tag}{$1}),"
 Please make sure that your reads file only contains unique sequences within each sample.\n
 ";
             }else{
-                $hash_seq{$tag}{$1} = $counter;   
+                $hash_seq{$tag}{$1} = $counter;
             }
         }
         else{
@@ -185,16 +185,16 @@ contains less than 17 characters or contains characters others than [acgtunACGTU
 Please make sure that your file only comprises sequences that have at least 17 characters\n
 containing letters [acgtunACGTUN]\n
 ";
-        }      
+        }
     }
 
 }
 exit;
 
-## subroutine to insert each 3 digits a dot 
+## subroutine to insert each 3 digits a dot
 sub Nicenumber{
     my @numarr=split(/[.,]/,shift);
-    
+
     my $number = $numarr[0];
 
     my @n = split(//,reverse($number));

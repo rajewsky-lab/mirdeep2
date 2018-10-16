@@ -62,11 +62,11 @@ Preprocessing/mapping:
 -q              map with one mismatch in the seed (mapping takes longer)
 
 -r int          a read is allowed to map up to this number of positions in the genome
-                default is 5 
+                default is 5
 
 Output files:
 -s file         print processed reads to this file
--t file         print read mappings to this file 
+-t file         print read mappings to this file
 
 Other:
 -u              do not remove directory with temporary files
@@ -74,7 +74,7 @@ Other:
 
 -n              overwrite existing files
 
--o              number of threads to use for bowtie 
+-o              number of threads to use for bowtie
 
 Example of use:
 
@@ -107,7 +107,7 @@ open MAP,">mapper_logs/mapper.log_$lid" or die "could not create mapper_logs/map
 my $cdir = `pwd`;
 
 print MAP "current dir:\t$cdir";
-print MAP "mapper command:\t$0 @ARGV\n"; 
+print MAP "mapper command:\t$0 @ARGV\n";
 
 my $file_reads=shift or die $usage;
 
@@ -195,9 +195,9 @@ sub handle_config_file{
 
     open (FILE, "$file") or die "can not open $file\n";
     while (<FILE>){
-		
+
 	if(/(^\S+)\s+(\S+)\s*.*$/){
-		
+
 	    my $file=$1;
 	    my $prefix=$2;
 
@@ -209,7 +209,7 @@ sub handle_config_file{
 	    test_prefix($prefix);
 
 		print MAP "\nhandling file \'$file\' with prefix \'$prefix\'\n";
-		
+
 		## check if files in config file are in accordance with option specified
 		if($options{'a'}){check_file_format_and_option($file,'a') };
 		if($options{'b'}){check_file_format_and_option($file,'b') };
@@ -234,8 +234,8 @@ sub make_dir_tmp{
     $month++;
     my $time=sprintf "%02d_%02d_%02d_t_%02d_%02d_%02d", $day, $month, $year, $hour, $min, $sec;
 
-	print MAP "\ntimestamp:\t$time\n\n"; 
-	
+	print MAP "\ntimestamp:\t$time\n\n";
+
 	my $num=rand(1);
 	my $chance=substr($num,2,10);
     #make temporary directory
@@ -248,13 +248,13 @@ sub make_dir_tmp{
 
 sub handle_one_file{
     my($file_reads,$prefix)=@_;
- 
+
     my $file_reads_latest=process_reads($file_reads,$prefix);
 
     if($options{p}){
         my $file_mapping_latest=map_reads($file_reads_latest);
     }
-	
+
 	remove_dir_tmp();
     return;
 }
@@ -262,13 +262,13 @@ sub handle_one_file{
 
 
 sub process_reads{
-   
+
     my($file_reads_latest,$prefix)=@_;
     $orig_file_reads=$file_reads_latest;
 	if($file_reads_latest =~ /([_\-.a-zA-Z0-9]+)$/){$orig_file_reads=$1;}
 	#	die $orig_file_reads,"\n";
 
-    $dir=make_dir_tmp("_${prefix}_$orig_file_reads"); 
+    $dir=make_dir_tmp("_${prefix}_$orig_file_reads");
     #parse Solexa to fasta
     if($options{h}){
 
@@ -284,19 +284,19 @@ sub process_reads{
             my $ret_format=`fastq2fasta.pl $file_reads_latest > $dir/reads.fa`;
             $file_reads_latest="$dir/reads.fa";
         }else{
-			
+
 			print MAP "parsing Solexa / Illumina output to fasta format\n";
 
             if($options{v}){print STDERR "parsing Solexa / Illumina output to fasta format\n";}
-            
+
             my $line="illumina_to_fasta.pl $file_reads_latest";
-    
+
             if($options{b}){$line.=" -a";}
-            
+
 			print MAP "$line > $dir/reads.fa\n";
 
             my $ret_format=`$line > $dir/reads.fa`;
-            
+
             $file_reads_latest="$dir/reads.fa";
         }
     }
@@ -309,9 +309,9 @@ sub process_reads{
 	if($options{v}){print STDERR "converting rna to dna alphabet\n";}
 
 		print MAP "rna2dna.pl $file_reads_latest > $dir/reads_dna.fa\n";
-		
+
 	my $ret_rna2dna=`rna2dna.pl $file_reads_latest > $dir/reads_dna.fa`;
-    
+
 	$file_reads_latest="$dir/reads_dna.fa";
     }
 
@@ -380,7 +380,7 @@ sub process_reads{
 
 	cat_to($file_reads_latest,$options{s});
 
-#	my $ret=`cat $file_reads_latest >> $options{s}`;	
+#	my $ret=`cat $file_reads_latest >> $options{s}`;
     }
 
     return($file_reads_latest);
@@ -394,9 +394,9 @@ sub map_reads{
 	print MAP "mapping reads to genome index\n";
 
     if($options{v}){print STDERR "mapping reads to genome index\n";}
-    
+
     my $file_genome_latest=$options{p};
-    
+
 	my $mapping_loc=5;
 	if(defined $options{'r'}){
 		$mapping_loc=$options{'r'};
@@ -411,27 +411,27 @@ sub map_reads{
         die "${err}Please make sure you used bowtie version 1 to build the index.\nUsual index files have suffix .ebwt\n\n";
     }
 
-    
+
     my $file_mapping_latest="$dir/mappings.bwt";
-    
+
 	print MAP "convert_bowtie_output.pl $file_mapping_latest > $dir/mappings.arf\n";
 
     my $ret_parse_to_arf=`convert_bowtie_output.pl $file_mapping_latest > $dir/mappings.arf`;
-    
+
     $file_mapping_latest="$dir/mappings.arf";
-    
+
     #trim unmapped nts in the 3' end
 
 	print MAP "trimming unmapped nts in the 3' ends\n";
-	
+
     if($options{v}){print STDERR "trimming unmapped nts in the 3' ends\n";}
-    
+
 	print MAP "parse_mappings.pl $file_mapping_latest -j > $dir/mappings_trim.arf\n\n";
 
     my $ret_trim=`parse_mappings.pl $file_mapping_latest -j > $dir/mappings_trim.arf`;
-    
+
     $file_mapping_latest="$dir/mappings_trim.arf";
-        
+
     #printing mappings
     if($options{t}){
 		cat_to($file_mapping_latest,$options{t});
@@ -464,7 +464,7 @@ sub check_file_format_and_option{
 -d              input file is a config file (see miRDeep2 documentation).
                 options -a, -b, -c or -e must be given with option -d.
 
-"; 
+";
 	my @line;
 
 	if($format eq 'a'){
@@ -492,7 +492,7 @@ sub check_file_format_and_option{
 				die "The qseq.txt file does not contain 11 columns but $#line. Please make sure to follow the qseq.txt file format conventions\n$warning";
 			}
 			if($line[9] =~ /^\S+/){}else{die "The sequence field in the qseq.txt file is invalid. Please make sure to follow the qseq.txt file format conventions\n$warning";}
-			last if($i == 4);			
+			last if($i == 4);
 		}
 		close IN;
 	}elsif($format eq 'c'){
@@ -506,7 +506,7 @@ sub check_file_format_and_option{
 			if($i == 2){if(/^\S+$/){}else{die "Second line of FASTA reads file contains whitespace in sequence\n$mes\n";}}
 			if($i == 3){if(/^>\S+$/){}else{die "Second ID line of FASTA reads file is not in accordance with the fasta format specifications\n$mes\n$warning";}}
 			if($i == 4){if(/^\S+$/){}else{die "Secdond sequence line of FASTA reads file contains whitespace in sequence\n$mes\n$warning";}}
-			last if($i == 4);			
+			last if($i == 4);
 		}
 		close IN;
 	}elsif($format eq 'e'){
@@ -517,13 +517,13 @@ sub check_file_format_and_option{
             chomp;
             $i++;
 
-			if($i == 1){if(/^@\S+/){}else{die "First line of FASTQ reads file is not in accordance with the fastq format specifications\n$mes\n$warning";}}                 
+			if($i == 1){if(/^@\S+/){}else{die "First line of FASTQ reads file is not in accordance with the fastq format specifications\n$mes\n$warning";}}
 			if($i == 2){if(/^\S+$/){}else{die "Second line of FASTQ reads file contains whitespace in sequence\n$mes\n$warning";}}
 			if($i == 3){if(/^\+/){}else{die "Third line of FASTQ reads file does not start with a '+' character.\n$mes\n$warning";}}
 			if($i == 4){if(/^\S+$/){}else{die "Fourth line of FASTQ reads file contains whitespace\n$mes\n$warning";}}
-			last if($i == 4);			
+			last if($i == 4);
 		}
-		close IN;	
+		close IN;
 	}else{
 	}
 }
@@ -531,42 +531,42 @@ sub check_file_format_and_option{
 
 sub check_options{
 
- 
+
     my $formats=0;
-    
+
     if($options{a}){$formats++; check_file_format_and_option($file_reads,'a') if(not $options{'d'});}
-    
+
     if($options{b}){$formats++; check_file_format_and_option($file_reads,'b') if(not $options{'d'});}
-    
+
     if($options{c}){$formats++; check_file_format_and_option($file_reads,'c') if(not $options{'d'});}
 
     if($options{e}){$formats++; check_file_format_and_option($file_reads,'e') if(not $options{'d'});}
-    
+
     unless($formats==1){die "exactly one input format (-a, -b , -e or -c) must be designated\n";}
-    
+
 	## check if file supplied matches option, otherwise quit
-    
+
     my $processing_steps=0;
-    
+
     if($options{h}){$processing_steps++;}
-    
+
     if($options{i}){$processing_steps++;}
 
     if($options{j}){$processing_steps++;}
 
     if($options{k}){$processing_steps++;}
-    
+
     if($options{l}){$processing_steps++;}
-    
+
     if($options{m}){$processing_steps++;}
 
     if($options{p}){$processing_steps++;}
-    
+
     unless($processing_steps>0){die "at least one processing/mapping step (-h, -i, -j, -k, -l, -m or -p) must be designated\n";}
-    
-    
+
+
     my $files_output=0;
-    
+
 	if(exists $options{'o'}){
 		if($options{'o'} =~ /\d+/ and $options{'o'} > 0){}else{
 
@@ -574,15 +574,15 @@ sub check_options{
 	}
 
     if($options{s}){$files_output++;}
-    
+
     if($options{t}){$files_output++;}
-    
+
     unless($files_output>0){die "at least one output file (-s or -t) must be designated\n";}
-    
+
     if($options{s} and -f $options{s} and not $options{'n'}){die "file $options{s} already exists\n";}
 
     if($options{t} and -f $options{t} and not $options{'n'}){die "file $options{t} already exists\n";}
-    
+
     if(($options{a} or $options{b} or $options{e}) and not($options{h})){die "raw illumina output must be parsed to fasta format with options -h\n";}
 
     if($options{c} and $options{h}){die "input file is already designated as a fasta file, so option -h should not be used\n";}
@@ -612,7 +612,7 @@ sub check_options{
     if($options{s} and not($options{h} or $options{i} or $options{j} or $options{k} or $options{l} or $options{m} or $options{p})){die "at least one processing step (-h, -i, -j, -k, -l, -m or -p) must be designated if processed file should be output (-s)\n";}
 
     if($options{t} and not($options{p})){die "reads must be mapped (-p) if mappings are to be output (-t)\n";}
-   
+
     if($options{k} and $options{k}=~/^-/){die "please make sure that the adapter sequence designated with the -k option is correct\n";}
 
     if($options{l} and $options{l}=~/^-/){die "please make sure that the int given with the -l option is correct\n";}
@@ -626,7 +626,7 @@ sub check_options{
         my $binst=`bowtie --version 2>&1`;
         if(not $binst){
             printErr();
-            die "Bowtie mapping tool not installed.\n 
+            die "Bowtie mapping tool not installed.\n
 Please download from http://downloads.sourceforge.net/project/bowtie-bio/bowtie/ the latest version and install it.\n\n"}
     }
     if($options{s} and $options{s}=~/^-/){die "please make sure that the output file designated with the -s option is correct\n";}
@@ -644,11 +644,11 @@ sub check_line{
     if($line=~/-h\s+\d/ or $line=~/-h\s+\w/){die "option -h should not be given with an integer or string\n";}
 
     if($line=~/-i\s+\d/ or $line=~/-i\s+\w/){die "option -i should not be given with an integer or string\n";}
-    
+
     if($line=~/-j\s+\d/ or $line=~/-j\s+\w/){die "option -j should not be given with an integer or string\n";}
-    
+
     if($line=~/-m\s+\d/ or $line=~/-m\s+\w/){die "option -m should not be given with an integer or string\n";}
-    
+
     if($line=~/-q\s+\d/ or $line=~/-q\s+\w/){die "option -q should not be given with an integer or string\n";}
 
     return;
@@ -670,14 +670,14 @@ sub test_prefix{
 
 
 sub cat_to{
-    
+
     my($file_1,$file_2)=@_;
 
 
     open OUT, ">>$file_2" or die "cannot print to $file_2\n";
 
     open IN, "<$file_1" or die "cannot read from $file_1\n";
-    
+
     while(my $line = <IN>){
 
 	print OUT "$line";
@@ -701,7 +701,7 @@ sub read_stats{
 	my $count;
 	my %k2;
 	my $total;
-	
+
 	open IN,"$options{'s'}" or die "No reads file in fasta format given\n";
 	while(<IN>){
 		if(/^>*((\S\S\S)\S+_x(\d+))/){
@@ -715,7 +715,7 @@ sub read_stats{
 	my %hash2;
 	my $count2;
 	my %k22;
-	
+
 	print STDERR "Mapping statistics\n";
 	open IN, "$options{'t'}" or die "No mapping file given\n";
 	while(<IN>){
@@ -726,7 +726,7 @@ sub read_stats{
 			$k22{$2}+=$3;
 		}
 	}
-	
+
 	print STDERR "\n#desc\ttotal\tmapped\tunmapped\t%mapped\t%unmapped\n";
 	print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
 	printf STDERR "%.3f\t%.3f\n",$count2/$count,1-($count2/$count);
@@ -742,7 +742,7 @@ sub check_install{
 	chomp $bn;
 	if(not -f "$bn/../install_successful"){
 		die "Please run the install.pl script first before using the miRDeep2 package
-The install script is located in ",substr($bn,0,length($bn)-3)," so just do 
+The install script is located in ",substr($bn,0,length($bn)-3)," so just do
 
 cd ",substr($bn,0,length($bn)-3),
 "\nperl install.pl

@@ -17,14 +17,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-## convert decimal number to binary and then to hexadecimal to get read FLAG identification 
+## convert decimal number to binary and then to hexadecimal to get read FLAG identification
 
 use strict;
 
 if(not $ARGV[0]){
     die "\nPlease specify the FLAG number you want to have translated\n
 usage:\n\tperl samFLAGinfo.pl [int]\n\n";
-} 
+}
 
 
 my %bwa_codes;
@@ -63,7 +63,7 @@ my $pre="0x0";
 for(my $i=0; $i < scalar @arr; $i++){
     $bin = $arr[$i] * 2**$i;
     $hex = sprintf("%x", $bin);
-    $pre="0x0";  
+    $pre="0x0";
     if($arr[$i] ne 0){
         $pre.='0' x (3-length($hex));
         $pre.=$hex;

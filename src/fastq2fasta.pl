@@ -37,7 +37,7 @@ while(<IN>){
         @line = split();
         $id = $line[0];
         $id =~ s/\@//;
-        
+
     }elsif($c == 2){
         $seq = $_;
     }elsif($c == 4){

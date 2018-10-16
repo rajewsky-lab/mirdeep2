@@ -45,7 +45,7 @@ exit;
 
 
 sub permute_order{
-    
+
     my @ids=sort keys %hash_seq;
     my $number_ids=scalar @ids;
 
@@ -58,7 +58,7 @@ sub permute_order{
 
 	my $rand=int(rand($number_ids_cur));
 	my $id_cur=$ids_cur[$rand];
-	
+
 	my $seq=$hash_seq{$id_cur};
 	my $struct=$hash_struct{$id_cur};
 	my $mfe=$hash_mfe{$id_cur};
@@ -121,7 +121,7 @@ sub parse_file_struct{
 		if(/\((\s*-\d+\.\d+)\)/){
 		    $mfe = $1;
 		}
-	    
+
 	    }
         }
     }
@@ -139,8 +139,8 @@ sub parse_file_struct{
 
 
 sub round {
-    
+
     my($number) = shift;
     return int($number + .5);
-    
+
 }

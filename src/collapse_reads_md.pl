@@ -58,13 +58,13 @@ print_hash_seqkey(\%hash);
 
 
 sub parse_file_fasta_seqkey{
-    
+
     my($file,$hash)=@_;
     my($id,$seq)=();
- 
+
     if($options{a}){print STDERR "reading file into hash\n";}
     my $running_1=0;
-   
+
     open (FASTA, "<$$file") or die "can not open $$file\n";
     while (<FASTA>)
     {
@@ -76,13 +76,13 @@ sub parse_file_fasta_seqkey{
 	    while (<FASTA>){
 			chomp;
 			if (/^>(\S+)/){
-				
+
 				my $cnt=find_cnt($id);
 				$seq=~tr/[acgtun\.]/[ACGTTNN]/;
 				$$hash{$seq}+=$cnt;
 				$running_1++;
 				if($options{a}){print STDERR "$running_1\r";}
-				
+
 				$id   = $1;
 				$seq  = "";
 				next;
@@ -91,26 +91,26 @@ sub parse_file_fasta_seqkey{
 	    }
 	}
     }
-    
+
     my $cnt=find_cnt($id);
     $seq=~tr/[acgtun\.]/[ACGTTNN]/;
     $$hash{$seq}+=$cnt;
     $running_1++;
     if($options{a}){print STDERR "$running_1\r";}
-    
+
     close FASTA;
 }
 
 sub print_hash_seqkey{
-    
+
     my ($hash)=@_;
     if($options{a}){print STDERR "sorting hash\n";}
     my $running_2=0;
     if($options{a}){print STDERR "printing hash\n";}
     foreach my $key(sort {$$hash{$b} <=> $$hash{$a}} keys %$hash){
-	
+
 		my $cnt=$$hash{$key};
-		
+
 		print ">$prefix\_$running_2\_x$cnt\n$key\n";
 		$running_2+=$cnt;
 		if($options{a}){print STDERR "$running_2\r";}
@@ -121,19 +121,19 @@ sub print_hash_seqkey{
 
 
 sub find_cnt{
-    
+
     #finds the frequency of a given read query from its id.
-    
+
     my($query)=@_;
-    
+
     if($query=~/_x(\d+)/){
-		
+
 		my $cnt=$1;
-		
+
 		return $cnt;
-		
+
     }else{
-	
+
 		return 1;
     }
 }
@@ -142,9 +142,9 @@ sub find_cnt{
 sub test_prefix{
 
     my $prefix=shift;
-	
+
     unless($prefix=~/^\w\w\w$/ and !($prefix=~/_/)){
-		
+
 		die "prefix $prefix does not contain exactly three alphabet letters\n";
     }
     return;

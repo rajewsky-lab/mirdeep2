@@ -80,7 +80,7 @@ sub parse_file_arf{
     my($file)=@_;
 
     open(FILENAME, $file) or die "Could not open file $file";
-    
+
     while (my $line = <FILENAME>){
 	if($line=~/^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/){
 
@@ -100,7 +100,7 @@ sub parse_file_arf{
 
 	    #only reads that map sense to the potential precursor are considered
 	    if($strand eq "-"){next;}
-	    
+
 	    #if the new line concerns a new db (potential precursor) then the old db must be resolved
 	    if($db_old and $db_old ne $db){
 		resolve_potential_precursor();
@@ -122,16 +122,16 @@ sub parse_file_arf{
 }
 
 sub resolve_potential_precursor{
-    
+
 #    dissects the potential precursor in parts by filling hashes, and tests if it passes the
 #    initial structure filter
 
     fill_structure();
-    
+
     fill_pri();
 
     fill_mature();
-   
+
     fill_star();
 
     fill_loop();
@@ -140,12 +140,12 @@ sub resolve_potential_precursor{
 
 	my $seq=$hash_seq{$db_old};
 	my $struct=$hash_struct{$db_old};
-	
+
 	print "$db_old\n";
     }
-    
+
     reset_variables();
-    
+
     return;
 }
 
@@ -302,19 +302,19 @@ sub fill_structure{
 sub fill_pri{
 
     #fills basic specifics on the precursor into the 'comp' hash
-    
+
     my $seq=$hash_seq{$db_old};
     my $struct=$hash_struct{$db_old};
     my $mfe=$hash_mfe{$db_old};
     my $length=length $seq;
-    
+
     $hash_comp{"pri_id"}=$db_old;
     $hash_comp{"pri_seq"}=$seq;
     $hash_comp{"pri_struct"}=$struct;
     $hash_comp{"pri_mfe"}=$mfe;
     $hash_comp{"pri_beg"}=1;
     $hash_comp{"pri_end"}=$length;
-    
+
     return;
 }
 
@@ -348,11 +348,11 @@ sub fill_mature{
 sub fill_star{
 
     #fills specifics on the expected star strand into 'comp' hash ('component' hash)
-    
+
     #if the mature sequence is not plausible, don't look for the star arm
     my $mature_arm=$hash_comp{"mature_arm"};
     unless($mature_arm){$hash_comp{"star_arm"}=0; return;}
- 
+
     #if the star sequence is not plausible, don't fill into the hash
     my($star_beg,$star_end)=find_star();
     my $star_arm=arm_star($star_beg,$star_end);
@@ -392,7 +392,7 @@ sub fill_loop{
     }else{
 	$loop_end=$hash_comp{"mature_beg"}-1;
     }
-    
+
     if($hash_comp{"star_arm"} eq "first"){
 	$loop_beg=$hash_comp{"star_end"}+1;
     }else{
@@ -458,11 +458,11 @@ sub find_strand_query{
 
 
 sub arm_mature{
- 
+
     #tests whether the mature sequence is in the 5' ('first') or 3' ('second') arm of the potential precursor
 
     my ($beg,$end,$strand)=@_;
- 
+
     #mature and star sequences should alway be on plus strand
     if($strand eq "-"){return 0;}
 
@@ -567,7 +567,7 @@ sub test_loop{
 
 ###############################################################
 
-  
+
 
 sub reset_variables{
 
@@ -584,7 +584,7 @@ sub reset_variables{
 
 
 sub parse_file_struct{
- 
+
     #parses the output from RNAfold and reads it into hashes
 
     my($file) = @_;
@@ -626,7 +626,7 @@ sub parse_file_struct{
 		if(/\((\s*-\d+\.\d+)\)/){
 		    $mfe = $1;
 		}
-	    
+
 	    }
         }
     }
@@ -642,7 +642,7 @@ sub parse_file_struct{
 
 
 sub revcom{
-    
+
     #reverse complement
 
     my($sequence)=@_;
@@ -658,7 +658,7 @@ sub rev{
 
     my($sequence)=@_;
 
-    my $rev=reverse $sequence;   
+    my $rev=reverse $sequence;
 
     return $rev;
 }
@@ -669,11 +669,11 @@ sub com{
 
     my($sequence)=@_;
 
-    $sequence=~tr/acgtuACGTU/TGCAATGCAA/;   
- 
+    $sequence=~tr/acgtuACGTU/TGCAATGCAA/;
+
     return $sequence;
 }
-  
+
 sub find_freq{
 
     #finds the frequency of a given read query from its id.
@@ -701,7 +701,7 @@ sub excise_seq{
     #rarely, permuted combinations of signature and structure cause out of bound excision errors.
     #this happens once appr. every two thousand combinations
     unless($beg<=length($seq)){return 0;}
- 
+
     #the blast parsed format is 1-indexed, substr is 0-indexed
     my $sub_seq=substr($seq,$beg-1,$end-$beg+1);
 
@@ -732,7 +732,7 @@ sub excise_struct{
 
     #the blast parsed format is 1-indexed, substr is 0-indexed
     my $sub_struct=substr($struct,$beg-1,$end-$beg+1);
- 
+
     return $sub_struct;
 }
 

@@ -54,7 +54,7 @@ perform_controls();
 sub perform_controls{
 
     mkdir $dir;
-    
+
     my $round=1;
 
     while($round<=$rounds){
@@ -62,13 +62,13 @@ sub perform_controls{
 	if($options{a}){print STDERR "$round\r";}
 
 	system("permute_structure.pl $file_structure > $dir/precursors_permuted.str 2> /dev/null");
-	
+
 	my $ret=`$command_line 2> /dev/null`;
 
 	print "permutation $round\n\n";
 
 	print "$ret";
-	
+
 	$round++;
     }
 
@@ -86,11 +86,11 @@ sub parse_file_command_line{
     while (my $line=<FILE>){
 
 	if($line=~/(\S+)/){
-	    
+
 	    chomp $line;
 
 	    $line=~s/$file_structure/$dir\/precursors_permuted.str/;
-	    
+
 	    $line=~s/>.+//;
 
 	    return $line;

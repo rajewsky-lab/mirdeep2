@@ -43,7 +43,7 @@ while(<IN>){
 
 
     if($line[7]){
-		
+
         @changes = split(/,/,$line[7]);
         #$mm=scalar @changes;
         foreach(@changes){
@@ -52,11 +52,11 @@ while(<IN>){
 				$gseq[$1] = lc $2;
 				## this was not outcommented before
                 #$gseq[$1] =~ tr/acgt/tgca/;
-                @edit[$1] = "M";   
+                @edit[$1] = "M";
             }
         }
     }
- 
+
 
     my @id =split(/\s/,$line[0]);
     my @db = split(/\s/,$line[2]);

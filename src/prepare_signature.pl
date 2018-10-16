@@ -30,8 +30,8 @@ my $usage =
 
 This script prepares the signature file for miRDeep. Options:
 
--a file  Fasta file with the sequences of known mature miRNAs for the species. 
-         These sequences will not influence the miRDeep scoring, but will 
+-a file  Fasta file with the sequences of known mature miRNAs for the species.
+         These sequences will not influence the miRDeep scoring, but will
          subsequently make it easy to estimate sensitivity of the run.
 -b       Output progress to screen
 
@@ -77,14 +77,14 @@ if($options{a}){
 
     if($options{b}){print STDERR "sorting rows\n";}
     cat_files("$dir/reads_vs_precursors.arf","$dir/mature_vs_precursors.arf","$dir/signature_unsorted.arf");
-    
+
 #    system("cat $dir/reads_vs_precursors.arf $dir/mature_vs_precursors.arf > $dir/signature_unsorted.arf");
     #Sortarf("$dir/signature_unsorted.arf");
 	presort("$dir/signature_unsorted.arf");
 	system("sort -nk1 $dir/signature_unsorted.arf.tmp > $dir/signature_unsorted.arf.tmp2");
 	system("cut -f2-14 $dir/signature_unsorted.arf.tmp2 > $outfile");
 #	system("sort -V -k6 $dir/signature_unsorted.arf > $outfile");
-	
+
 
 }else{
 
@@ -116,7 +116,7 @@ sub presort{
 	my $file=shift;
 	open IK,"$file" or die "no arf file given\n";
 	open IKT,">$file.tmp" or die "tmp file could not be opened\n";
-	
+
 	my %index=();
 	my $count=0;
 	my @l;
@@ -149,14 +149,14 @@ sub Sortarf {
 			$hash{$counter} = $6;
 			$hash2{$counter} = $line;
 			$counter++;
-			
+
 		}else{
 			print "wrong line format\n $line\n";
 		}
 	}
 	close IN;
 
-	## sorting rows by 6th column 
+	## sorting rows by 6th column
 	for(sort {$hash{$a} cmp $hash{$b} } keys %hash){
 		print "$hash2{$_}\n";                         ## print hash
 	}
@@ -167,14 +167,14 @@ exit;
 
 
 sub cat_files{
-    
+
     my($file_1,$file_2,$file_out)=@_;
 
 
     open OUT, ">$file_out" or die "cannot print to $file_out\n";
 
     open IN_1, "<$file_1" or die "cannot read from $file_1\n";
-    
+
     while(my $line = <IN_1>){
 
 	print OUT "$line";
@@ -183,7 +183,7 @@ sub cat_files{
     close IN_1;
 
     open IN_2, "<$file_2" or die "cannot read from $file_2\n";
-    
+
     while(my $line = <IN_2>){
 
 	print OUT "$line";

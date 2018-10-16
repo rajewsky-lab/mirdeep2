@@ -92,13 +92,13 @@ sub resolve{
     }
 
     if($options{b} and not($seq=~/^(a|c|g|t|u|n)+$/i)){
-	
+
         print STDERR ">$id\n$seq\n";
 	return;
     }
 
     print ">$id\n";
-	
+
     print "$seq\n";
 
     return;

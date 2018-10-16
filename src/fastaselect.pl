@@ -98,13 +98,13 @@ sub parse_file_ids{
     my ($file,$hash) = @_;
 
     open (FILE, "<$$file") or die "can not open $$file\n";
-    
+
     while (my $line=<FILE>){
 
 	if($line=~/^(\S+)/){
-	    
+
 	    my $id=$1;
-	    
+
 	    $$hash{$id}=1;
 	}
     }

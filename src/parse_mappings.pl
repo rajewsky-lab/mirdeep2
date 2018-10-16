@@ -59,7 +59,7 @@ my %hash_queries_excl;
 my %hash_dbs_incl;
 my %hash_dbs_excl;
 
-#running index		
+#running index
 my $running=0;
 
 #scan mode - a flag variable
@@ -84,14 +84,14 @@ exit;
 
 
 sub parse_file_arf{
-    
+
     my ($file_arf)=@_;
-  
+
     open (FILE_ARF, "<$file_arf") or die "can not open $file_arf\n";
     while (my $line=<FILE_ARF>){
-	
+
 	if($line=~/^(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/){
-	    
+
 	    my $query=$1;
 	    my $query_map_lng=$2;
 	    my $query_beg=$3;
@@ -130,7 +130,7 @@ sub parse_file_arf{
 	    #in scanning mode, fill the edit hash
 	    if($scan){
 		$hash_edits{$query}{$edits}++;
-	    #in parsing mode, evaluate if the line should be printed	
+	    #in parsing mode, evaluate if the line should be printed
 	    }else{
 		my $evaluation=evaluate_query($query,$edits);
 		if($evaluation){print "$query\t$query_map_lng\t$query_beg\t$query_end\t$query_seq\t$db\t$db_map_lng\t$db_beg\t$db_end\t$db_seq\t$strand\t$edits\t$edit_string\n";}
@@ -175,7 +175,7 @@ sub fill_hash{
 	$hash_nr_mappings{$query}=$hash_edits{$query}{$edit_best};
     }
     return;
-}    
+}
 
 
 
@@ -220,10 +220,10 @@ sub scan{
 		print STDERR "scanning mappings, total=$lines\n";
 	}
 
-    
+
 	$scan=1;
     parse_file_arf($file);
- 
+
     $scan=0;
     if($options{k}){print STDERR "resolving best mappings for each read\n";}
     fill_hash();

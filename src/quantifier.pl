@@ -24,7 +24,7 @@
 ## remaining read counts is now correct
 ## read noramlization is now 10e6 * mature-reads/all_mature_reads (So reads per million mapped miRNA reads)
 ## missing/empty file with star sequences led to abortion of the script when option -s was used
-## the -c config option is not implemented 
+## the -c config option is not implemented
 
 ######################
 
@@ -328,8 +328,8 @@ if($options{'j'}){
 }
 print STDERR "\nCreating miRBase.mrd file\n\n";
 CreateOutputMRD();
-		
-	
+
+
 
 #CreateOutputMRD_orig();
 
@@ -412,7 +412,7 @@ sub Mapping{
     print STDERR "mapping read sequences against index\n";
     $err=`bowtie -p $threads -f -v $mismatches -a --best --strata --norc miRNA_precursor $name2.converted ${name2}_mapped.bwt 2>bowtie_reads.out`;
 	read_stats("$name2.converted","${name2}_mapped.bwt");
-	
+
 
 
     if($options{'s'}){
@@ -428,7 +428,7 @@ sub read_stats{
 	my $count;
 	my %k2;
 	my $total;
-	
+
 	open IN,"$f1" or die "No reads file in fasta format given\n";
 	while(<IN>){
 		if(/^>*((\S\S\S)\S+_x(\d+))/){
@@ -442,7 +442,7 @@ sub read_stats{
 	my %hash2;
 	my $count2;
 	my %k22;
-	
+
 	print STDERR "Mapping statistics\n";
 	open IN, "$f2" or die "No mapping file given\n";
 	while(<IN>){
@@ -453,7 +453,7 @@ sub read_stats{
 			$k22{$2}+=$3;
 		}
 	}
-	
+
 	print STDERR "\n#desc\ttotal\tmapped\tunmapped\t%mapped\t%unmapped\n";
 	print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
 	printf STDERR "%.3f\t%.3f\n",$count2/$count,1-($count2/$count);

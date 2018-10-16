@@ -61,7 +61,7 @@ sub parse_file_solexa{
 
 	    $seq=$fields[8];
 
-	}else{	
+	}else{
 
 	    $seq=$fields[4];
 	}
@@ -71,7 +71,7 @@ sub parse_file_solexa{
 	$seq=~s/\./N/g;
 
 	print ">seq\_$running\n";
-	
+
 	print "$seq\n";
 
 	$running++;

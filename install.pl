@@ -24,7 +24,7 @@ print STDERR "\n
 # Last update: Dec 03, 2017
 # This is the miRDeep2 installer
 # It is tested under a bash and zsh shell
-# It will try to download all necessary third-party tools and install them. 
+# It will try to download all necessary third-party tools and install them.
 # To run this installer you need to have mirdeep2.0.0.8 or later
 #
 ###############################################################################################
@@ -90,7 +90,7 @@ if($gcc !~ /(GCC)/i and $gcc !~ /clang/i){
 	if($gcc =~ /clang/){
 		print STDERR "clang installed                                      already installed, nothing to do ...\n";
 	}
-} 
+}
 
 my %progs;
 $progs{bowtie}=0;
@@ -119,7 +119,7 @@ if($wget =~ /URL/i){
 if(not -d 'bin'){
 	#creating bin directory which will also contain other executables in the end\n";
 	my $ret=system("cp -r src bin");
-	if(not $ret){ 
+	if(not $ret){
 		print STDERR "bin directory created successful\n";
 	}else{
 		die "Could not create binary directory\n";
@@ -148,7 +148,7 @@ if($install_bin_dir ne "$dir/bin"){
 	if(not -d $install_bin_dir){
 		print STDERR "The given installation directory by argument install-dir is not existent\nexecutable files will be put into $dir/bin instead\n";
 		$install_bin_dir="$dir/bin";
-	}else{	
+	}else{
 		chdir $install_bin_dir;
 		my $ret=system("touch mirdeep_test_file");
 		if(not $ret){
@@ -161,7 +161,7 @@ if($install_bin_dir ne "$dir/bin"){
 	}
 }
 
-## check if we have the install path in our files 
+## check if we have the install path in our files
 $in=`$grep "$install_bin_dir" ~/$shellconf`;
 if(not $in){
 	my $ret=`$grep $install_bin_dir ~/$shellconf |$grep PATH`;
@@ -186,7 +186,7 @@ if($g){
 			`echo 'export PERL5LIB=$dir/lib/perl5' >> ~/$shellconf`;
 		}else{
 			`echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/$shellconf`;
-		}	
+		}
 	}
 
 	`echo >> ~/$shellconf`;
@@ -207,7 +207,7 @@ if(not $g){
 		`echo 'export PERL5LIB=$dir/lib/perl5' >> ~/$shellconf`;
 	}else{
 		`echo 'export PERL5LIB=\$PERL5LIB:$dir/lib/perl5' >> ~/$shellconf`;
-	}	
+	}
 
 	`echo >> ~/$shellconf`;
 	print STDERR "please run the install.pl script again in a new terminal window or just type
@@ -256,7 +256,7 @@ while(<IN>){
 }
 close IN;
 
-$bowtie_version="1.1.1"; #we force this version, cause 1.2 needs the TBB lib installed 
+$bowtie_version="1.1.1"; #we force this version, cause 1.2 needs the TBB lib installed
 
 my $bv=$bowtie_version;
 if($bv =~ /(\d\.\d)\.0/){
@@ -343,7 +343,7 @@ if($ret == 0){
 		if(not -f $dfile){
 			print STDERR "Downloading Vienna package now\n\n";
 			my $ptc="https://www.tbi.univie.ac.at/RNA/download/sourcecode/1_8_x/ViennaRNA-1.8.4.tar.gz";
-			# if(check("http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz")){ # address changed 
+			# if(check("http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz")){ # address changed
 			if(check($ptc,$dfile)){
 				if(not -f $dfile){
 					$err=system("$dtool $ptc $dopt");
@@ -355,7 +355,7 @@ if($ret == 0){
 				}
 			}else{
 				die "Vienna package not found at  http://www.tbi.univie.ac.at/RNA/packages/source/ViennaRNA-1.8.4.tar.gz
-				Please try to download the Vienna package from here http://www.tbi.univie.ac.at/RNA/RNAfold.html 
+				Please try to download the Vienna package from here http://www.tbi.univie.ac.at/RNA/RNAfold.html
 				\n";
 			}
 		}
@@ -399,19 +399,19 @@ if($ret == 0){
 		if(not -f "RNAfold"){
 			system("ln -s $dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold .");
 		}
-		chdir "$dir/essentials/"	
+		chdir "$dir/essentials/"
 	}
 }
 
 #$in = `$grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/.bashrc`;
 #if(not $in){
-#    print STDERR "Vienna package path has been added to \$PATH variable\n"; 
+#    print STDERR "Vienna package path has been added to \$PATH variable\n";
 #    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/.bashrc`;
 #}
 
 #$in = `$grep "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin:*" ~/$shellconf`;
 #if(not $in){
-#    print STDERR "Vienna package path has been added to \$PATH variable\n"; 
+#    print STDERR "Vienna package path has been added to \$PATH variable\n";
 #    `echo 'export PATH=\$PATH:$dir/essentials/ViennaRNA-1.8.4/install_dir/bin' >> ~/$shellconf`;
 #}
 
@@ -450,7 +450,7 @@ if($ret == 0){
 	}
 
 	if(not -d "squid-1.9g" and -f "squid-1.9g.tar.gz"){
-		print STDERR "Extracting squid and configuring it now\n\n"; 
+		print STDERR "Extracting squid and configuring it now\n\n";
 		`mkdir squid-1.9g`;
 		`tar xzf squid-1.9g.tar.gz -C squid-1.9g`;
 		my $a=`ls squid-1.9g`;
@@ -524,14 +524,14 @@ if($ret == 0){
 	}
 
 #    $in = `$grep "$dir/essentials/randfold-2.0:*" ~/.bashrc`;
-#    if(not $in){ 
-#        print STDERR "Randfold path has been added to \$PATH variable\n"; 
+#    if(not $in){
+#        print STDERR "Randfold path has been added to \$PATH variable\n";
 #        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/.bashrc`;
 #    }
 
 #    $in = `$grep "$dir/essentials/randfold-2.0:*" ~/$shellconf`;
-#    if(not $in){ 
-#        print STDERR "Randfold path has been added to \$PATH variable\n"; 
+#    if(not $in){
+#        print STDERR "Randfold path has been added to \$PATH variable\n";
 #        `echo 'export PATH=\$PATH:$dir/essentials/randfold-2.0' >> ~/$shellconf`;
 #}
 
@@ -590,7 +590,7 @@ if($ret == 0){
 	}
 
 	print STDERR "Installing Font-TTF now\n\n";
-	`tar xzf $dfile`; 
+	`tar xzf $dfile`;
 	chdir("$version");
 
 	`perl Makefile.PL INSTALL_BASE=$ENV{'HOME'}/perl5 LIB=$dir/lib/perl5`;
@@ -616,7 +616,7 @@ if($ret == 0){
 	if($ret == 0){
 		print STDERR "Font::TTF                                        installation successful \n";
 		$progs{ttf}=1;
-	}	
+	}
 
 	chdir("..");
 }
@@ -651,7 +651,7 @@ if($ret == 0){
 	}
 
 	print STDERR "Installing PDF-API2 now\n\n";
-	`tar xzf $dfile`; 
+	`tar xzf $dfile`;
 	chdir("$version");
 
 	`perl Makefile.PL INSTALL_BASE=$ENV{'HOME'}/perl5 LIB=$dir/lib/perl5`;
@@ -689,17 +689,17 @@ for my $k (keys %progs){
 
 if($sum == 6){
 	print STDERR "\n\nInstallation successful\n\n\n\n\n\n";
-	print STDERR "To check if everything works fine you can now change to the 
+	print STDERR "To check if everything works fine you can now change to the
 	tutorial_dir and type 'bash run_tut.sh' to make a test run\n\n";
 
 	chdir $dir;
 	open EF,">install_successful" or die "Could not create file install_successful\n
-	In case that all tools are running properly then please create this empty file manually 
+	In case that all tools are running properly then please create this empty file manually
 	in your mirdeep2 installation folder. Otherwise the other tools will not run.
 	";
 	close EF;
 }else{
-	print STDERR "\n\nPlease run the install.pl script again to check if 
+	print STDERR "\n\nPlease run the install.pl script again to check if
 	everything is properly installed.
 
 	";
@@ -749,7 +749,7 @@ sub rem_mirdeep{
 
 
 sub checkBIN{
-	my ($a,$b) = @_;    
+	my ($a,$b) = @_;
 	my $e = system("$a> tmp 2>tmp2");
 
 	open IN,"<tmp";
@@ -813,7 +813,7 @@ sub buildgood{
 		print STDERR "Building of $_[0] successful\n";
 		$progs{$_[1]}=1 if($_[1]);
 	}else{
-		die "Building of $_[0] not successful\nPlease have a look at the install.log and install_error.log in 
+		die "Building of $_[0] not successful\nPlease have a look at the install.log and install_error.log in
 		the essentials directory
 		";
 	}

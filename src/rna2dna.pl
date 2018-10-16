@@ -43,18 +43,18 @@ sub parse_fasta{
 
     open (FASTA, "<$file") or die "can not open $file\n";
     while (<FASTA>){
-      
+
 	if (/^(>\S+)/){
-	
+
 	    print "$1\n";
 
 	}else{
-		
+
 	    s/U/T/g;
 	    print uc($_);
 	}
     }
-    
+
     close FASTA;
     return;
 }

@@ -31,10 +31,10 @@ II. Identifiers are not allowed to have withespaces.\n";
 while(<>){
     $counter++;
     if(/^\>(.+)$/){
-        $id=$1;        
+        $id=$1;
         if($id =~ /\s+/){
-die "Error in line ",Nicenumber($counter),": The identifier\n 
-$id\n 
+die "Error in line ",Nicenumber($counter),": The identifier\n
+$id\n
 contains white spaces\n
 
 $hint
@@ -57,10 +57,10 @@ $hint
 
 exit;
 
-## subroutine to insert each 3 digits a dot 
+## subroutine to insert each 3 digits a dot
 sub Nicenumber{
     my @numarr=split(/[.,]/,shift);
-    
+
     my $number = $numarr[0];
 
     my @n = split(//,reverse($number));

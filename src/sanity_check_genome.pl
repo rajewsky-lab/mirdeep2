@@ -31,11 +31,11 @@ II. Identifiers are not allowed to have withespaces.\n";
 while(<>){
     $counter++;
     if(/^\>(.+)$/){
-        $id=$1;        
+        $id=$1;
         if($id =~ /\s+/){
             chomp;
-            die "Error in line ",Nicenumber($counter),": The identifier\n 
-$_\n 
+            die "Error in line ",Nicenumber($counter),": The identifier\n
+$_\n
 contains white spaces\n
 $hint
 You could run remove_white_space_in_id.pl inputfile > newfile
@@ -66,7 +66,7 @@ exit;
 
 sub Nicenumber{
     my @numarr=split(/[.,]/,shift);
-    
+
     my $number = $numarr[0];
 
     my @n = split(//,reverse($number));

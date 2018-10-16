@@ -24,7 +24,7 @@ use Cwd;
 
 use PDF::API2;              ## needed to create a PDF file
 use Math::Trig;             ## needed for sinus function
-use List::Util qw(min max); ## needed to provide min and max function for lists  
+use List::Util qw(min max); ## needed to provide min and max function for lists
 use File::Basename;
 
 Usage() if(not $ARGV[0] or $ARGV[0] =~ /-*-he*l*p*/);
@@ -80,21 +80,21 @@ my %mat_pre_arf =();
 
 
 my $lflank1; ## length(string of left flank)
-my $fl1;    ## 
+my $fl1;    ##
 my $lflank2; ## length string of right flank
 
-my $fl2b=0;   ## right flank begin  
+my $fl2b=0;   ## right flank begin
 my $lloop;   ## string of loop
 my $lb=0;     ## starting position of loop
 
 my $lstar;   ## string of star sequence
-my $sb=0;     ## starting 
-my $lmature; ## string of mature 
+my $sb=0;     ## starting
+my $lmature; ## string of mature
 
 my $mb=0;     ## mature begin
 my $struct; ## structure string
 my $pri_seq;## pri-cursor sequence
-my $lenstr=0; 
+my $lenstr=0;
 
 my $pdf;    ## pdf descriptor
 my $page;   ## page descriptor
@@ -105,10 +105,10 @@ my $text;
 my $text2;
 
 
-my $aligned;                          ## reads reading 
+my $aligned;                          ## reads reading
 my %hash2;                            ## begin of read in precursor
 
-my %hash2c;                           ## number of reads per read sequence 
+my %hash2c;                           ## number of reads per read sequence
 my %hash2key;
 my %hash2mm;                          ## number of mismatches
 my %hash2order;                       ## output order saved
@@ -145,24 +145,24 @@ my $lastx;
 my $lasty;
 
 my $final;                            ## final output string of a read
-my @pseq;                             ## precursor sequence  
+my @pseq;                             ## precursor sequence
 my @rseq;                             ## read sequence
 
 my $totalreads = 0;
-                     
+
 my %assign_str;                       ## color assigned to position where letter is drawn
 my %assign_str_exp;
 
-my $bpo1=-10;                             ## left nt pos in first bp 
-my $bpo2=-10;                             ## right nt pos in first bp 
-my $bpo1r=-10;                            ## left nt pos in second bp 
-my $bpo2r=-10;                            ## right nt pos in second bp 
+my $bpo1=-10;                             ## left nt pos in first bp
+my $bpo2=-10;                             ## right nt pos in first bp
+my $bpo1r=-10;                            ## left nt pos in second bp
+my $bpo2r=-10;                            ## right nt pos in second bp
 
 
 my $ffe=0;                              ## first flank end position
 my $ff2b=0;                             ## second flank begin position
 
-my @sorted;                           ## array that stores sorted order of fl1,m,l,s,fl2 
+my @sorted;                           ## array that stores sorted order of fl1,m,l,s,fl2
 my $y=$yorig;                         ## y coordinate
 
 
@@ -171,7 +171,7 @@ my @rna;                 ## rna sequence
 my @rna_d;
 my %xc;                  ## holds x cooridnate of each nt
 my %yc;                  ## holds y coordinate of each nt
-my $sid="";        
+my $sid="";
 
 
 ## pdf histogram colors
@@ -210,7 +210,7 @@ my @files_mirnaex=split(",",$options{'M'});
 foreach(@files_mirnaex){
    print STDERR "$_ file with miRNA expression values\n";
 }
- 
+
 
 
 #die "here in makehtml2\n";
@@ -247,7 +247,7 @@ my $mirbase = 0;
 my %mature2hairpin;
 my %hairpin2mature;  ## some hairpins have more than 1 mature assigned, circumvent this problem
 my %hash_q; ## takes up all entries from the quantifier module
- 
+
 my $blast="http://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=";
 my $blast_query = "&db=nucleotide&QUERY_FROM=&QUERY_TO=&QUERYFILE=&GENETIC_CODE=1&SUBJECTS=&stype=nucleotide&SUBJECTS_FROM=&SUBJECTS_TO=&SUBJECTFILE=&DBTYPE=gc&DATABASE=nr&EQ_MENU=&NUM_ORG=1&EQ_TEXT=&BLAST_PROGRAMS=blastn&PHI_PATTERN=&MAX_NUM_SEQ=100&SHORT_QUERY_ADJUST=on&EXPECT=10&WORD_SIZE=7&MATRIX_NAME=PAM30&MATCH_SCORES=2,-3&GAPCOSTS=5+2&COMPOSITION_BASED_STATISTICS=0&FILTER=L&REPEATS=repeat_9606&FILTER=m&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&PSSM=&I_THRESH=&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=auauauaauauauauauauuauaa&FORMAT_OBJECT=Alignment&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100&FORMAT_EQ_TEXT=&FORMAT_ORGANISM=&EXPECT_LOW=&EXPECT_HIGH=&QUERY_INDEX=&CLIENT=web&SERVICE=plain&CMD=request&PAGE=Nucleotides&PROGRAM=blastn&MEGABLAST=&RUN_PSIBLAST=&TWO_HITS=&DEFAULT_PROG=megaBlast&WWW_BLAST_TYPE=&DB_ABBR=&SAVED_PSSM=&SELECTED_PROG_TYPE=blastn&SAVED_SEARCH=true&BLAST_SPEC=&QUERY_BELIEVE_DEFLINE=&DB_DIR_PREFIX=&USER_DATABASE=&USER_WORD_SIZE=&USER_MATCH_SCORES=&USER_FORMAT_DEFAULTS=&NO_COMMON=&NUM_DIFFS=2&NUM_OPTS_DIFFS=1&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1Mn7ZD_2Sq4_1Z58HQ5Jb_23tpbD_167y9p&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=blastn&USER_DEFAULT_MATCH_SCORES=3.";
 
@@ -315,20 +315,20 @@ sub CreateStructurePDFQuantifier{
 
         $me=0;     ## mature end coordinate
         @desc;
-        
+
         $lflank1 = 0; ## length(string of left flank)
-        $fl1 = 0;    ## 
+        $fl1 = 0;    ##
         $lflank2 = 0; ## length string of right flank
-        $fl2b=-1;   ## right flank begin  
+        $fl2b=-1;   ## right flank begin
         $lloop = 0;   ## string of loop
         $lb=-1;     ## starting position of loop
         $lstar = 0;   ## string of star sequence
-        $sb=$mat_pre_arf{$sid}{'sb'};     ## starting 
-        $lmature = 0; ## string of mature 
+        $sb=$mat_pre_arf{$sid}{'sb'};     ## starting
+        $lmature = 0; ## string of mature
         $mb= $mat_pre_arf{$sid}{'mb'};     ## mature begin
         $struct = 0; ## structure string
         $pri_seq="";## pri-cursor sequence
-        $lenstr=0; 
+        $lenstr=0;
 
         $pdf;    ## pdf descriptor
         $page;   ## page descriptor
@@ -351,7 +351,7 @@ sub CreateStructurePDFQuantifier{
         $lasty=0;
 
         $final="";                         ## final output string of a read
-        @pseq;                             ## precursor sequence  
+        @pseq;                             ## precursor sequence
         @rseq;                             ## read sequence
 
         $totalreads = 0;
@@ -360,18 +360,18 @@ sub CreateStructurePDFQuantifier{
         %assign_str_exp = ();
 
         %struct = ();
-        
 
-        $bpo1=-10;                             ## left nt pos in first bp 
-        $bpo2=-10;                             ## right nt pos in first bp 
-        $bpo1r=-10;                            ## left nt pos in second bp 
-        $bpo2r=-10;                            ## right nt pos in second bp 
+
+        $bpo1=-10;                             ## left nt pos in first bp
+        $bpo2=-10;                             ## right nt pos in first bp
+        $bpo1r=-10;                            ## left nt pos in second bp
+        $bpo2r=-10;                            ## right nt pos in second bp
 
 
         $ffe=0;                                ## first flank end position
         $ff2b=0;                               ## second flank begin position
-        
-        @sorted;                               ## array that stores sorted order of fl1,m,l,s,fl2 
+
+        @sorted;                               ## array that stores sorted order of fl1,m,l,s,fl2
         $y=$yorig;                             ## y coordinate
 
 
@@ -382,10 +382,10 @@ sub CreateStructurePDFQuantifier{
         %yc = ();
 
 
-#### main program;       
+#### main program;
         $pri_seq =  $hash{$sid}{"pri_seq"};
         @rna = split(//,$pri_seq);
-        
+
         chomp $pri_seq;
 
         my @desc2 =split(//,$hash{$sid}{'exp'});
@@ -403,20 +403,20 @@ sub CreateStructurePDFQuantifier{
             } else{
                 $assign_str_exp{$i} = $col_mature;
                 $assign_str{$i} = $col_mature;
-                }   
+                }
         }
-        
+
         if(not -d "$cwd/pdfs_$time"){
             mkdir "$cwd/pdfs_$time";
         }
-        
-        
+
+
         open FOLD,">$cwd/pdfs_$time/$filename.tmp" or die "Error: cannot create tmp file$!\n";
-        
+
         $struct = $hash{$sid}{"pri_struct"};
         $lstruct_multi = ((length($struct)+2)*$multiplier);
 
-        
+
         print FOLD "5${pri_seq}3\n";
         close FOLD;
 
@@ -433,7 +433,7 @@ sub CreateStructurePDFQuantifier{
                 if ($hash{$sid}{"reads"}{$tag}{$read}{"seq"} =~ /^(\.*)(\w+)\.*$/){
                     my $v1=$1;
                     my $v2=$2;
-                    
+
                     $hash2{$read}=length($v1); ## begin of read in precursor
                     if($hash{$sid}{"reads"}{$tag}{$read}{"rid"} =~ /_x(\d+)/){
                         my $dc = $1;
@@ -443,30 +443,30 @@ sub CreateStructurePDFQuantifier{
 						}
 
                         $totalreads+= $dc;
-                    
+
                         #$hash2c{$tag}{$v2}+=$1;     ## number of reads with same sequence
 						$hash2c{$tag}{$v2}+=$dc;
                         $hash2key{$read}=$v2;
                         $hash2order{$read} = $read;
                         $hash2mm{$read}=$hash{$sid}{"reads"}{$tag}{$read}{"mm"}; ## number of mismatches with precursor sequence
                         $hash2seq{$read} = $hash{$sid}{"reads"}{$tag}{$read}{"seq"};
-                        
-                        
+
+
                         $hash2sample{$read} = $tag;
 
                         for ($i=length($v1); $i < (length($v1)+length($v2)); $i++)
-                        {            
+                        {
                             #$struct{$i+1}+= $dc; ## saves how often a nt in precursor is covered by a read
                             $struct{$i}+= $dc; ## saves how often a nt in precursor is covered by a read
                         }
                     }
-                    
+
                 }
             }
         }                           ## end of reading aligned sequences
         $y = $yorig-$downy;
         chdir "./pdfs_$time";
-        ## by ref 
+        ## by ref
         CreatePDFQuantifier(\%hash);
 
 ##############################################################################################
@@ -482,11 +482,11 @@ sub CreateStructurePDFQuantifier{
         ## by ref
         CreateAlignmentQuantifier(\%hash);
         $y -=20;
-        
+
 ### here the Frequency histogram is drawn
-        
-        
-        
+
+
+
         ClosePDF($filename);
         unlink("$cwd/pdfs_$time/${filename}_ss.ps");
         unlink("$cwd/pdfs_$time/$filename.tmp");
@@ -503,10 +503,10 @@ sub CreateHistogramQuantifier{
     $y = $yorig-$downy;
 
     $dline = $page->gfx;
-    
+
     ##draw axes
     $dline->strokecolor('black');
-    
+
 
     $dline->move($xposshift+20,$y+160);
     $dline->line($xposshift+20,$y+50-1);
@@ -524,28 +524,28 @@ sub CreateHistogramQuantifier{
     $dline->line($xposshift+20,$y+160);
     $dline->line($xposshift+23,$y+157);
 
-    $dline->move($xposshift+17,$y+150); 
+    $dline->move($xposshift+17,$y+150);
     $dline->line($xposshift+23,$y+150);
 
-    $gfx->textlabel($xposshift+12,$y+165,$trb,6,"freq." ,-color=>'black'); 
-    $gfx->textlabel($xposshift+$lstruct_multi,$y+40,$trb,8,"length" ,-color=>'black'); 
+    $gfx->textlabel($xposshift+12,$y+165,$trb,6,"freq." ,-color=>'black');
+    $gfx->textlabel($xposshift+$lstruct_multi,$y+40,$trb,8,"length" ,-color=>'black');
 
-    $gfx->textlabel($xposshift+10,$y+148,$trb,6,"1" ,-color=>'black'); 
+    $gfx->textlabel($xposshift+10,$y+148,$trb,6,"1" ,-color=>'black');
 
 
     $dline->move($xposshift+17,$y+125); ##.75
     $dline->line($xposshift+23,$y+125);
-    $gfx->textlabel($xposshift+2,$y+122,$trb,6,"0.75" ,-color=>'black'); 
+    $gfx->textlabel($xposshift+2,$y+122,$trb,6,"0.75" ,-color=>'black');
 
     $dline->move($xposshift+17,$y+100); ## .5
     $dline->line($xposshift+23,$y+100);
-    $gfx->textlabel($xposshift+6,$y+98,$trb,6,"0.5" ,-color=>'black'); 
+    $gfx->textlabel($xposshift+6,$y+98,$trb,6,"0.5" ,-color=>'black');
 
     $dline->move($xposshift+17,$y+75); ## .25
     $dline->line($xposshift+23,$y+75); ## .25
-    $gfx->textlabel($xposshift+2,$y+73,$trb,6,"0.25",-color=>'black'); 
-    
-    $gfx->textlabel($xposshift+12,$y+48,$trb,6,"0" ,-color=>'black'); 
+    $gfx->textlabel($xposshift+2,$y+73,$trb,6,"0.25",-color=>'black');
+
+    $gfx->textlabel($xposshift+12,$y+48,$trb,6,"0" ,-color=>'black');
     $dline->stroke;
 
     ## draw flank1
@@ -571,16 +571,16 @@ sub CreateHistogramQuantifier{
 
 sub CreatePDFQuantifier{
     my ($hash) = @_;
-    $pdf=PDF::API2->new; 
-	
+    $pdf=PDF::API2->new;
+
     $spacer = length($sid);
     $pdf->mediabox('A4');
     $page=$pdf->page;
     $gfx=$page->gfx;
     $text=$gfx;
     $trb=$pdf->corefont('Times-Roman', -encode=>'latin1');
- 
-    
+
+
     ## move everything except the structure downwards if $mirbase is set
     my $madd = 60;
 
@@ -589,7 +589,7 @@ sub CreatePDFQuantifier{
 
 
     $spaces = " " x ($spacer - length($$hash{$sid}{"freq_total"}));
-    $gfx->textlabel($xposshift+20,$y+230+$madd+$downy,$trb,8,"Total read count",-color=>'black');       
+    $gfx->textlabel($xposshift+20,$y+230+$madd+$downy,$trb,8,"Total read count",-color=>'black');
     $gfx->textlabel($xposshift+110,$y+230+$madd+$downy,$trb,8,": $$hash{$sid}{'freq_total'}",-color=>'black');
 
     ## here should be written how many annotated stuff is actually there and how many not
@@ -605,13 +605,13 @@ sub CreatePDFQuantifier{
             next if($_ !~ $options{'m'});
         }
         $spaces = " " x ($spacer - length($_));
-        $gfx->textlabel($xposshift+20,$y+230-$jk+$madd+$downy,$trb,8,"$h read count",-color=>'black');      
+        $gfx->textlabel($xposshift+20,$y+230-$jk+$madd+$downy,$trb,8,"$h read count",-color=>'black');
         $gfx->textlabel($xposshift+110,$y+230-$jk+$madd+$downy,$trb,8,": $$hash{$sid}{'mapped'}{$h}",-color=>'black');
         $jk+=10;
     }
 
     $spaces = " " x ($spacer - length("remaining reads"));
-    $gfx->textlabel($xposshift+20,$y+230-$jk+$madd+$downy,$trb,8,"remaining reads",-color=>'black');      
+    $gfx->textlabel($xposshift+20,$y+230-$jk+$madd+$downy,$trb,8,"remaining reads",-color=>'black');
     $gfx->textlabel($xposshift+110,$y+230-$jk+$madd+$downy,$trb,8,": $$hash{$sid}{'remaining_rc'}",-color=>'black');
     $jk+=10;
     $trb=$pdf->corefont('Courier', -encode=>'latin1');
@@ -628,7 +628,7 @@ sub ClosePDF{
 
 
 
-## draw a line in PDF 
+## draw a line in PDF
 sub Line{
 	my ($x1,$y1,$x2,$y2,$col,$width) = @_;
 	$dline->linewidth($width);
@@ -643,7 +643,7 @@ sub Base{
 	my ($x1,$y1,$base,$col,$size) = @_;
 	$trb=$pdf->corefont('Courierbold', -encode=>'latin1');
 	$gfx->textlabel($x1,$y1,$trb,$size,$base,-color=>$col);
-}	
+}
 
 sub CreateAlignmentQuantifier{
     my ($hash) = @_;
@@ -661,7 +661,7 @@ sub CreateAlignmentQuantifier{
     }
 
     for(my $i=0; $i < scalar @rna; $i++){
-	    $gfx->textlabel($position_hash{$i},$y,$trb,6,$rna[$i],-color=>$assign_str{$i});   
+	    $gfx->textlabel($position_hash{$i},$y,$trb,6,$rna[$i],-color=>$assign_str{$i});
 	}
 
     $gfx->textlabel($xposshift+25+ $lstruct_multi,$y,$trb,6,'-3\'' ,-color=>'black');
@@ -672,17 +672,17 @@ sub CreateAlignmentQuantifier{
     }else{
         $gfx->textlabel($xposshift+50+ $lstruct_multi,$y,$trb,6,'exp' ,-color=>'black');
     }
-    
+
     if($$hash{$sid}{'obs'}){
         $y -= 10;
         for(my $i=0; $i < scalar @rna; $i++){
-            $gfx->textlabel($position_hash{$i},$y,$trb,6,$rna[$i],-color=>$assign_str_exp{$i}); 
+            $gfx->textlabel($position_hash{$i},$y,$trb,6,$rna[$i],-color=>$assign_str_exp{$i});
         }
         $gfx->textlabel($xposshift+50+ $lstruct_multi,$y,$trb,6,'exp' ,-color=>'black');
-        
+
     }
-    
-    
+
+
 
     $y -= 10;
 
@@ -692,19 +692,19 @@ sub CreateAlignmentQuantifier{
     $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,'reads' ,-color=>'black');
     $gfx->textlabel($xposshift+70+ $lstruct_multi,$y,$trb,6,'mm' ,-color=>'black');
     $gfx->textlabel($xposshift+110+ $lstruct_multi,$y,$trb,6,'sample' ,-color=>'black');
-    $y -= 10;    
+    $y -= 10;
     if($options{'o'}){
         for my $tag(keys %{$$hash{$sid}{"reads"}}){
             for my $k(sort { $hash2order{$a} <=> $hash2order{$b} } keys %hash2order){
                 next if($hash2sample{$k} ne $tag);
-                
+
                 $gfx->textlabel($position_hash{0},$y,$trb,6,$hash2seq{$k},-color=>'black');
-                
+
                 ## matches and read numbers
                 $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,int($hash2c{$tag}{$hash2key{$k}}) ,-color=>'black');
                 $gfx->textlabel($xposshift+70+ $lstruct_multi,$y,$trb,6,$hash2mm{$k} ,-color=>'black');
                 $gfx->textlabel($xposshift+110+ $lstruct_multi,$y,$trb,6,$hash2sample{$k} ,-color=>'black');
-                
+
                 $y -= 10;
                 if($y < 100){
 					$page=$pdf->page();
@@ -733,12 +733,12 @@ sub CreateAlignmentQuantifier{
         for my $k(sort { $hash2order{$a} <=> $hash2order{$b} } keys %hash2order){
             my $tag = $hash2sample{$k};
             $gfx->textlabel($position_hash{0},$y,$trb,6,$hash2seq{$k},-color=>'black');
-            
+
             ## matches and read numbers
             $gfx->textlabel($xposshift+30+ $lstruct_multi,$y,$trb,6,int($hash2c{$tag}{$hash2key{$k}}) ,-color=>'black');
             $gfx->textlabel($xposshift+70+ $lstruct_multi,$y,$trb,6,$hash2mm{$k} ,-color=>'black');
             $gfx->textlabel($xposshift+110+ $lstruct_multi,$y,$trb,6,$hash2sample{$k} ,-color=>'black');
-            
+
             $y -= 10;
             if($y < 100){
                 $page=$pdf->page();
@@ -790,7 +790,7 @@ sub Shifting{
 			$yc{$i}+=$shifty;
 		}
 	}
-	
+
 	if($maxx > 600){
 		for(my $i=0; $i < scalar @rna_d-1; $i++){
 			$xc{$i}-=$minx+10;
@@ -800,13 +800,13 @@ sub Shifting{
 		for(my $i=0; $i < scalar @rna_d-1; $i++){
 			$yc{$i}-=$miny+10;
 		}
-	}	
+	}
 }
 
 
 sub DrawStructure{
     my $filename = shift;
-    #return 
+    #return
     $dline = $page->gfx;
     ## run RNAplot to create secondary structure ps file
     my $cw =cwd;
@@ -816,7 +816,7 @@ sub DrawStructure{
     #exit;
     my $in_pos=0;
     my $in_pairs=0;
-    
+
     my $count=0;                ## counter
 
 
@@ -838,7 +838,7 @@ sub DrawStructure{
         {
             $line = <PS>;       ## read in rna sequence
             chomp $line;
-            #$line =~ s/U/T/g;		
+            #$line =~ s/U/T/g;
             @rna_d=split(//,$line); ## read in to @rna_d
             next;
         }
@@ -848,7 +848,7 @@ sub DrawStructure{
             $in_pos = 1;
             next;
         }
-        if ($in_pos and /\[(\S+)\s+(\S+)\]/) 
+        if ($in_pos and /\[(\S+)\s+(\S+)\]/)
         {
             $xc{$count} = $1;   ## x cooridnate
             $yc{$count} = $2;   ## y coordinate
@@ -864,9 +864,9 @@ sub DrawStructure{
             $in_pairs = 1;
             next;
         }
-        
+
         $twisted = 1 if($mb > $lb ); ## mature begin is after loop begin
-        
+
 
         if ($in_pairs and /\[(\S+)\s+(\S+)\]/)
         {
@@ -897,15 +897,15 @@ sub DrawStructure{
                     }
                 }
             }
-            
+
             $bpo1= $bpo1r;
             $bpo2 = $bpo2r;
-            
+
 
             $bp{$bpo1r-1}=$bpo2r-1; ## saving nt pairs in hash %bp
             next;
         }
-        if ($in_pairs and /\]\s*def/) ## end of nt pairs in ps file 
+        if ($in_pairs and /\]\s*def/) ## end of nt pairs in ps file
         {
             $in_pairs = 0;
             last;
@@ -919,10 +919,10 @@ sub DrawStructure{
     $maxx = max(values %xc);
     $miny = min(values %yc);
     $maxy = max(values %yc);
-    
+
     ##determine if mirror or not
     my $mir=0;
-    
+
     $mir = 1 if($twisted);
 
     my $yshift=0;
@@ -979,10 +979,10 @@ sub DrawStructure{
     my $ak = $bx-$ax;
 
 
-    my $r = sqrt(($ak**2)+($gk**2));       
+    my $r = sqrt(($ak**2)+($gk**2));
 
     my $phi = asin($gk/$r);
-    
+
     if ($bx < $ax and $by > $ay)
     {
 		$phi = 3.141593-$phi;
@@ -1007,7 +1007,7 @@ sub DrawStructure{
             $by = $yc{$i};
 
             $gk = $by-$ay;
-            $ak = $bx-$ax;             
+            $ak = $bx-$ax;
             $r = sqrt(($ak**2)+($gk**2));
 
             $alpha = asin($gk/$r);
@@ -1023,7 +1023,7 @@ sub DrawStructure{
             }
 
             $alpha -= $phi;
-            
+
             $xc{$i} = $ax + $r*cos($alpha);
             $yc{$i} = $ay + $r*sin($alpha);
 
@@ -1031,15 +1031,15 @@ sub DrawStructure{
             $last=$xc{$i};
         }
     }
-    
-    
+
+
     my $reduce = 0;
     my $red_dist= abs($xc{$mb+$cshift}-$xc{$mb-1+$cshift});
 
 
 
     Shifting();
-    
+
  #    ## scaling now structure
 
 #     my ($scx,$scy) = (250,250); ## scaling center coordinates on page
@@ -1085,16 +1085,16 @@ sub DrawStructure{
 
     if ($maxx < $x)
     {
-        $x = $x-$maxx; 
+        $x = $x-$maxx;
     } else {
-        $x = -abs($x-$maxx); 
+        $x = -abs($x-$maxx);
     }
-    
+
     if ($maxy < $y)
     {
-        $y = $y-$maxy; 
+        $y = $y-$maxy;
     } else {
-        $y = -abs($y-$maxy); 
+        $y = -abs($y-$maxy);
     }
 
  #   print "$minx+$x\t$maxx+$x\n";
@@ -1108,7 +1108,7 @@ sub DrawStructure{
     my ($tx,$ty);               ## translated x and y coordinates
     my $scfactor = ($rx/($maxx-$minx));         ## scaling factor
  #   print $scfactor,"\n";
-    
+
     if($scfactor < 1){
 
         for (my $i=0; $i < scalar @rna_d -1; $i++)
@@ -1119,7 +1119,7 @@ sub DrawStructure{
             $yc{$i} = $ty*$scfactor + $scx;
         }
     }
-    
+
     $minx = min(values %xc);
     $maxx = max(values %xc);
     $miny = min(values %yc);
@@ -1131,21 +1131,21 @@ sub DrawStructure{
 
     if ($maxx < $x)
     {
-        $x = $x-$maxx; 
+        $x = $x-$maxx;
     } else {
-        $x = -abs($x-$maxx); 
+        $x = -abs($x-$maxx);
     }
-    
+
     if ($maxy < $y)
     {
-        $y = $y-$maxy; 
+        $y = $y-$maxy;
     } else {
-        $y = -abs($y-$maxy); 
+        $y = -abs($y-$maxy);
     }
 
 
 
-    if(($minx+$x) < ($x-$rx)){ ## left most x-coord for a base 
+    if(($minx+$x) < ($x-$rx)){ ## left most x-coord for a base
         for(keys %xc){
             $xc{$_} += ($x-$rx)-($minx+$x);
         }
@@ -1160,13 +1160,13 @@ sub DrawStructure{
         {
             Line($xc{$i-1}+$x+2.5,$yc{$i-1}+2+$y,$xc{$i}+2.5+$x,$yc{$i}+2+$y,"grey",0.5);
         }
-        
+
     }
 
     Base($xc{0}+$x,$yc{0}+$y,"$rna_d[0]'",'black',8);
     for (my $i=1; $i < (scalar @rna_d)-2; $i++)
     {
-        
+
         if($star_exp_hit_pos{$i-1+$offset}){
             Base($xc{$i}+$x,$yc{$i}+$y,$rna_d[$i],$col_star_exp,8);
         }else{
@@ -1183,7 +1183,7 @@ sub DrawStructure{
 
     my $fy;                     ## from y cooridinate
     my $toy;                    ## to y coordinate
-    
+
     my $dx;                     ## xlength
     my $dy;                     ## y length
 
@@ -1219,7 +1219,7 @@ sub DrawStructure{
             $toy = $yc{$bp{$_}} - $dy1;
         }
 
-        Line($fx+2.5+$x,$fy+2+$y,$tox+2.5+$x,$toy+2+$y,"black",0.5);	
+        Line($fx+2.5+$x,$fy+2+$y,$tox+2.5+$x,$toy+2+$y,"black",0.5);
     }
 }
 
@@ -1234,23 +1234,23 @@ print HTML <<EOF;
     <!-- CSS code -->
     <style type="text/css">
     body{
-      font: .75em Arial,sans-serif; 
-      background: #FFFFFF; 
+      font: .75em Arial,sans-serif;
+      background: #FFFFFF;
       color: #333333
     }
 div#
 container
 {
-  width: 1000px; 
+  width: 1000px;
   margin:0 auto
   }
-h1{ 
-  color: #F60; 
-  margin: 1em 0 0; 
-    letter-spacing: -2px; 
+h1{
+  color: #F60;
+  margin: 1em 0 0;
+    letter-spacing: -2px;
 }
 p{
-  margin: 0 0 1.7em; 
+  margin: 0 0 1.7em;
 }
 
 a.tooltip{
@@ -1260,21 +1260,21 @@ a.tooltip{
 }
 
 a.tooltip:hover
-{    position: relative;               
-     background: transparent;          
-	
-}  
+{    position: relative;
+     background: transparent;
 
-a.tooltip span  
-{    position: absolute;               
-     visibility: hidden;               
-
-     width: 20em;                      
-     top: 1.5em;             
-     background: #ffffdd;                    
 }
 
-a.tooltip:hover span  
+a.tooltip span
+{    position: absolute;
+     visibility: hidden;
+
+     width: 20em;
+     top: 1.5em;
+     background: #ffffdd;
+}
+
+a.tooltip:hover span
 {    visibility: visible;   }
 
 
@@ -1285,21 +1285,21 @@ a.tooltip2{
 }
 
 a.tooltip2:hover
-{    position: relative;               
-     background: transparent;          
-	
-}  
+{    position: relative;
+     background: transparent;
 
-a.tooltip2 span  
-{    position: absolute;               
-     visibility: hidden;               
-
-     width: 20em;                      
-     top: 1.5em;left:-10em;             
-     background: #ffffdd;                    
 }
 
-a.tooltip2:hover span  
+a.tooltip2 span
+{    position: absolute;
+     visibility: hidden;
+
+     width: 20em;
+     top: 1.5em;left:-10em;
+     background: #ffffdd;
+}
+
+a.tooltip2:hover span
 {    visibility: visible;   }
 
 
@@ -1310,21 +1310,21 @@ a.tooltip3{
 }
 
 a.tooltip3:hover
-{    position: relative;               
-     background: transparent;          
-	
-}  
+{    position: relative;
+     background: transparent;
 
-a.tooltip3 span  
-{    position: absolute;               
-     visibility: hidden;               
-
-     width: 20em;                      
-     top: 3em;             
-     background: #ffffdd;                    
 }
 
-a.tooltip3:hover span  
+a.tooltip3 span
+{    position: absolute;
+     visibility: hidden;
+
+     width: 20em;
+     top: 3em;
+     background: #ffffdd;
+}
+
+a.tooltip3:hover span
 {    visibility: visible;   }
 
 
@@ -1335,27 +1335,27 @@ a.tooltip4{
 }
 
 a.tooltip4:hover
-{    position: relative;               
-     background: transparent;          
-	
-}  
+{    position: relative;
+     background: transparent;
 
-a.tooltip4 span  
-{    position: absolute;               
-     visibility: hidden;               
-
-     width: 20em;                      
-     top:3em;left:-10em;             
-     background: #ffffdd;                    
 }
 
-a.tooltip4:hover span  
+a.tooltip4 span
+{    position: absolute;
+     visibility: hidden;
+
+     width: 20em;
+     top:3em;left:-10em;
+     background: #ffffdd;
+}
+
+a.tooltip4:hover span
 {    visibility: visible;   }
 
 
 
 </style>
-        
+
     </head>
     <body>
     <table border="0" width="100%">
@@ -1366,8 +1366,8 @@ a.tooltip4:hover span
     <tr height="200" valign="top">
     <td><font face="Times New Roman" size="8">
     <b><a href="http://www.mdc-berlin.de/en/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/index.html" target="_blank" style="color:Black;text-decoration:none" title="miRDeep2 homepage at MDC-Berlin" >miRDeep2</a></b>
-    
-    
+
+
     <br>
     <br>
     </font></td>
@@ -1436,7 +1436,7 @@ $h{16}{2} = 'this is the consensus precursor miRNA sequence as inferred from the
 if($options{'a'}){
     $h{17}{1} = 'genomic position';
 }
-    
+
 
 }elsif($hl =~ /miRBase miRNAs in dataset/i){
 $h{1}{1} = 'tag id';
@@ -1559,7 +1559,7 @@ if($options{'a'}){
 
 
 print HTML <<EOF;
-  
+
 <br>
     <br>
     <br><h2>$hl</h2><br>
@@ -1574,14 +1574,14 @@ for(sort {$a <=> $b} keys %h){
 	next if($_ == 7);
 	next if($_ == 10);
 	next if($_ == 11);
-	
+
 
     if($_ ne 16){
         if($_ eq 9 and $hl !~ /not/){
 
            print HTML "<th><a href=\"http://www.ncbi.nlm.nih.gov/entrez/utils/fref.fcgi?PrId=3051&itool=AbstractPlus-def&uid=15217813&nlmid=9808944&db=pubmed&url=http://bioinformatics.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=15217813\" target=\"blank\"class=\"tooltip3\">$h{$_}{1}$p2$h{$_}{2}$q\n\n";
 
-       }else{ 
+       }else{
 
 
         print HTML "$p1$h{$_}{1}$p2$h{$_}{2}$q\n\n";
@@ -1596,7 +1596,7 @@ for(sort {$a <=> $b} keys %h){
 
 
 sub PrintQuantifier{
-    my %not_seen; 
+    my %not_seen;
     my %signature;
     my $reads;
 
@@ -1604,28 +1604,28 @@ sub PrintQuantifier{
     open HTML,">expression_analyses/expression_analyses_${time}/expression_${time}.html" or die "cannot create expression_analyses/expression_analyses_${time}/expression_${time}.html\n";
     CreateHTML(); ##
     PrintHtmlTableHeader();
-    
-    ## now read in the mature_ref_this_species mapped against precursors from the quantifier module 
+
+    ## now read in the mature_ref_this_species mapped against precursors from the quantifier module
 	## store ids in hashes
-	
+
     my ( $mature, $path0, $extension0 ) = fileparse ( $options{'k'}, '\..*' );
     ##filename
-    
+
     $mature .= '_mapped.arf'; ## change .fa suffix to _mapped.arf
-    
+
     my %exprs;
 	open IN,"<expression_analyses/expression_analyses_${time}/miRNA_expressed.csv" or die "Error: File expression_analyses/expression_analyses_${time}/miRNA_expressed.csv not found\n";
-    
+
     ## this is the replacement for exprs hash
     my %exprs2;
-    
+
 	while(<IN>){
         chomp;
         next if(/precursor/);
 		my @line = split(/\t/);
-		
+
         ## here comes up the trouble when two mature map to same precursor
-        $mature2hairpin{$line[0]}=$line[2]; 
+        $mature2hairpin{$line[0]}=$line[2];
 		$hairpin2mature{$line[2]}.="$line[0],";
         $exprs{$line[0]} = $line[1];
         $exprs2{$line[2]}{$line[0]} = $line[1];
@@ -1654,9 +1654,9 @@ sub PrintQuantifier{
     }
 
     my $exdir = "expression_analyses/expression_analyses_${time}";
-    
+
     ## read in mature,precursor and star seuqnces;
-    
+
 
     open IN,"<$exdir/mature.converted" or die "file mature.converted not found\n";
 
@@ -1688,19 +1688,19 @@ sub PrintQuantifier{
         }
     }
 
-	
+
 	my $width = 0;
 	for (keys %hm){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
 		$width  = length($_) if(length($_) > $width);
 	}
-	
+
 	$width *=5;
 
     close IN;
     if(-f "$exdir/star.converted"){
         open IN,"<$exdir/star.converted" or die "file star.converted not found\n";
-        
-        
+
+
         while(<IN>){
             if(/>(\S+)/){
                 $id = $1;
@@ -1732,7 +1732,7 @@ sub PrintQuantifier{
         $hairpin2mature2{$line[0]}=$line[1];
 	}
 	close IN;
-    
+
 
     ## read in the expression_analysis signature.arf of mature_sequences mapped to the precursors to get start and end positions
     open IN,"<$options{'i'}" or die "Error:cannot open $options{'i'} file or option -i not given\n\n";
@@ -1777,7 +1777,7 @@ sub PrintQuantifier{
             ## remove multiple endings if ambigous just for matching with precursor
             $id1h =~ s/\-5p//g;
             $id1h =~ s/\-3p//g;
-            
+
             ## here is assumed that multiple precursor ids have 3 - in their id, seems to be ok so far
             #if($id2h =~/^(\w+\-\w+\-\w+)\-\d+$/){
             #    $id2h = $1;
@@ -1819,13 +1819,13 @@ sub PrintQuantifier{
         }
         elsif(/^remaining read count\s*(\d+)/){
             $hash_q{$id}{'remaining_rc'}=$1;
-            
+
         }
-        
+
         elsif(/^total read count\s*(\d*)/){
             $hash_q{$id}{"freq_total"}=$1;
         }
-        
+
         ## read in here everything that mapped to the precursor
         elsif(/^(\S+) read count\s*(\d+)/){ ## everything else is just read in as id with real name
             $hash_q{$id}{'mapped'}{$1} = $2;
@@ -1839,8 +1839,8 @@ sub PrintQuantifier{
             }else{
                 @d = split(//,$hash_q{$id}{'exp'});
             }
-            
-            ## put precursor sequence to array 
+
+            ## put precursor sequence to array
             my @s = split(//,$hash_q{$id}{"pri_seq"});
             my $mseq="";
             my $sseq="";
@@ -1848,7 +1848,7 @@ sub PrintQuantifier{
             ## this can also be done by just using the information of the mature_signature_arf file
             ## now set labels for mature and star seq in explanation string
             for(my $i=0; $i < length($1); $i++){
-                if($d[$i] ne "f"){ 
+                if($d[$i] ne "f"){
                     $hash_q{$id}{"ucsc_seq"} .= $s[$i];
                 }
                 if($d[$i] eq "M" or $d[$i] eq "5" or $d[$i] eq "3"){     ## accoutn for everything else
@@ -1857,7 +1857,7 @@ sub PrintQuantifier{
                     $sseq.= $s[$i];
                 }else{}
             }
-            
+
             ## if there is an observed star sequence use this
             my $sseq_obs="";
             if($hash_q{$id}{'obs'}){
@@ -1908,7 +1908,7 @@ sub PrintQuantifier{
 
         my $s_star= $hash_q{$id}{'star_seq'};
             ## now go over everything that is expressed
-      
+
 		for my $k2(keys %{$exprs2{$id}}){ ##k1 == precursor, k2 == mirna mapped to it;
 
 			if($options{'P'}){
@@ -1948,7 +1948,7 @@ sub PrintQuantifier{
   #           }else{
   #               $mature{$k2} = $exprs2{$id}{$k2};
   #           }
-            
+
   #       }
         #$id = $mature2hairpin{$oid}; ## this is now the name of the precursor
 #            if($id =~ /-1224/){print "$id\n";}
@@ -1960,13 +1960,13 @@ sub PrintQuantifier{
             }else{
                 $blat = "<td><a href=\"http://genome.ucsc.edu/cgi-bin/hgBlat?org=$org&type=BLAT's guess&userSeq=$hash_q{$id}{'pri_seq'}\" target=\"_blank\">blat</a></td>";
             }
-            
+
             $s_star=$hash_q{$id}{'star_seq_obs'} if($hash_q{$id}{'star_seq_obs'});
             my $s_mat = $hash_q{$id}{'mat_seq'};
 
             ##here the belonging precursor is shown
             $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
-       
+
             $sf = $hash_q{$id}{"freq_star"};
             $mf = $hash_q{$id}{"freq_mature"};
 
@@ -1976,7 +1976,7 @@ sub PrintQuantifier{
                     $sf = $hash_q{$id}{"freq_mature"};
                 }
             }
-            
+
 
 		## do not print precursors with 0 reads mapped to it
 		next if(not $hash_q{$id}{"freq_total"});
@@ -1988,7 +1988,7 @@ sub PrintQuantifier{
             }
             print HTML <<EOF;
 
-            <td>$hash_q{$id}{"freq_total"}</td>            
+            <td>$hash_q{$id}{"freq_total"}</td>
             <td>
 
 EOF
@@ -1997,13 +1997,13 @@ $mf = "<table>";
 $s_mat = "<table>";
 
 #$mf .= "<tr><td> miRNA </td><td>total</td>";
-$mf .= "<tr><td WIDTH=$width>id</td>";		
+$mf .= "<tr><td WIDTH=$width>id</td>";
 for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
     $mf .= "<td>$sample</td>";
 }
 
 if(scalar keys %mature != 0){
-for my $mx(keys %mature){ 
+for my $mx(keys %mature){
 #    $mf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td><td> $mature{$mx} </td>";
 $mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td>";
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
@@ -2037,7 +2037,7 @@ $mf
 $s_star = "<table>";
 $sf = "<table>";
 #$sf .= "<tr><td> miRNA </td><td>total    </td>";
-$sf .= "<tr><td WIDTH=$width>id</td>";		
+$sf .= "<tr><td WIDTH=$width>id</td>";
 for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
     $sf .= "<td>$sample</td>";
 }
@@ -2046,14 +2046,14 @@ for my $sample(sort keys %exprs_sample){                                        
 if((scalar keys %star) != 0){
 for my $sx(keys %star){
 #    $sf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td><td>    $star{$sx} </td>";
- 
+
 $sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td>";
 
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
         $sf .= "<td><nobr>$exprs_sample{$sample}{$id}{$sx}</nobr></td>";
     }
     $sf .="</tr>\n";
-    
+
    $s_star .= "<tr><td>$hs{$sx}</td>\n</tr>";
 }
 }else{
@@ -2064,7 +2064,7 @@ $sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/que
 		}
 
 		$sf .= "</tr>\n";
-		$s_star .= "<tr><td>-</td></tr>";	
+		$s_star .= "<tr><td>-</td></tr>";
 }
 
 $sf .= "</table>\n";
@@ -2079,18 +2079,18 @@ $sf
 
 print HTML <<EOF;
 
-           
+
 			<td nowrap="nowrap">$hash_q{$id}{"remaining_rc"}</td>
             $blat
             <td><a href=${blast}$hash_q{$id}{'pri_seq'}&JOB_TITLE=$hash_q{$id}{"oid"}${blast_query} target="_blank">blast</a></td>
             <td>$s_mat</td>\n<td>$s_star</td>\n<td>$hash_q{$id}{'pri_seq'}</td>
-			</tr>     
+			</tr>
 EOF
-        
+
 }
 
 }## end of function
-        
+
 
 sub Usage{
 	print STDERR "\n\n\n\n[usage]\n\tperl make_html.pl -f miRDeep_outfile [options]\n\n";

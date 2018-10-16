@@ -77,45 +77,45 @@ sub remove_adapters{
 sub remove_adapter{
 
     my($id,$seq,$prefix)=@_;
-    
+
     $seq=~tr/[acgtun\.]/[ACGTTNN]/;
-    
+
     my $seq_clipped;
-    
+
     if($seq=~/(\w+)$prefix/){
-	
+
 	$seq_clipped=$1;
 
     }elsif(substr($seq,0,6) eq $prefix){
 	$seq_clipped=$prefix;
 
     }else{
-	
+
 	my $finish=0;
-	
+
 	while(not $finish and (length($prefix)>0)){
-	    
+
 	    chop $prefix;
-	    
+
 	    if($seq=~/(\w+)$prefix$/){
-		
+
 		$seq_clipped=$1;
 		$finish=1;
 	    }
 	}
- 
+
     }
-    
+
     if(not $seq_clipped){
 
-	
+
 	$seq_clipped=$seq;
     }
-	
+
     print ">$id\n$seq_clipped\n";
 }
 
-    
+
 
 
 

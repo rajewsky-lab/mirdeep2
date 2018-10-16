@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/perl
 
 # miRDeep2 mirdeep-to-BED perl script
 # Copyright (C) 2009 - 2012  Sebastian Mackowiak

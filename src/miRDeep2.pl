@@ -154,7 +154,7 @@ $scripts =~ s/\s+//g;
 # 	if($e =~ /(~)/ or $e =~ /(\s)/){
 # 		die "*******\nYour call to miRDeep2.pl has an argument $e with allowed characters or whitespace in its name $1 . Please make sure not to have '~' or any whitespace in your arguments\n******\n\n";
 # 	}
-		
+
 # }
 
 # exit;
@@ -183,9 +183,9 @@ if($file_reads_vs_genome =~ /\/*([a-zA-Z_0-9\.]+)$/){
 }
 
 my $warning="\n**********\nThe first three arguments to miRDeep2.pl must be files while arguments 4-6 can be files or must be designated as 'none'. Examples:\n
-miRDeep2.pl reads.fa genome.fa reads_vs_genome.arf mautre_ref_miRNAs.fa mature_other_miRNAs.fa  hairpin_ref_miRNAs 
+miRDeep2.pl reads.fa genome.fa reads_vs_genome.arf mautre_ref_miRNAs.fa mature_other_miRNAs.fa  hairpin_ref_miRNAs
 
-or 
+or
 
 miRDeep2.pl reads.fa genome.fa reads_vs_genome.arf none none none
 
@@ -782,9 +782,9 @@ sub miRDeep_core_algorithm{
     my $line;
 
 	my $longest_id=40;
-	
+
 	$longest_id= get_longest_id("$dir_tmp/signature.arf");
-	
+
 
 
     start();
@@ -924,7 +924,7 @@ sub output_results{
 
 	my $dopt="";
 	if($options{'d'}){$dopt="-d";}
-	
+
 
 
 
@@ -1063,7 +1063,7 @@ sub make_bed{
 
 sub extract_sequences_from_results{
 	my $od="mirna_results_${time}";
-	
+
     my $res=`get_mirdeep2_precursors.pl -r result_${time}.csv -p -d -o $od`;
 	my $res1=`get_mirdeep2_precursors.pl -r result_${time}.csv -m -p -d -o $od`;
 	my $res2=`get_mirdeep2_precursors.pl -r result_${time}.csv -k -p -d -o $od`;

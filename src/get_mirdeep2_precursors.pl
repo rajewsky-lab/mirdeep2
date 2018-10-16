@@ -19,11 +19,11 @@
 #######################################################################
 #
 #
-# This script extracts the mirdeep2 precursors from the result.csv file 
+# This script extracts the mirdeep2 precursors from the result.csv file
 # and writes a fasta file and a bed file for these
 # See 'Usage' for more information.
-# 
-# Bed files are only created for the precursor sequences. 
+#
+# Bed files are only created for the precursor sequences.
 #
 # S.M. Jan. 2012
 #
@@ -47,7 +47,7 @@ Usage: get_mirdeep2_precursors.pl -r result.csv  [options]
 	-s [int]\toutput only precursors with min-score >= [int]
 	-t [int]\toutput only precursors with score     <  [int]
 	-d      \toutput dna instead of rna
-	-p      \tmake simple id with the name only 
+	-p      \tmake simple id with the name only
 	-h      \tprint this help message
 	-m      \tget_mature instead of precursor
 	-k      \tget_star instead of precursor
@@ -155,7 +155,7 @@ while(<IN>){
 						$line[0] = $1;
 					}
 					print OUT ">$line[0]\n",uc($line[$seqcol]),"\n";
-					
+
 				}else{
 					print OUT ">${line[0]}_${line[9]}_x${line[5]}_coord:",$coord,"_score:$line[1]\n",uc($line[$seqcol]),"\n";
 				}
@@ -165,7 +165,7 @@ while(<IN>){
                 if($coord =~ /^(\S+):(\d+)\.\.(\d+):(\S)$/){
                   $pcoord="$1:$2-$3";
                   $strandcol="255,0,0" if($4 eq "+");
-                  if($first){ 
+                  if($first){
                      $first=0;
                      $bedh1=$bedh;
                      $bedh1 =~ s/TNAME/$options{'T'}.known_miRNAs/;
@@ -194,7 +194,7 @@ while(<IN>){
                 $strandcol="0,0,255";
                 if($coord =~ /^(\S+):(\d+)\.\.(\d+):(\S)$/){
                   $strandcol="255,0,0" if($4 eq "+");
-                  if($first){ 
+                  if($first){
                      $first=0;
                      $bedh1=$bedh;
                      $bedh1 =~ s/TNAME/$options{'T'}.novel_miRNAs/;
@@ -218,7 +218,7 @@ while(<IN>){
 			$line[$seqcol] =~ tr/uU/tT/;
 		}
 		if($options{'p'}){
-			
+
 		}else{
 			print OUT ">${line[0]}_x${line[4]}\n",uc($line[$seqcol]),"\n";
 		}
@@ -226,7 +226,7 @@ while(<IN>){
         $strandcol="0,0,255";
         if($coord =~ /^(\S+):(\d+)\.\.(\d+):(\S)$/){
           $strandcol="255,0,0" if($4 eq "+");
-          if($first){ 
+          if($first){
                      $first=0;
                      $bedh1=$bedh;
                      $bedh1 =~ s/TNAME/$options{'T'}.not_detected_miRNAs/;

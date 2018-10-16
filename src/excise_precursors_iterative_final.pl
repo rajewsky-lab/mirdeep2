@@ -40,7 +40,7 @@ my $coord_file=shift or die $usage;
 my $pres_max=shift;
 
 if($pres_max !~ /^[-]*\d+/){
-    print STDERR "$pres_max is not an integer number\n"; 
+    print STDERR "$pres_max is not an integer number\n";
     die $usage;
 }
 
@@ -106,7 +106,7 @@ sub make_files{
         chomp;
         if(/^>/){
             @line=split("_xyz123_");
-            if($line[3] == $thres){ ## last value 
+            if($line[3] == $thres){ ## last value
                 $counter++;
                 $seq=<TMP1>;
                 print PRES "$line[0]_$counter\n$seq";
@@ -135,7 +135,7 @@ sub make_files{
     close TMP2;
     close COORD;
 }
-    
+
 
 
 
@@ -149,7 +149,7 @@ sub parse_file_arf{
     if($options{b}){print STDERR "reading the mapping file into memory, total lines=$lines\n";}
 
     open(FILENAME, $file) or die "Could not open file $file";
-    
+
     while (my $line = <FILENAME>){
 	if($line=~/^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/){
 
@@ -185,9 +185,9 @@ sub parse_file_arf{
 sub insertfeature{
 
     my($db,$strand,$db_beg,$db_end,$freq)=@_;
- 
+
     $hash_pos{$db}{$strand}{$db_beg}{$db_end}+=$freq;
- 
+
 }
 
 
@@ -258,40 +258,40 @@ sub parse_genome_and_excise{
 }
 
 
-sub excise{    
+sub excise{
     my ($db,$db_seq)=@_;
-    
+
     my @strands=sort keys %{$hash_pos{$$db}};
-    foreach my $strand(@strands){        
-         
+    foreach my $strand(@strands){
+
         #total length of chromosome or genome contig
         my $db_lng=length($$db_seq);
-        
+
         #the most 3' position that has yet been excised
-        my $db_limit=0; 
+        my $db_limit=0;
         for (my $z=1;$z<$upper_bound;$z++){
             $dblimit{$z} = 0;
         }
 
         #scans from 5' to 3' end of the chromosome
 
-        my @db_begs=sort {$a<=>$b} keys %{$hash_pos{$$db}{$strand}};        
-        
+        my @db_begs=sort {$a<=>$b} keys %{$hash_pos{$$db}{$strand}};
+
 
         foreach my $db_beg(@db_begs){
 
             #reads with the same 5' position can have different 3' positions
             my @db_ends=sort {$a<=>$b} keys %{$hash_pos{$$db}{$strand}{$db_beg}};
-            foreach my $db_end(@db_ends){                
+            foreach my $db_end(@db_ends){
                 #height of read stack with those exact 5' and 3' positions
                 my $freq=$hash_pos{$$db}{$strand}{$db_beg}{$db_end};
-                
+
                 #what is the highest read stack downstream (up to 70 nt downstream)?
                 my $freq_max_ds=find_freq_max_downstream($$db,$strand,$db_beg,$db_end);
-                
+
                 #if read stack to low, if higher read stack downstream or if this locus has already
                 #been excised, then continue to next stack
-                            
+
                 for (my $z=1;$z<$upper_bound;$z++){
                     $freq_min=$z;
                     if($freq<$freq_min or $freq<$freq_max_ds or $db_beg<$dblimit{$z}){next;}
@@ -299,25 +299,25 @@ sub excise{
                     #in the 5' arm or the 3' arm of the precursor hairpin
                     my $excise_beg=$db_beg-70;
                     my $excise_end=$db_end+20;
-                    
+
 					## correction if beg pos is negative
 					$excise_beg=0 if($excise_beg < 0);
 
                     #print out in fasta format
                     print_positions($db,\$strand,$db_seq,\$db_lng,\$excise_beg,\$excise_end,\$freq,$z);
-                    
+
                     $excise_beg=$db_beg-20;
                     $excise_end=$db_end+70;
 
 					## correction if beg pos is negative
 					$excise_beg=0 if($excise_beg < 0);
-                    
-                    print_positions($db,\$strand,$db_seq,\$db_lng,\$excise_beg,\$excise_end,\$freq,$z);                
+
+                    print_positions($db,\$strand,$db_seq,\$db_lng,\$excise_beg,\$excise_end,\$freq,$z);
                     #the most 3' position that has yet been excised
                     $dblimit{$z}=$excise_end;
                     $thres_counts{$z}+=2;
                 }
-                
+
             }
         }
     }
@@ -331,37 +331,37 @@ sub print_positions{
     my($db,$strand,$db_seq,$db_lng,$excise_beg,$excise_end,$freq,$thres)=@_;
 
     my $excise_seq=excise_position($db_seq,$db_lng,$excise_beg,$excise_end);
-	
+
 	if($$strand eq "-"){
 		$excise_seq = revcom($excise_seq);
 	}
-	
+
     print TMP1 ">$$db\_xyz123_${count_excisions}_xyz123_$${freq}_xyz123_$thres\n$excise_seq\n";
 	print TMP2 ">$$db\_xyz123_${count_excisions}_xyz123_$${freq}_xyz123_$thres\t$$strand\t$$excise_beg\t$$excise_end\n";
 
     $count_excisions++;
 
     return;
-}	      
+}
 
 
 
 
 
 sub find_freq_max_downstream{
-    
+
     my ($db,$strand,$db_beg,$db_end)=@_;
 
     my $freq_max=0;
-    
+
     for(my $pos_beg=$db_beg+1; $pos_beg<=$db_end+70; $pos_beg++){
 
 	if(defined $hash_pos{$db}{$strand}{$pos_beg}){
-	
+
 	    my @pos_ends=sort {$a<=>$b} keys %{$hash_pos{$db}{$strand}{$pos_beg}};
-	    
+
 	    foreach my $pos_end(@pos_ends){
-		
+
 		my $freq=$hash_pos{$db}{$strand}{$pos_beg}{$pos_end};
 
 		if($freq>$freq_max){
@@ -385,7 +385,7 @@ sub excise_position{
 
     my $excise_lng=$excise_end_limit-$excise_beg_limit+1;
     my $excise_seq=substr($$db_seq,$excise_beg_limit-1,$excise_lng);
- 
+
     return $excise_seq;
 }
 
@@ -427,7 +427,7 @@ sub rev{
 
     my($sequence)=@_;
 
-    my $rev=reverse $sequence;   
+    my $rev=reverse $sequence;
 
     return $rev;
 }
@@ -436,8 +436,8 @@ sub com{
 
     my($sequence)=@_;
 
-    $sequence=~tr/acgtuACGTU/TGCAATGCAA/;   
- 
+    $sequence=~tr/acgtuACGTU/TGCAATGCAA/;
+
     return $sequence;
 }
 
@@ -450,7 +450,7 @@ sub revcom{
     return $revcom;
 }
 
-    
+
 sub find_freq{
     #finds the frequency of a given read query from its id.
 

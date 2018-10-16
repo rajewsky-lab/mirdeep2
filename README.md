@@ -1,10 +1,12 @@
+[![Build Status](https://travis-ci.org/rajewsky-lab/mirdeep2.svg?branch=master)](https://travis-ci.org/rajewsky-lab/mirdeep2)
+
 # miRDeep2 `README`
 
 ## About
 
 Authors: Marc Friedländer and Sebastian Mackowiak.
 (minor edits to `README`, `TUTORIAL`, `CHANGELOG`, and `FAQ`, convertion to
-Markdown & trailing whitespace removal by Marcel Schilling)
+Markdown, trailing whitespace removal & CI setup by Marcel Schilling)
 
 This is miRDeep2 developed by Marc Friedlaender and Sebastian Mackowiak.
 miRDeep2 discovers active known or novel miRNAs from deep sequencing data

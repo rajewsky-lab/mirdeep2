@@ -19,6 +19,11 @@
 # environment #
 ###############
 
+# run on Linux & Mac
+os:
+ - linux
+ - osx
+
 # make sure perl is available
 language: perl
 

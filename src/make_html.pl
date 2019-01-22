@@ -2644,14 +2644,13 @@ a.tooltip4:hover span
     </colgroup>
     <tr height="200" valign="top">
     <td><font face="Times New Roman" size="8">
-    <b><a href="http://www.mdc-berlin.de/en/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/index.html" target="_blank" style="color:Black;text-decoration:none" title="miRDeep2 homepage at MDC-Berlin" >miRDeep2</a></b>
+    <b>miRDeep2</b>
 
 
     <br>
     <br>
     </font></td>
-    <td> <a href="http://www.mdc-berlin.de/en/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/index.html" target="_blank" >
-    <img src="http://www.mdc-berlin.de/de/research/research_teams/systems_biology_of_gene_regulatory_elements/projects/miRDeep/mirdeep.jpg" style="border-style: none" name="precursor miRNA" title="miRDeep2 homepage at MDC-Berlin" align=right alt="miRDeep home"/></a></td>
+    <td>.</td>
     </tr>
     </table>
 EOF

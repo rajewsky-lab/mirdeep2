@@ -43,7 +43,7 @@ my $new='no';
 
 $new = $ARGV[0] if($ARGV[0]);
 my $shell=$ENV{'SHELL'};
-my $shellconf='.bash_profile';
+my $shellconf='.bashrc';
 if($shell =~ /zsh/){
 	if(-f "$ENV{'HOME'}/.zshenv"){
 		$shellconf='.zshenv';

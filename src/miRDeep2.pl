@@ -32,7 +32,7 @@ check_install();
 ##
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.0.8";
+my $version="2.0.1.0";
 
 print "
 
@@ -40,7 +40,7 @@ print "
 #                                   #
 # miRDeep$version                    #
 #                                   #
-# last change: 20/06/2017           #
+# last change: 22/01/2019           #
 #                                   #
 #####################################
 
@@ -1035,7 +1035,7 @@ If this did not help please restart youer workstation.\n\n";
 	$ret = checkBIN("bowtie --version","version");
 	die "Error: \tbowtie not found\nCheck if bowtie is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
 
-	$ret = checkBIN("RNAfold -h","gamma");
+	$ret = checkBIN("RNAfold -h","usage");
 	die "Error: \tRNAfold not found\nCheck if RNAfold is correctly installed and all Pathes were set correctly.\n$stdm" if($ret);
 
 	$ret = checkBIN("randfold","let7");
@@ -1085,7 +1085,7 @@ sub checkBIN{
     open IN,"<$dir/tmp/binaries";
     my $found = 1;
     while(<IN>){
-		if(/$b/){
+		if(/$b/i){
 			$found =0;
 		}
 	}
@@ -1093,7 +1093,7 @@ sub checkBIN{
 	if($found){
 		open IN,"<$dir/tmp/binaries2";
 		while(<IN>){
-			if(/$b/){
+			if(/$b/i){
 				$found =0;
 			}
 		}

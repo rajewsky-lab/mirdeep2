@@ -20,9 +20,9 @@ use warnings;
 use strict;
 use Getopt::Std;
 
+## last edit 20190123
 
-
-################################# MIRDEEP #################################################
+################################# MIRDEEP2 #################################################
 
 ################################## USAGE ##################################################
 
@@ -1331,45 +1331,50 @@ sub print_hash_comp{
     $hash_comp{"pri_seq"} =~ tr/Tt/Uu/;
     my @pseq = split(//,lc $hash_comp{"pri_seq"});
 
-    my $spacer = " " x ($col1_width - length("pri_seq"));
+	my $spacer=multh("pri_seq",$col1_width);
+
     my $shift;
     my %reads_hash;
 
-    print ">$hash_comp{\"pri_id\"}\n";
-    my $spacer2 = 14;
+    print ">$hash_comp{'pri_id'}\n";
     my $spacer2s=0;
 
+
     if(not $hash_comp{"problem_structure"} and not $hash_comp{"problem_signature"}){
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"score"}));
-        print "score total\t\t$spacer2s$hash_comp{\"score\"}\n";
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"score_star"}));
-        print "score for star read(s)\t$spacer2s$hash_comp{\"score_star\"}\n";
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"score_freq"}));
-        print "score for read counts\t$spacer2s$hash_comp{\"score_freq\"}\n";
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"score_mfe"}));
-        print "score for mfe\t\t$spacer2s$hash_comp{\"score_mfe\"}\n";
+	
+		$spacer2s=multh($hash_comp{'score'});
+		print "score total\t\t$spacer2s$hash_comp{'score'}\n";
+
+		$spacer2s=multh($hash_comp{'score_star'});
+		print "score for star read(s)\t$spacer2s$hash_comp{'score_star'}\n";
+
+		$spacer2s=multh($hash_comp{'score_freq'});
+        print "score for read counts\t$spacer2s$hash_comp{'score_freq'}\n";
+
+		$spacer2s=multh($hash_comp{'score_mfe'});
+		print "score for mfe\t\t$spacer2s$hash_comp{'score_mfe'}\n";
 
         if($options{'y'}){
-            $spacer2s = " " x ($spacer2 - length($hash_comp{"score_randfold"}));
-            print "score for randfold\t$spacer2s$hash_comp{\"score_randfold\"}\n";
+			$spacer2s=multh($hash_comp{'score_randfold'});
+            print "score for randfold\t$spacer2s$hash_comp{'score_randfold'}\n";
         }
 	if($options{'s'}){
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"score_seed"}));
-        print "score for cons. seed\t$spacer2s$hash_comp{\"score_seed\"}\n";
+		$spacer2s=multh($hash_comp{'score_seed'});
+        print "score for cons. seed\t$spacer2s$hash_comp{'score_seed'}\n";
     }
 	if($options{'s'} and defined $hash_comp{"seed_family"}){
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"seed_family"}));
-        print "miRNA with same seed\t$spacer2s$hash_comp{\"seed_family\"}\n";
+		$spacer2s=multh($hash_comp{'score_familiy'});
+        print "miRNA with same seed\t$spacer2s$hash_comp{'seed_family'}\n";
 
     }
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_total"}));
-        print "total read count\t$spacer2s$hash_comp{\"freq_total\"}\n";
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_mature"}));
-        print "mature read count\t$spacer2s$hash_comp{\"freq_mature\"}\n";
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_loop"}));
-        print "loop read count\t\t$spacer2s$hash_comp{\"freq_loop\"}\n";
-        $spacer2s = " " x ($spacer2 - length($hash_comp{"freq_star"}));
-        print "star read count\t\t$spacer2s$hash_comp{\"freq_star\"}\n";
+        $spacer2s =multh($hash_comp{"freq_total"});
+        print "total read count\t$spacer2s$hash_comp{'freq_total'}\n";
+        $spacer2s = multh($hash_comp{"freq_mature"});
+        print "mature read count\t$spacer2s$hash_comp{'freq_mature'}\n";
+        $spacer2s = multh($hash_comp{"freq_loop"});
+        print "loop read count\t\t$spacer2s$hash_comp{'freq_loop'}\n";
+        $spacer2s = multh($hash_comp{"freq_star"});
+        print "star read count\t\t$spacer2s$hash_comp{'freq_star'}\n";
 
 
     }else{
@@ -1460,8 +1465,8 @@ sub print_hash_comp{
     }
 
     print "\npri_seq$spacer",lc $hash_comp{"pri_seq"},"\n";
-    $spacer = " " x ($col1_width - length("pri_struct"));
-    print "pri_struct$spacer$hash_comp{\"pri_struct\"}\t#MM\n";
+    $spacer = multh("pri_struct",$col1_width);
+    print "pri_struct$spacer$hash_comp{'pri_struct'}\t#MM\n";
     @reads = split(/\n/,$lines);
     $lr = scalar @reads;
     my $rrc = 0;
@@ -1505,7 +1510,7 @@ sub print_hash_comp{
         $rseq =~ tr/t/u/;
         $bef="." x ($reads_hash{$_}{'beg'}-1);
         $after = "." x ($hash_comp{'pri_end'} - $reads_hash{$_}{"end"});
-        $spacer = " " x ($col1_width - length($reads_hash{$_}{'id'}));
+        $spacer = multh($reads_hash{$_}{'id'},$col1_width );
         @sread = split(//,$rseq);
 
 
@@ -1723,5 +1728,16 @@ sub cdf_gumbel{
     my $cdf=$e**(-($e**(-($var-$location)/$scale)));
 
     return $cdf;
+}
+
+sub multh{
+	my ($v,$spacer2)=(@_);
+	$spacer2|=14;
+	if(not $v){return " ";}
+
+	my $mult= $spacer2 - length($v);
+	$mult =1 if($mult < 1);
+	my $spacer2s = " " x $mult;
+	return $spacer2s;
 }
 

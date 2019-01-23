@@ -1341,7 +1341,7 @@ sub print_hash_comp{
 
 
     if(not $hash_comp{"problem_structure"} and not $hash_comp{"problem_signature"}){
-	
+
 		$spacer2s=multh($hash_comp{'score'});
 		print "score total\t\t$spacer2s$hash_comp{'score'}\n";
 

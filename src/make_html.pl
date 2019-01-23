@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # miRDeep2 make-HTML script
-# Copyright (C) 2009 - 2012, 2014 - 2015, 2018  Sebastian Mackowiak
+# Copyright (C) 2009 - 2012, 2014 - 2015, 2018 - 2019 Sebastian Mackowiak
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

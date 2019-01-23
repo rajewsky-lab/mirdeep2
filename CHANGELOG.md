@@ -1,5 +1,24 @@
 # miRDeep2 changelog
 
+## Version 2.0.1.1
+
+* improved detection of installation directory & Rfam indices
+
+* instead of fractions, percantages are used in read statistics
+
+* several minor improvemnts to the MRD output format
+
+* negative repeat count warnings have been removed
+
+* HTML output does not contain (now dead) links to (old) Rajewsky lab webpage
+  anymore
+
+* `install.pl` now modifies `~/.bashrc` rather than `~/.bash_profile`
+
+* `miRDeep2.pl` now handles changed RNAfold output
+
+---
+
 ## Version 2.0.1.0
 
 * fixed bug resulting in negative repeat count due to too small `-l` value

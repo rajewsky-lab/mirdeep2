@@ -2,6 +2,7 @@
 
 # miRDeep2 core-algorithm perl script
 # Copyright (C) 2008 - 2012  Marc Friedländer
+# Copyright (C) 2019  Sebastian Mackowiak
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

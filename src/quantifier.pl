@@ -28,10 +28,12 @@
 
 ######################
 
-use File::Path;
 use strict;
+use warnings;
+use File::Path;
 use File::Basename;
 use Getopt::Std;
+use Cwd qw(abs_path);
 
 check_install();
 
@@ -192,7 +194,7 @@ if(not $options{'o'}){
 
 my ( $name0, $path0, $extension0 ) = fileparse ( $options{'p'}, '\..*' );
 my ( $name1, $path1, $extension1 );
-my ( $name1, $path1, $extension1 ) = fileparse ( $options{'m'}, '\..*' );# if(not defined $options{'w'});
+( $name1, $path1, $extension1 ) = fileparse ( $options{'m'}, '\..*' );# if(not defined $options{'w'});
 my ( $name2, $path2, $extension2 ) = fileparse ( $options{'r'}, '\..*' );
 my ( $name3, $path3, $extension3 );
 
@@ -456,10 +458,10 @@ sub read_stats{
 
 	print STDERR "\n#desc\ttotal\tmapped\tunmapped\t%mapped\t%unmapped\n";
 	print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
-	printf STDERR "%.3f\t%.3f\n",$count2/$count,1-($count2/$count);
+	printf STDERR "%.3f\t%.3f\n",100*$count2/$count,100*(1-($count2/$count));
 	foreach(sort keys %k2){
 		print STDERR "$_: ",$k2{$_},"\t",$k22{$_},"\t",$k2{$_}-$k22{$_},"\t";
-		printf STDERR "%.3f\t%.3f\n",$k22{$_}/$k2{$_},1-($k22{$_}/$k2{$_});
+		printf STDERR "%.3f\t%.3f\n",100*$k22{$_}/$k2{$_},100*(1-($k22{$_}/$k2{$_}));
 	}
 }
 
@@ -922,7 +924,7 @@ sub PrintExpressionValues{
     print STDERR "Expressed miRNAs are written to $outdir/miRNA_expressed.csv
 not expressed miRNAs are written to $outdir/miRNA_not_expressed.csv\n";
     close OUT1;
-    close OUT1B;
+	#close OUT1B;
     close OUT2;
 }
 
@@ -1349,7 +1351,7 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 
 		## now use miRDeep2_core routine
 		my $lr = scalar @reads_arr;
-		my $rrc = 0;
+		$rrc = 0;
 
 		foreach(@reads_arr){
 			if(/^(\S+)\s+\d+\s+\d+\s+\d+\s+(\S+)\s+\S+\s+\d+\s+(\d+)\s+(\d+)\s+\S+\s+\S+\s+(\d+).+$/){
@@ -1423,13 +1425,14 @@ print OUT "total read count$spacer",$hash{$k1}{'r'},"\n"; ### mmm error is here 
 
 sub check_install{
 	my $a=`which miRDeep2.pl`;
-	my $bn=`dirname $a`;
-	chomp $bn;
+	chomp $a;
+	$a=abs_path($a);
+	my ( $name0, $bn, $extension0 ) = fileparse ( $a, '\..*' );
 	if(not -f "$bn/../install_successful"){
 		die "Please run the install.pl script first before using the miRDeep2 package
-		The install script is located in ",substr($bn,0,length($bn)-3)," so just do
+		The install script is located in ",substr($bn,0,length($bn)-4)," so just do
 
-		cd ",substr($bn,0,length($bn)-3),
+		cd ",substr($bn,0,length($bn)-4),
 		"\nperl install.pl
 
 		";

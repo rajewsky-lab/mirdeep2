@@ -24,7 +24,9 @@ use strict;
 use Getopt::Std;
 use File::Copy;
 use File::Path;
+use File::Basename;
 use Term::ANSIColor;
+use Cwd qw(abs_path);
 
 
 ####################################### USAGE ####################################################
@@ -729,22 +731,23 @@ sub read_stats{
 
 	print STDERR "\n#desc\ttotal\tmapped\tunmapped\t%mapped\t%unmapped\n";
 	print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
-	printf STDERR "%.3f\t%.3f\n",$count2/$count,1-($count2/$count);
+	printf STDERR "%.3f\t%.3f\n",100*($count2/$count),100*(1-($count2/$count));
 	foreach(sort keys %k2){
 		print STDERR "$_: ",$k2{$_},"\t",$k22{$_},"\t",$k2{$_}-$k22{$_},"\t";
-		printf STDERR "%.3f\t%.3f\n",$k22{$_}/$k2{$_},1-($k22{$_}/$k2{$_});
+		printf STDERR "%.3f\t%.3f\n",100*$k22{$_}/$k2{$_},100*(1-($k22{$_}/$k2{$_}));
 	}
 }
 
 sub check_install{
 	my $a=`which miRDeep2.pl`;
-	my $bn=`dirname $a`;
-	chomp $bn;
+	chomp $a;
+	$a=abs_path($a);
+	my ( $name0, $bn, $extension0 ) = fileparse ( $a, '\..*' );
 	if(not -f "$bn/../install_successful"){
 		die "Please run the install.pl script first before using the miRDeep2 package
-The install script is located in ",substr($bn,0,length($bn)-3)," so just do
+The install script is located in ",substr($bn,0,length($bn)-4)," so just do
 
-cd ",substr($bn,0,length($bn)-3),
+cd ",substr($bn,0,length($bn)-4),
 "\nperl install.pl
 
 ";

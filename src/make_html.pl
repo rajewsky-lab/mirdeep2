@@ -26,6 +26,8 @@ use PDF::API2;              ## needed to create a PDF file
 use Math::Trig;             ## needed for sinus function
 use List::Util qw(min max); ## needed to provide min and max function for lists
 use File::Basename;
+use Cwd qw(abs_path);
+
 
 
 Usage() if(not $ARGV[0] or $ARGV[0] =~ /-*-he*l*p*/);
@@ -3631,10 +3633,10 @@ sub check_Rfam{
     close TMP;
 
     ## get script directory
-    my $scripts=`which miRDeep2.pl`;
-    $scripts =~ s/miRDeep2.pl//;
-    $scripts =~ s/\s+//g;
-
+    my $axs=`which miRDeep2.pl`;
+	chomp $axs;
+    $axs=abs_path($axs);
+	my ( $namex0, $scripts, $extensionx0 ) = fileparse ( $axs, '\..*' );
 
     ## bowtie index is placed in folder indexes in folder that holds the mirdeep2 scripts
 	my $tmp;

@@ -26,6 +26,8 @@ use File::Copy;
 use File::Path;
 use File::Basename;
 use Term::ANSIColor;
+use Cwd qw(abs_path);
+
 
 ##
 check_install();
@@ -1119,13 +1121,14 @@ sub get_longest_id{
 
 sub check_install{
 	my $a=`which miRDeep2.pl`;
-	my $bn=`dirname $a`;
-	chomp $bn;
+	chomp $a;
+	$a=abs_path($a);
+	my ( $name0, $bn, $extension0 ) = fileparse ( $a, '\..*' );
 	if(not -f "$bn/../install_successful"){
 		die "Please run the install.pl script first before using the miRDeep2 package
-		The install script is located in ",substr($bn,0,length($bn)-3)," so just do
+		The install script is located in ",substr($bn,0,length($bn)-4)," so just do
 
-		cd ",substr($bn,0,length($bn)-3),
+		cd ",substr($bn,0,length($bn)-4),
 		"\nperl install.pl
 
 		";

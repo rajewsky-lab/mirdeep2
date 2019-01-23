@@ -88,7 +88,7 @@ $downstream = $options{'f'} if(defined $options{'f'});
 
 
 if($options{'u'}){
-    print STDERR "\n\nAllowed species arguments that have an entry at UCSC\n\n";
+    print STDERR "\n\nAvailable species arguments that have an entry at UCSC\n\n";
     for(keys %organisms){
         print STDERR "$_\t$organisms{$_}\n";
     }

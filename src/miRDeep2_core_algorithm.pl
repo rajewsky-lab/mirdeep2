@@ -1363,7 +1363,7 @@ sub print_hash_comp{
         print "score for cons. seed\t$spacer2s$hash_comp{'score_seed'}\n";
     }
 	if($options{'s'} and defined $hash_comp{"seed_family"}){
-		$spacer2s=multh($hash_comp{'score_familiy'});
+		$spacer2s=multh($hash_comp{'seed_family'});
         print "miRNA with same seed\t$spacer2s$hash_comp{'seed_family'}\n";
 
     }
@@ -1399,8 +1399,8 @@ sub print_hash_comp{
 
     #### printing alignment;
     print "exp";
-
-    print " " x ($col1_width-3);
+    $spacer = multh("exp",$col1_width);
+	print $spacer;
 
     if($hash_comp{"problem_structure"}){
 	print "n" x length($hash_comp{"pri_seq"});
@@ -1429,8 +1429,8 @@ sub print_hash_comp{
     if(defined $hash_comp{"star_beg_obs"}){
 
 	print "\nobs";
-
-	print " " x ($col1_width-3);
+    $spacer = multh("obs",$col1_width);
+	print $spacer;
 
 	if($hash_comp{"problem_structure"}){
 	    print "n" x length($hash_comp{"pri_seq"});
@@ -1463,8 +1463,10 @@ sub print_hash_comp{
 	    }
 	}
     }
+	$spacer = multh("pri_seq",$col1_width);
+	print "\npri_seq$spacer";
 
-    print "\npri_seq$spacer",lc $hash_comp{"pri_seq"},"\n";
+    print lc $hash_comp{"pri_seq"},"\n";
     $spacer = multh("pri_struct",$col1_width);
     print "pri_struct$spacer$hash_comp{'pri_struct'}\t#MM\n";
     @reads = split(/\n/,$lines);

@@ -34,7 +34,7 @@ check_install();
 ##
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.1.0";
+my $version="2.0.1.1";
 
 print "
 

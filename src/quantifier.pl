@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# miRDeep2 install perl script
+# quantifier module from the miRDeep2 software package
 # Copyright (C) 2009 - 2012, 2014 - 2017, 2019  Sebastian Mackowiak
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 ## Date: 21/04/2016
 ## added weighed read counts
 ## remaining read counts is now correct
-## read noramlization is now 10e6 * mature-reads/all_mature_reads (So reads per million mapped miRNA reads)
+## read noramlization is now 1e6 * mature-reads/all_mature_reads (So reads per million mapped miRNA reads)
 ## missing/empty file with star sequences led to abortion of the script when option -s was used
 ## the -c config option is not implemented
 
@@ -45,7 +45,6 @@ my %hash_star_sample;
 my %total;
 my $total_t;
 my %mapcounts;
-
 
 my %seen;
 my $species = "none";
@@ -88,7 +87,7 @@ $downstream = $options{'f'} if(defined $options{'f'});
 
 
 if($options{'u'}){
-    print STDERR "\n\nAvailable species arguments that have an entry at UCSC\n\n";
+    print STDERR "\n\nAllowed species arguments that have an entry at UCSC\n\n";
     for(keys %organisms){
         print STDERR "$_\t$organisms{$_}\n";
     }
@@ -460,6 +459,7 @@ sub read_stats{
 	print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
 	printf STDERR "%.3f\t%.3f\n",100*$count2/$count,100*(1-($count2/$count));
 	foreach(sort keys %k2){
+		$k22{$_}||=0;
 		print STDERR "$_: ",$k2{$_},"\t",$k22{$_},"\t",$k2{$_}-$k22{$_},"\t";
 		printf STDERR "%.3f\t%.3f\n",100*$k22{$_}/$k2{$_},100*(1-($k22{$_}/$k2{$_}));
 	}
@@ -942,7 +942,6 @@ sub PrintExpressionValuesSamples{
 		next if($sample =~ /config/);
         print OUTG "\t$sample(norm)";
     }
-
     print OUTG "\n";
 
     for(sort keys %hash){
@@ -955,54 +954,43 @@ sub PrintExpressionValuesSamples{
 			print OUTG "$hash{$_}{$i}{'mature'}\t$hash{$_}{$i}{'score'}\t$_\t$hash{$_}{$i}{'score'}";
 			for my $sample(sort keys %hash_sample){
 				next if($sample =~ /config/);
-				if($hash_sample{$sample}{$_}{$i}{'score'} > 0){
-					#print OUTG "\t$hash_sample{$sample}{$_}{$i}{'score'}";
-					print OUTG "\t$hash_sample{$sample}{$_}{$i}{'score'}";
-				}else{
-					print OUTG "\t0";
-				}
+				$hash_sample{$sample}{$_}{$i}{'score'}||= 0;
+				print OUTG "\t$hash_sample{$sample}{$_}{$i}{'score'}";
 			}
 
 			for my $sample(sort keys %hash_sample){
 				next if($sample =~ /config/);
+				$hash_sample{$sample}{$_}{$i}{'score'}||= 0;
 				if($hash_sample{$sample}{$_}{$i}{'score'} > 0){
-					#print OUTG "\t$hash_sample{$sample}{$_}{$i}{'score'}";
 					print OUTG "\t",sprintf("%.2f",$total_t*$hash_sample{$sample}{$_}{$i}{'score'}/($total{$sample})     );
 				}else{
 					print OUTG "\t0";
 				}
 			}
-
-
-
-
-print OUTG "\n";
-
+			print OUTG "\n";
 
 		}else{
 			for(my $i = 1; $i <= $hash{$_}{'c'}; $i++){
 				printf OUTG ("%s\t%.2f\t%s\t%.2f",$hash{$_}{$i}{'mature'},$hash{$_}{$i}{'score'},$_,$hash{$_}{$i}{'score'});
 				for my $sample(sort keys %hash_sample){
 					next if($sample =~ /config/);
+					$hash_sample{$sample}{$_}{$i}{'score'}||= 0;
 					if($hash_sample{$sample}{$_}{$i}{'score'} > 0){
-#						print OUTG "\t$hash_sample{$sample}{$_}{$i}{'score'}";
 						printf OUTG ("\t%.2f",$hash_sample{$sample}{$_}{$i}{'score'});
 					}else{
 						print OUTG "\t0";
 					}
 				}
 
-
 				for my $sample(sort keys %hash_sample){
 					next if($sample =~ /config/);
+					$hash_sample{$sample}{$_}{$i}{'score'}||= 0;
 					if($hash_sample{$sample}{$_}{$i}{'score'} > 0){
-						#print OUTG "\t$hash_sample{$sample}{$_}{$i}{'score'}";
 						printf OUTG ("\t%.2f",$total_t*$hash_sample{$sample}{$_}{$i}{'score'}/$total{$sample});
 					}else{
 						print OUTG "\t0";
 					}
 				}
-
 				print OUTG "\n";
 			}
 		}
@@ -1022,6 +1010,7 @@ print OUTG "\n";
 			print OUTG "$hash_star{$_}{$i}{'mature'}\t$hash_star{$_}{$i}{'score'}\t$_\t$hash_star{$_}{$i}{'score'}";
 			for my $sample(sort keys %hash_star_sample){
 				next if($sample =~ /config/);
+				$hash_star_sample{$sample}{$_}{$i}{'score'}||= 0;
 				if($hash_star_sample{$sample}{$_}{$i}{'score'} > 0){
 #					print OUTG "\t$hash_star_sample{$sample}{$_}{$i}{'score'}";
 					print OUTG "\t$hash_star_sample{$sample}{$_}{$i}{'score'}";
@@ -1033,6 +1022,7 @@ print OUTG "\n";
 
 			for my $sample(sort keys %hash_star_sample){
 				next if($sample =~ /config/);
+				$hash_star_sample{$sample}{$_}{$i}{'score'}||= 0;
 				if($hash_star_sample{$sample}{$_}{$i}{'score'} > 0){
 #					print OUTG "\t$hash_star_sample{$sample}{$_}{$i}{'score'}";
 					print OUTG "\t",sprintf("%.2f",$total_t*$hash_star_sample{$sample}{$_}{$i}{'score'}/$total{$sample});
@@ -1050,8 +1040,8 @@ print OUTG "\n";
 				print OUTG "$hash_star{$_}{$i}{'mature'}\t$hash_star{$_}{$i}{'score'}\t$_\t$hash_star{$_}{$i}{'score'}";
 				for my $sample(sort keys %hash_star_sample){
 					next if($sample =~ /config/);
+					$hash_star_sample{$sample}{$_}{$i}{'score'}||= 0;
 					if($hash_star_sample{$sample}{$_}{$i}{'score'} > 0){
-
 						print OUTG "\t$hash_star_sample{$sample}{$_}{$i}{'score'}";
 					}else{
 						print OUTG "\t0";
@@ -1060,16 +1050,14 @@ print OUTG "\n";
 
 				for my $sample(sort keys %hash_star_sample){
 					next if($sample =~ /config/);
+					$hash_star_sample{$sample}{$_}{$i}{'score'}||= 0;
 					if($hash_star_sample{$sample}{$_}{$i}{'score'} > 0){
-
 						print OUTG "\t",sprintf("%.2f",$total_t*$hash_star_sample{$sample}{$_}{$i}{'score'}/$total{$sample});
 					}else{
-					print OUTG "\t0";
+						print OUTG "\t0";
 					}
 
 				}
-
-
 				print OUTG "\n";
 			}
 		}
@@ -1100,7 +1088,6 @@ sub CreateOutputMRD{
 	## get mature mappings
 	my ($mature,$star,$reads);
 	$mature=`convert_bowtie_output.pl ${name1}_mapped.bwt > ${name1}_mapped.arf`;
-
 
 	my @line;
 	my @tmp;

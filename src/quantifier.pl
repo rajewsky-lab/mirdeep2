@@ -43,7 +43,7 @@ my %hash_sample;
 my %hash_star_sample;
 
 my %total;
-my $total_t;
+my $total_t = 0;
 my %mapcounts;
 
 my %seen;
@@ -426,9 +426,9 @@ sub Mapping{
 sub read_stats{
 	my ($f1,$f2)=@_;
 	my %hash;
-	my $count;
+	my $count = 0;
 	my %k2;
-	my $total;
+	my $total = 0;
 
 	open IN,"$f1" or die "No reads file in fasta format given\n";
 	while(<IN>){
@@ -441,7 +441,7 @@ sub read_stats{
 	}
 	close IN;
 	my %hash2;
-	my $count2;
+	my $count2 = 0;
 	my %k22;
 
 	print STDERR "Mapping statistics\n";
@@ -578,7 +578,7 @@ Please make sure that the given species argument matches the species id in your 
 
 
 sub ReadinPrecursorFile{
-    my $id;
+    my $id='';
     open IN,"precursor.converted" or die "Precursor file precursor.converted not found\n";
     while(<IN>){
         chomp;
@@ -613,10 +613,10 @@ sub ReadinPrecursorFile{
 
 sub ReadinMatureMappingFile{
     my @line;
-    my $matches;
+    my $matches = 0;
     open OUT,">mature2hairpin" or die "cannot create file mature2hairpin\n";
     open IN,"${name1}_mapped.bwt" or die "Mature mapping file ${name1}_mapped.bwt not found \n";
-	my $cx;
+	my $cx = 0;
     my $id1 ='';
     my $id2='';
 
@@ -670,10 +670,10 @@ sub ReadinMatureMappingFile{
 
 sub ReadinStarMappingFile{
     my @line;
-    my $matches;
+    my $matches = 0;
 
     open IN,"${name3}_mapped.bwt" or die "Mature mapping file ${name3}_mapped.bwt not found \n";
-	my $cx;
+	my $cx = 0;
 	my $ltmp = "qwertyuiop";
     my $id1 ='';
     my $id2='';

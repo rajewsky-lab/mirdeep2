@@ -700,9 +700,9 @@ sub printErr{
 
 sub read_stats{
 	my %hash;
-	my $count;
+	my $count = 0;
 	my %k2;
-	my $total;
+	my $total = 0;
 
 	open IN,"$options{'s'}" or die "No reads file in fasta format given\n";
 	while(<IN>){
@@ -715,7 +715,7 @@ sub read_stats{
 	}
 	close IN;
 	my %hash2;
-	my $count2;
+	my $count2 = 0;
 	my %k22;
 
 	print STDERR "Mapping statistics\n";

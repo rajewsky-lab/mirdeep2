@@ -715,7 +715,7 @@ sub read_stats{
 	}
 	close IN;
 	my %hash2;
-	my $count2;
+	my $count2 = 0;
 	my %k22;
 
 	print STDERR "Mapping statistics\n";

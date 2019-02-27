@@ -1,5 +1,15 @@
 # miRDeep2 changelog
 
+## Version 2.0.1.2
+
+* fixed uninitialized value errors/warnings
+
+* rephrased available species message
+
+* fixed Travis CI (still used to use `~/.bash_profile` rather than `~/.bashrc`)
+
+---
+
 ## Version 2.0.1.1
 
 * improved detection of installation directory & Rfam indices

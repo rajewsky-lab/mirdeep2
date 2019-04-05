@@ -4,11 +4,11 @@
 
 ## About
 
-Authors: Marc Friedländer and Sebastian Mackowiak.
+Authors: Sebastian Mackowiak & Marc Friedländer
 (minor edits to `README`, `TUTORIAL`, `CHANGELOG`, and `FAQ`, convertion to
 Markdown, trailing whitespace removal & CI setup by Marcel Schilling)
 
-This is miRDeep2 developed by Marc Friedlaender and Sebastian Mackowiak.
+This is miRDeep2 developed by Sebastian Mackowiak & Marc Friedländer.
 miRDeep2 discovers active known or novel miRNAs from deep sequencing data
 (Solexa/Illumina, 454, ...).
 
@@ -1241,3 +1241,30 @@ informations.
 #### Input
 
 * A mapping file in ARF format.
+
+---
+
+
+### `extract_miRNAs.pl`
+
+#### Description
+
+Extracts mature and precursor sequences from miRBase fasta files for 
+species of interest.
+
+#### Input
+
+* A fasta file from miRBAase
+* One or more species three letter code abbreviations
+
+#### Output 
+* A fasta file in a proper format usable by quantifier.pl and miRDeep2.pl.
+* Multiline sequences from input files are put on a single line and MacOS and Windows linebreaks/carriage returns are removed
+
+#### Example usage
+
+```sh
+extract_miRNAs.pl mature_miRBase.fa hsa > mature_hsa.fa
+extract_miRNAs.pl hairpin_miRBase.fa hsa > hairpin_hsa.fa
+extract_miRNAs.pl mature_miRBase.fa mmu,chi > mature_other.fa
+```

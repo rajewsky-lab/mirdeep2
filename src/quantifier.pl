@@ -70,7 +70,7 @@ while(<DATA>){
 
 ## options
 my %options=();
-getopts("p:m:r:s:t:y:dokuc:nxg:e:f:vjwT:PWU",\%options);
+getopts("p:m:r:s:t:y:dokuc:nxg:e:f:vjT:PWU",\%options);
 
 ## number of mismatches when mapping reads to precursors, default one
 my $mismatches = 1;
@@ -126,7 +126,6 @@ my $usage="usage:
 \t-e [int]     number of nucleotides upstream of the mature sequence to consider, default 2
 \t-f [int]     number of nucleotides downstream of the mature sequence to consider, default 5
 \t-j           do not create an output.mrd file and pdfs if specified\n
-\t-w           considers the whole precursor as the 'mature sequence'
 \t-W           read counts are weighed by their number of mappings. e.g. A read maps twice so each position gets 0.5 added to its read profile
 \t-U           use only unique read mappings; Caveat: Some miRNAs have multiple precursors. These will be underestimated in their expression since the multimappers are excluded
 \n";

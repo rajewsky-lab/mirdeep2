@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # miRDeep2 install perl script
 # Copyright (C) 2009 - 2012, 2014 - 2017, 2019  Sebastian Mackowiak

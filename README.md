@@ -137,7 +137,7 @@ echo 'export PATH=$PATH:your_path_to_randfold' >> ~/.bashrc
 16. then type in
 
 ```sh
-perl Makefile.PL PREFIX=your_path_to_miRDeep2 LIB=your_path_to_miRDeep2/lib
+perl Makefile.PL INSTALL_BASE=your_path_to_miRDeep2 LIB=your_path_to_miRDeep2/lib
 make
 make test
 make install
@@ -147,12 +147,9 @@ make install
 
 ```sh
 echo \
-  'export PERL5LIB=PERL5LIB:your_path_to_miRDeep2/lib/perl5/site_perl/5.x/' \
+  'export PERL5LIB=PERL5LIB:your_path_to_miRDeep2/lib/perl5' \
   >> ~/.bashrc
 ```
-
-(To figure out your perl version type in `perl -v` and then change `5.x` to
-your perl version.)
 
 
 18. `cd` to your mirdeep2 directory (the one containing `install.pl`)

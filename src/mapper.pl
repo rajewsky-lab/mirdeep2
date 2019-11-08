@@ -404,10 +404,13 @@ sub map_reads{
 		$mapping_loc=$options{'r'};
 	}
 
-	print MAP "bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log\n\n";
+	my $largeind='';
+	if(-f "$file_genome_latest.1.ebwtl"){ $largeind=' --large-index';}
+
+	print MAP "bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $largeind $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log\n\n";
 #bowtie -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest $file_reads_latest $dir/mappings.bwt\n\n";
 
-    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log`;
+    my $ret_mapping=`bowtie -p $threads -f -n $mismatches_seed -e 80 -l 18 -a -m $mapping_loc --best --strata $largeind $file_genome_latest  --al $dir/${orig_file_reads}_mapped --un $dir/${orig_file_reads}_not_mapped  $file_reads_latest $dir/mappings.bwt 2>bowtie.log`;
     my $err=`grep "Could not locate a Bowtie index" bowtie.log`;
     if($err){
         die "${err}Please make sure you used bowtie version 1 to build the index.\nUsual index files have suffix .ebwt\n\n";

@@ -34,15 +34,15 @@ check_install();
 ##
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.1.2";
+my $version="2.0.1.3";
 
 print "
 
 #####################################
 #                                   #
-# miRDeep$version                    #
+# miRDeep$version                   #
 #                                   #
-# last change: 22/01/2019           #
+# last change: 08/11/2019           #
 #                                   #
 #####################################
 

@@ -1,5 +1,23 @@
 # miRDeep2 changelog
 
+## Version 2.0.1.3
+
+* added support for large bowtie indices
+
+* adjusted BED output to include 5p and 3p arms
+
+* removed cryptic warning regarding precursors with 0 read mappings
+
+* deprecated `-w` option
+
+* added description for `extract_miRNAs.pl`
+
+* updated manual installation in README
+
+* hardcoded `perl` binary for `install.pl` to `/usr/bin/perl`
+
+---
+
 ## Version 2.0.1.2
 
 * fixed uninitialized value errors/warnings

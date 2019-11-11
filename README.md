@@ -1246,7 +1246,7 @@ informations.
 
 #### Description
 
-Extracts mature and precursor sequences from miRBase fasta files for 
+Extracts mature and precursor sequences from miRBase fasta files for
 species of interest.
 
 #### Input
@@ -1254,7 +1254,7 @@ species of interest.
 * A fasta file from miRBAase
 * One or more species three letter code abbreviations
 
-#### Output 
+#### Output
 * A fasta file in a proper format usable by quantifier.pl and miRDeep2.pl.
 * Multiline sequences from input files are put on a single line and MacOS and Windows linebreaks/carriage returns are removed
 

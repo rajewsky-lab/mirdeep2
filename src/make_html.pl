@@ -3606,6 +3606,8 @@ sub check_Rfam{
 
     my $err;
     if($options{'q'}){
+		system("mkdir -p expression_analyses/expression_analyses_${time}");
+
         open TMP,">expression_analyses/expression_analyses_${time}/identified_precursors.fa" or die "Error: could not create file expression_analyses/expression_analyses_${time}/identified_precursors.fa\n";
     }else{
         open TMP,">mirdeep_runs/run_${time}/identified_precursors.fa" or die "Error: could not create file mirdeep_runs/run_${time}/identified_precursors.fa\n";

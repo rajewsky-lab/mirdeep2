@@ -163,17 +163,18 @@ if($options{'t'}){
 
 
 
+    $opt_m = "-m $species";
     if($rorganisms{$species}){
         $species = $rorganisms{$species};
+		$opt_m = "-m $species";
     }elsif($organisms{$species}){
     }else{
         warn "\n\nThe species $options{'t'} you specified is not available\nallowed species are\n";
         `quantifier.pl -u`;
 
         print STDERR "If your species is not in the list just omit the -t option\n";
-        exit 1;
+		#exit 1;
     }
-    $opt_m = "-m $species";
 
 }
 

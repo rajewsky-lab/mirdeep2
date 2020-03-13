@@ -5,12 +5,13 @@
 ## About
 
 Authors: Sebastian Mackowiak & Marc Friedländer
-(minor edits to `README`, `TUTORIAL`, `CHANGELOG`, and `FAQ`, convertion to
-Markdown, trailing whitespace removal & CI setup by Marcel Schilling)
 
 This is miRDeep2 developed by Sebastian Mackowiak & Marc Friedländer.
 miRDeep2 discovers active known or novel miRNAs from deep sequencing data
 (Solexa/Illumina, 454, ...).
+
+(minor edits to `README`, `TUTORIAL`, `CHANGELOG`, and `FAQ`, convertion to
+Markdown, trailing whitespace removal & CI setup by Marcel Schilling)
 
 
 ## Requirements

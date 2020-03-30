@@ -1110,12 +1110,20 @@ sub find_mature_query{
     #finds the query with the highest frequency of reads and returns it
     #is used to determine the positions of the potential mature sequence
 
-    my @queries=sort {$hash_query{$b}{"freq"} <=> $hash_query{$a}{"freq"}} keys %hash_query;
+    my @queries=sort sort_queries keys %hash_query;
     my $mature_query=$queries[0];
     return $mature_query;
 }
 
 
+sub sort_queries{
+    if ($hash_query{$b}{'freq'} == $hash_query{$a}{'freq'}){
+        return ($a cmp $b);
+    }
+    else{
+        return ($hash_query{$b}{'freq'} <=> $hash_query{$a}{'freq'});
+    }
+}
 
 
 sub reset_variables{

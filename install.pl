@@ -634,7 +634,7 @@ if($ret == 0){
 	`$dtool http://www.cpan.org/authors/id/S/SS/SSIMMS/CHECKSUMS $dopt`;
 	open IN,"CHECKSUMS" or die "File checksums not found\n";
 	while(<IN>){
-		if(/((PDF-API2.+).tar.gz)/){
+		if(/((PDF-API2-\d.+).tar.gz)/){
 			$dfile=$1;
 			$version=$2;
 		}

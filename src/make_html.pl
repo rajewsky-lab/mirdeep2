@@ -57,6 +57,7 @@ while(<DATA>){
     $organisms{$_}=$tmp;
 }
 my $known;
+my $mirbaseURL = 'https://www.mirbase.org/textsearch.shtml?q=';
 
 ## read in miRDeep output file
 my $id;
@@ -1100,7 +1101,8 @@ if($options{'k'}){
 
 
 		if($hash{$id}{"known"}){
-			$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$hash{$id}{\"known\"}\" target=\"_blank\"> $hash{$id}{\"known\"}</a></td>";
+			#$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$hash{$id}{\"known\"}\" target=\"_blank\"> $hash{$id}{\"known\"}</a></td>";
+			$known="<td nowrap=\"nowrap\"><a href=\"$mirbaseURL$hash{$id}{\"known\"}\" target=\"_blank\"> $hash{$id}{\"known\"}</a></td>";
 		}else{
 			$known="<td nowrap=\"nowrap\"></td>";
 		}
@@ -3369,6 +3371,7 @@ sub PrintKnownnotfound{
 
 # 				##here the belonging precursor is shown
 # 				$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+#				$known="<td nowrap=\"nowrap\"><a href=\"$mirbaseURL$id\" target=\"_blank\">$oid</a></td>";
 
 # 				$sf = $hash_q{$id}{"freq_star"};
 # 				$mf = $hash_q{$id}{"freq_mature"};
@@ -3558,7 +3561,8 @@ sub PrintKnownnotfound{
         $s_star=$hash_q{$id}{'star_seq_obs'} if($hash_q{$id}{'star_seq_obs'});
 
         ##here the belonging precursor is shown
-        $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$_\" target=\"_blank\">$_</a></td>";
+        #$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$_\" target=\"_blank\">$_</a></td>";
+	$known="<td nowrap=\"nowrap\"><a href=\"$mirbaseURL$_\" target=\"_blank\">$_</a></td>";
 
         my $ms =$hash_q{$id}{'mat_seq'};
         my $sse =$s_star;

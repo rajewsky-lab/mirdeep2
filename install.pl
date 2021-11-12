@@ -389,7 +389,7 @@ if($ret == 0){
 		chdir("..");
 
 		`./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
-		`make 1>> ../install.log 2>> ../install_error.log`;
+		`make CFLAGS="\$CFLAGS -Wno-implicit-function-declaration" 1>> ../install.log 2>> ../install_error.log`;
 		`make install 1>> ../install.log 2>> ../install_error.log`;
 
 		buildgood("$dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold","RNAfold");
@@ -460,7 +460,7 @@ if($ret == 0){
 
 		chdir("squid-1.9g");
 		`./configure 1>>../install.log 2>>../install_error.log`;
-		`make 1>>../install.log 2>>install_error.log`;
+		`make CFLAGS="\$CFLAGS -Wno-implicit-function-declaration" 1>>../install.log 2>>install_error.log`;
 
 		buildgood("$dir/essentials/squid-1.9g/libsquid.a");
 
@@ -518,7 +518,7 @@ if($ret == 0){
 		`mv Makefile Makefile.orig`;
 		`mv Makefile_new Makefile`;
 
-		`make 1>>../install.log 2>>../install_error.log`;
+		`make CFLAGS="\$CFLAGS -Wno-implicit-function-declaration" 1>>../install.log 2>>../install_error.log`;
 		buildgood("$dir/essentials/randfold-2.0/randfold","randfold");
 		chdir("..");
 	}

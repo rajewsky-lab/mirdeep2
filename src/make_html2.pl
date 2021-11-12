@@ -54,6 +54,7 @@ while(<DATA>){
 }
 my $known;
 
+my $mirbaseURL = 'https://www.mirbase.org/textsearch.shtml?q=';
 
 
 ## read in miRDeep output file
@@ -1964,7 +1965,8 @@ sub PrintQuantifier{
             my $s_mat = $hash_q{$id}{'mat_seq'};
 
             ##here the belonging precursor is shown
-            $known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+            #$known="<td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$oid</a></td>";
+	    $known="<td nowrap=\"nowrap\"><a href=\"$mirbaseURL$id\" target=\"_blank\">$oid</a></td>";
 
             $sf = $hash_q{$id}{"freq_star"};
             $mf = $hash_q{$id}{"freq_mature"};
@@ -2004,7 +2006,8 @@ for my $sample(sort keys %exprs_sample){                                        
 if(scalar keys %mature != 0){
 for my $mx(keys %mature){
 #    $mf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td><td> $mature{$mx} </td>";
-$mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td>";
+#$mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$mx</a></td>";
+$mf .= "\n<tr><td  nowrap=\"nowrap\"><a href=\"$mirbaseURL$id\" target=\"_blank\">$mx</a></td>";
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
         $mf .= "<td><nobr>$exprs_sample{$sample}{$id}{$mx}</nobr></td>";
 #		die $exprs_sample{$sample}{$id}{$mx};
@@ -2046,7 +2049,8 @@ if((scalar keys %star) != 0){
 for my $sx(keys %star){
 #    $sf .= "<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td><td>    $star{$sx} </td>";
 
-$sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td>";
+#$sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"http://www.mirbase.org/cgi-bin/query.pl?terms=$id\" target=\"_blank\">$sx</a></td>";
+$sf .= "\n<tr><td nowrap=\"nowrap\"><a href=\"$mirbaseURL$id\" target=\"_blank\">$sx</a></td>";
 
     for my $sample(sort keys %exprs_sample){                                            #$exprs_sample{$sample}{$line[0]} = $line[1];
         $sf .= "<td><nobr>$exprs_sample{$sample}{$id}{$sx}</nobr></td>";

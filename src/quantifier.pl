@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # quantifier module from the miRDeep2 software package
 # Copyright (C) 2009 - 2012, 2014 - 2017, 2019  Sebastian Mackowiak

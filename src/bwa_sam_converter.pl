@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # miRDeep2 bwa-SAM-converter perl script
 # Copyright (C) 2009 - 2012  Sebastian Mackowiak

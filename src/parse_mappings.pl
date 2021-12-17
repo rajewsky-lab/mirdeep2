@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # miRDeep2 parse-mappings perl script
 # Copyright (C) 2008 - 2011  Marc Friedländer

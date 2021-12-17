@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # miRDeep2 FASTA-parse perl script
 # Copyright (C) 2008 - 2012  Marc Friedländer

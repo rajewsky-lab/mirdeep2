@@ -21,18 +21,9 @@ our @ISA = qw(Exporter);
 
 #our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our @EXPORT = qw(
-	LinePosLastHandleLogger
-	TargetVcfReAnnotator
-	WalkToTarget
-	NewWalk
-	WalkToNext
-	AnnotateTargetRecords
-	ADFilterTargetRecords
-	FormatWalkTargetLineAsVcfLine
-	FormatWalkTargetLineAsVcfHeader
-	_formatwalkasvcflineswithfile
-);
+#at the momend there arent any modules to export
+#our @EXPORT = qw(
+#);
 
 our $VERSION = "0.1.3";
 

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # miRDeep2 get-precursors perl script
 # Copyright (C) 2012 - 2014  Sebastian Mackowiak

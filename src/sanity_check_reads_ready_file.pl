@@ -1,4 +1,4 @@
-#!/usr/bin/perl -W
+#!/usr/bin/env perl -W
 
 # miRDeep2 sanity-check-reads-ready-file perl script
 # Copyright (C) 2008 - 2011  Marc Friedländer

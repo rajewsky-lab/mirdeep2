@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # miRDeep2 make-HTML script
 # Copyright (C) 2009 - 2012, 2014 - 2015, 2018 - 2019 Sebastian Mackowiak

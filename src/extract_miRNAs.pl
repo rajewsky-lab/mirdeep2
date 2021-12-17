@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # miRDeep2 extract-miRNAs perl script
 # Copyright (C) 2009 - 2011  Sebastian Mackowiak

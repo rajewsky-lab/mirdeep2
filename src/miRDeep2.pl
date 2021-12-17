@@ -27,20 +27,20 @@ use File::Path;
 use File::Basename;
 use Term::ANSIColor;
 use Cwd qw(abs_path);
-
+use Bio::miRDeep2;
 
 ##
 check_install();
 ##
 ## generate log file for run, all output will be printed to it
 
-my $version="2.0.1.2";
+my $version=$Bio::miRDeep2::VERSION;
 
 print "
 
 #####################################
 #                                   #
-# miRDeep$version                    #
+# miRDeep2 $version                    #
 #                                   #
 # last change: 22/01/2019           #
 #                                   #

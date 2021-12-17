@@ -37,10 +37,7 @@ if(not $ARGV[0]){ die $usage;}
 
 parse_file_geo($ARGV[0]);
 
-
 exit;
-
-
 
 
 sub parse_file_geo{

@@ -99,7 +99,3 @@ sub parse_file_command_line{
     }
     die "$file is empty\n";
 }
-
-
-
-

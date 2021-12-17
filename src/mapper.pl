@@ -757,6 +757,3 @@ cd ",substr($bn,0,length($bn)-4),
 ";
 	}
 }
-
-
-

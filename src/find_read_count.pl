@@ -44,10 +44,3 @@ while (my $line=<FILE>){
 }
 
 print "$count_reads\n";
-
-
-
-
-
-
-

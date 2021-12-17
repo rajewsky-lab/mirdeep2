@@ -580,9 +580,6 @@ sub reset_variables{
     return;
 }
 
-
-
-
 sub parse_file_struct{
 
     #parses the output from RNAfold and reads it into hashes
@@ -640,7 +637,6 @@ sub parse_file_struct{
     return;
 }
 
-
 sub revcom{
 
     #reverse complement
@@ -688,7 +684,6 @@ sub find_freq{
     }
 }
 
-
 sub excise_seq{
 
     #excise sub sequence from the potential precursor
@@ -714,8 +709,6 @@ sub excise_seq{
 
 }
 
-
-
 sub excise_struct{
 
     #excise sub structure
@@ -735,6 +728,3 @@ sub excise_struct{
 
     return $sub_struct;
 }
-
-
-

@@ -72,13 +72,6 @@ sub permute_order{
     }
 }
 
-
-
-
-
-
-
-
 sub parse_file_struct{
     #parses the output from RNAfoldand reads it into hashes
 
@@ -134,9 +127,6 @@ sub parse_file_struct{
     close FILE_STRUCT;
     return;
 }
-
-
-
 
 sub round {
 

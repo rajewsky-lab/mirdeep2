@@ -78,4 +78,3 @@ sub parse_file_solexa{
     }
     return;
 }
-

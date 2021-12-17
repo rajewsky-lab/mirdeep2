@@ -114,9 +114,3 @@ sub remove_adapter{
 
     print ">$id\n$seq_clipped\n";
 }
-
-
-
-
-
-

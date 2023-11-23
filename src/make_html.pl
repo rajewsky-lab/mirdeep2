@@ -496,7 +496,7 @@ $ha{9}{2} = 'this is the minimum read stack height required for excising a poten
 
 
         ## if line in survey file is reached that hits the threshold then print out stuff
-        if($survey[0] eq $threshold){
+        if($survey[0] == $threshold){
             for(my $i = 0; $i < scalar @survey; $i++){
 
                     $spaces = $spacer - (length($header[$i])+1);

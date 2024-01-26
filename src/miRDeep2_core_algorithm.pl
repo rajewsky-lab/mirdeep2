@@ -112,6 +112,7 @@ my %hash_query;
 my %hash_comp;
 my %hash_bp;
 my %hash_stars;
+my %reads_hash;
 
 
 #other variables
@@ -1110,12 +1111,20 @@ sub find_mature_query{
     #finds the query with the highest frequency of reads and returns it
     #is used to determine the positions of the potential mature sequence
 
-    my @queries=sort {$hash_query{$b}{"freq"} <=> $hash_query{$a}{"freq"}} keys %hash_query;
+    my @queries=sort sort_queries keys %hash_query;
     my $mature_query=$queries[0];
     return $mature_query;
 }
 
 
+sub sort_queries{
+    if ($hash_query{$b}{'freq'} == $hash_query{$a}{'freq'}){
+        return ($a cmp $b);
+    }
+    else{
+        return ($hash_query{$b}{'freq'} <=> $hash_query{$a}{'freq'});
+    }
+}
 
 
 sub reset_variables{
@@ -1126,6 +1135,7 @@ sub reset_variables{
     %hash_comp=();
     %hash_bp=();
     %hash_stars=();
+    %reads_hash=();
 
     $lines=();
 
@@ -1335,7 +1345,6 @@ sub print_hash_comp{
 	my $spacer=multh("pri_seq",$col1_width);
 
     my $shift;
-    my %reads_hash;
 
     print ">$hash_comp{'pri_id'}\n";
     my $spacer2s=0;
@@ -1484,29 +1493,7 @@ sub print_hash_comp{
         }
     }
 
-    ## sorted keys by begin postion
-    my @skeys = sort { $reads_hash{$a}{"beg"} <=> $reads_hash{$b}{"beg"} } keys %reads_hash;
-    my @elist; # final sorted array
-
-    my $first = $reads_hash{$skeys[0]}{"beg"};  ## all keys that have same begin position should match this value
-    my %rorder;                                 ## temporary hash to store all keys with same begin position
-
-    for(my $j = 0; $j < scalar @skeys; $j++){
-        if($reads_hash{$skeys[$j]}{"beg"} eq $first){
-            $rorder{$j} = $reads_hash{$skeys[$j]}{"end"};  ## insert key and end position to hash
-        }else{                                             ## if new begin position
-            $first = $reads_hash{$skeys[$j]}{"beg"};
-            for(sort {$rorder{$a} <=> $rorder{$b}} keys %rorder){ ## sort hash keys by end position
-                push(@elist,$skeys[$_]);                          ## attend keys to elist
-            }
-            for(keys %rorder){delete $rorder{$_};}                ## delete hash
-            $rorder{$j} = $reads_hash{$skeys[$j]}{"end"};
-        }
-    }
-
-    for(sort {$rorder{$a} <=> $rorder{$b}} keys %rorder){
-        push(@elist,$skeys[$_]);
-    }
+    my @elist = sort sort_reads keys %reads_hash; # final sorted array
 
     foreach(@elist){                                                       ## output elist.
         $rseq  = lc $reads_hash{$_}{'seq'};
@@ -1538,6 +1525,17 @@ sub print_hash_comp{
 }
 
 
+sub sort_reads{
+    if ($reads_hash{$a}{'beg'} == $reads_hash{$b}{'beg'} && $reads_hash{$a}{'end'} == $reads_hash{$b}{'end'}){
+        return $reads_hash{$a}{'id'} cmp $reads_hash{$b}{'id'};
+    }
+    elsif ($reads_hash{$a}{'beg'} == $reads_hash{$b}{'beg'}){
+        return $reads_hash{$a}{'end'} <=> $reads_hash{$b}{'end'};
+    }
+    else{
+        return $reads_hash{$a}{'beg'} <=> $reads_hash{$b}{'beg'};
+    }
+}
 
 
 sub print_hash_bp{

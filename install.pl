@@ -21,7 +21,7 @@ use warnings;
 
 print STDERR "\n
 ###############################################################################################
-# Last update: Dec 03, 2017
+# Last update: Aug 23, 2024
 # This is the miRDeep2 installer
 # It is tested under a bash and zsh shell
 # It will try to download all necessary third-party tools and install them.

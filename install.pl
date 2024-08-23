@@ -369,28 +369,51 @@ if($ret == 0){
 		print STDERR "Installing Vienna package now \n\n";
 		`tar xzf ViennaRNA-1.8.4.tar.gz`;
 		chdir("ViennaRNA-1.8.4/");
+        `./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
+        if(not -d "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin/"){
+            `mkdir -p $dir/essentials/ViennaRNA-1.8.4/install_dir/bin/`;
+        }
 		chdir("lib");
 
-		open IN,"<fold.c" or die "File fold.c not found\n";
-		open OUT,">fold.c.new" or die "Cannot generate file fold.c.new\n";
-		while(<IN>){
-			if(/inline\s+(int\s+LoopEnergy.+$)/i){
-				print OUT "$1";
-			}elsif(/^inline\s+(int\s+HairpinE.+$)/i){
-				print OUT "$1";
-			}else{
-				print OUT;
-			}
-		}
-		close OUT;
+        my $PATCH="$dir/patch_files";
+        my @PF=qw(fold cofold subopt treedist);
+        for my $i(@PF){
+            `cp $i.c $i.c.orig`;
+            `cp $PATCH/${i}_patch.c $i.c`;
+        }
+        chdir "../H";
+        my $i='part_func';
+        `cp $i.h $i.h.orig`;
+        `cp $PATCH/${i}_patch.h $i.h`;
+        chdir "../lib";
 
-		`mv fold.c fold.c.orig`;
-		`mv fold.c.new fold.c`;
-		chdir("..");
 
-		`./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
-		`make CFLAGS="\$CFLAGS -Wno-implicit-function-declaration" 1>> ../install.log 2>> ../install_error.log`;
-		`make install 1>> ../install.log 2>> ../install_error.log`;
+        print STDERR "compiling libRNA.a\n"; 
+        `make libRNA.a 2>> ../install_error.log`;
+        if(not -f "libRNA.a"){
+            $ok=0;
+        }
+        chdir "..";
+
+        chdir 'Progs';
+        print STDERR "compiling RNAfold\n";
+        `make RNAfold 2>> ../install_error.log`;
+        if(not -f "RNAfold"){
+            $ok=0;
+        }
+        chdir "..";
+        if($ok){
+            `ln -s $dir/essentials/ViennaRNA-1.8.4/Progs/RNAfold $dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold`;
+            $ok =0 if(not -f "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold");
+        }
+        if(not $ok){
+            print STDERR "building only RNAfold program failed, trying a full Vienna package install\n";
+            `make 1>> ../install.log 2>> ../install_error.log`;
+            `make install 1>> ../install.log 2>> ../install_error.log`;
+        }else{
+            print STDERR "building RNAfold tool done\n";
+        }
+
 
 		buildgood("$dir/essentials/ViennaRNA-1.8.4/install_dir/bin/RNAfold","RNAfold");
 

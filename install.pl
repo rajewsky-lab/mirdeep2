@@ -369,7 +369,7 @@ if($ret == 0){
 		print STDERR "Installing Vienna package now \n\n";
 		`tar xzf ViennaRNA-1.8.4.tar.gz`;
 		chdir("ViennaRNA-1.8.4/");
-        `./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir`;
+        `./configure --prefix=$dir/essentials/ViennaRNA-1.8.4/install_dir --without-perl --without-forester --without-kinfold`;
         if(not -d "$dir/essentials/ViennaRNA-1.8.4/install_dir/bin/"){
             `mkdir -p $dir/essentials/ViennaRNA-1.8.4/install_dir/bin/`;
         }

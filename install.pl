@@ -390,6 +390,9 @@ if($ret == 0){
 
         print STDERR "compiling libRNA.a\n"; 
         `make libRNA.a 2>> ../install_error.log`;
+
+
+        my $ok=1;
         if(not -f "libRNA.a"){
             $ok=0;
         }

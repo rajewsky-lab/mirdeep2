@@ -464,14 +464,15 @@ sub read_stats{
         }
     }
 
-    print STDERR "\n#desc\ttotal\tmapped\tunmapped\t%mapped\t%unmapped\n";
-    print STDERR "total: ",$count,"\t",$count2,"\t",$count-$count2,"\t";
-    printf STDERR "%.3f\t%.3f\n",100*$count2/$count,100*(1-($count2/$count));
+    printf STDERR "%7s %10s %10s %10s %10s %10s\n","#desc: ","total" ,"mapped","unmapped","%mapped","%unmapped";
+    printf STDERR "%7s %10d %10d %10d "         ,"total: ",$count,$count2,$count-$count2;
+    printf STDERR "%10.3f %10.3f\n",100*$count2/$count,100*(1-($count2/$count));
     foreach(sort keys %k2){
         $k22{$_}||=0;
-        print STDERR "$_: ",$k2{$_},"\t",$k22{$_},"\t",$k2{$_}-$k22{$_},"\t";
-        printf STDERR "%.3f\t%.3f\n",100*$k22{$_}/$k2{$_},100*(1-($k22{$_}/$k2{$_}));
+        printf STDERR "%7s %10d %10d %10d ", "$_: ",$k2{$_},$k22{$_},$k2{$_}-$k22{$_};
+        printf STDERR "%10.3f %10.3f\n",100*$k22{$_}/$k2{$_},100*(1-($k22{$_}/$k2{$_}));
     }
+    print STDERR "\n\n";
 }
 
 

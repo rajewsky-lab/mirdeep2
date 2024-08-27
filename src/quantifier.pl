@@ -1310,17 +1310,30 @@ sub CreateOutputMRD{
         for my $k2 (keys %{$hash{$k1}}){
             next if($k2 !~ /^\d+$/);    ## skip all keys that are not a number
             my $mat = $hash{$k1}{$k2}{'mature'};
-            $spacer = " " x ($col1_width - length("$mat read count"));
+            print $col1_width.'    '.length("$mat read count");
+            if(length("$mat read count") > $col1_width){
+                $spacer=' ';
+            }else{
+               $spacer = " " x ($col1_width - length("$mat read count"));
+            }
             print OUT "$mat read count$spacer$hash{$k1}{$k2}{'score'}\n";
         }
 
         for my $k2 (keys %{$hash_star{$k1}}){
             next if($k2 !~ /^\d+$/);    ## skip all keys that are not a number
             my $mat = $hash_star{$k1}{$k2}{'mature'};
-            $spacer = " " x ($col1_width - length("$mat read count"));
+            if(length("$mat read count") > $col1_width){
+                $spacer=' ';
+            }else{
+               $spacer = " " x ($col1_width - length("$mat read count"));
+            }
             print OUT "$mat read count$spacer$hash_star{$k1}{$k2}{'score'}\n";
         }
-        $spacer = " " x ($col1_width - length('remaining read count'));
+        if(length("remaining read count") > $col1_width){
+            $spacer=' ';
+        }else{
+            $spacer = " " x ($col1_width - length('remaining read count'));
+        }
 
         ###
 #new

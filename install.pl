@@ -21,11 +21,7 @@ use warnings;
 
 print STDERR "\n
 ###############################################################################################
-<<<<<<< HEAD
-# Last update: Aug 23, 2024
-=======
 # Last update: Aug 27, 2024
->>>>>>> 1c180a3 (Remove warning for negative repeat count)
 # This is the miRDeep2 installer
 # It is tested under a bash and zsh shell
 # It will try to download all necessary third-party tools and install them.

@@ -1,30 +1,14 @@
 #!/usr/bin/perl
 
-# miRDeep2 extract-miRNAs perl script
-# Copyright (C) 2009 - 2011  Sebastian Mackowiak
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+## support for gzip files 
 
 use strict;
 
 my $id;
 my $seq;
 my @species = split(",",$ARGV[1]);
-die "Error: Specify species or comma separated list of species\n\nUsage:\n\tperl $0 miRBase_fasta_file species [mature/star]\n\te.g. $0 mature.fa cel mature\n\n" if(not $ARGV[1]);
+die "Error: Specify species or comma separated list of species\n\nUsage:\n\tperl $0 miRBase_fasta_file species [mature/star]\n\te.g. $0 mature.fa cel mature\n\tfiles can be gzipped\t=>no reason to decompress them\n" if(not $ARGV[1]);
 my $in = 0;
-
-open IN,"<$ARGV[0]" or die "$ARGV[0] not found $!";
 
 my $first =1;
 
@@ -45,8 +29,12 @@ foreach my $sp(@species){
 
 $in = 0;
 
-open IN,"<$ARGV[0]" or die "$ARGV[0] not found $!";
-
+## we deliberately unzip the file
+if($ARGV[0] =~ /.gz$/){
+	open IN,"gunzip -dc $ARGV[0]|" or die "Could not open file $ARGV[0]\n";
+}else{
+	open IN,"<$ARGV[0]" or die "$ARGV[0] not found $!";
+}
 $first =1;
 
 $str;

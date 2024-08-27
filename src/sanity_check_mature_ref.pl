@@ -23,26 +23,48 @@ my $counter=0;
 my %hash_num;
 
 my $id;
+my $idlong;
 
 my $hint="Please check your file for the following issues:\n
 I.  Sequences are allowed only to comprise characters [ACGTNacgtn].
-II. Identifiers are not allowed to have withespaces.\n";
+II. Identifiers are not allowed to have withespaces.
+III.Idenditiers should have a length less than 40 characters\n\n
+
+You could run remove_white_space_in_id.pl inputfile > newfile
+This will remove everything from the id line after the first whitespace
+
+";
 
 while(<>){
     $counter++;
     if(/^\>(.+)$/){
         $id=$1;
+        $idlong=0;
+        $idlong = 1 if(length($id) > 40);
+            
         if($id =~ /\s+/){
 die "Error in line ",Nicenumber($counter),": The identifier\n
 $id\n
 contains white spaces\n
 
 $hint
-
-You could run remove_white_space_in_id.pl inputfile > newfile
-This will remove everything from the id line after the first whitespace
-
 ";
+}elsif($idlong){
+    die "Error in line ",Nicenumber($counter),": The identifier\n
+$id\n
+is longer than 40 characters. A typical miRNA id usable for miRDeep2 looks like
+hsa-miR-7-5p
+
+if you downloaded a file from miRBase you could run 
+
+extract_miRNAs.pl mature.fa species > mature_species.fa 
+
+to get a proper fasta input file.
+
+$hint
+";
+
+
         }else{
             $hash_num{$id}++;
         }

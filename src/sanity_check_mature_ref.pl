@@ -28,7 +28,7 @@ my $idlong;
 my $hint="Please check your file for the following issues:\n
 I.  Sequences are allowed only to comprise characters [ACGTNacgtn].
 II. Identifiers are not allowed to have withespaces.
-III.Idenditiers should have a length less than 40 characters\n\n
+III.Identifiers should have a length less than 40 characters\n\n
 
 You could run remove_white_space_in_id.pl inputfile > newfile
 This will remove everything from the id line after the first whitespace
